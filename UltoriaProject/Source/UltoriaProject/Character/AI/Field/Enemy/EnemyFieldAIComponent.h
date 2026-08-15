@@ -7,7 +7,7 @@
 #include "EnemyFieldAIComponent.generated.h"
 
 class UPatrolComponent;
-class ATestPlayerMC;
+class AMainPlayer;
 class UWidgetComponent;
 
 UENUM(BlueprintType)
@@ -78,7 +78,7 @@ private:
 private:
 	EEnemyAIState m_EnemyAIState;
 
-	ATestPlayerMC* m_Player;
+	AMainPlayer* m_Player;
 	UPatrolComponent* m_PatrolComponent;
 
 	UPROPERTY(EditAnywhere, Category = "AI")

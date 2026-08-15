@@ -57,9 +57,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	void LoadAllyStatusData(FStatus status[], EPlayerType type);
-
-	void LoadEnemyStatusData(FStatus status, int areaId);
+	//void LoadAllyStatusData(FStatus status[], EPlayerType type);
 
 public:	
 	// Called every frame
@@ -86,6 +84,8 @@ public:
 	//Set関数
 	// br = m_Break
 	void SetStatus(FStatus* status, int exp, int hp, int mp, int atk, int mgc, int def, int spd, int br, int brGauge);
+
+	virtual void SetStatus();
 
 	virtual void SetHP(int newHP);
 	virtual void SetMP(int newMP);
@@ -124,6 +124,9 @@ public:
 	
 
 protected:
+	UPROPERTY(EditAnywhere)
+	FName m_ID;
+
 	FString m_Name;	// 名前
 	int m_Level;	// レベル
 	int m_Exp;		// 経験値

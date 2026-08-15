@@ -39,14 +39,10 @@ public:
 
 	void SetStop(bool bStop) { m_IsStop = bStop; }
 
-private:
-	void SetStatus();
+	void SetStatus() override;
 
 protected:
 	bool m_IsStop; // Ž~‚ß‚é‚©
-
-	UPROPERTY(EditAnywhere)
-	FName m_ID;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UWidgetComponent* m_StatusUIWidget;

@@ -6,7 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "../../Battle/BattleManager.h"
 #include "../../UI/Menu/MenuStateManager.h"
-#include "../../Battle/Character/TestPlayer/TestPlayerMC.h"
+#include "../../Character/Ally/MainPlayer.h"
 #include "../../Akiduki/Shop/ShopManager.h"
 
 void APlayPlayerController::ChangeInputMode(PlayInputMode mode)
@@ -110,8 +110,8 @@ void APlayPlayerController::InputMove(const FInputActionValue& Value)
 	// 入力モードがフィールドでなければ
 	if (!IsCurrentInputMode(PlayInputMode::FIELD)) return;
 
-	ATestPlayerMC* player =
-		Cast<ATestPlayerMC>(GetPawn());
+	AMainPlayer* player =
+		Cast<AMainPlayer>(GetPawn());
 
 	if (player)
 	{
@@ -174,8 +174,8 @@ void APlayPlayerController::InputMouseMove(const FInputActionValue& Value)
 
 void APlayPlayerController::InputAttack(const FInputActionValue& Value)
 {
-	ATestPlayerMC* player =
-		Cast<ATestPlayerMC>(GetPawn());
+	AMainPlayer* player =
+		Cast<AMainPlayer>(GetPawn());
 
 	if (player)
 	{

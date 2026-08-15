@@ -6,7 +6,7 @@
 #include "../../BattleAreaManager.h"
 #include "../../BattleGaugeManager.h"
 #include "../../Encounter/EncounterManager.h"
-#include "../../Character/TestPlayer/TestPlayerMC.h"
+#include "../../../Character/Ally/MainPlayer.h"
 #include "../../../Character/Enemy/EnemyBase.h"
 #include "../../../System/Controller/PlayPlayerController.h"
 #include "../../../UI/Battle/BattleUIManager.h"
@@ -110,7 +110,7 @@ void UBattleLifecycle::SetFieldCharacterPos()
 
 	if (playerController)
 	{
-		ATestPlayerMC* player = Cast<ATestPlayerMC>(playerController->GetPawn());
+		AMainPlayer* player = Cast<AMainPlayer>(playerController->GetPawn());
 
 		if (player)
 		{

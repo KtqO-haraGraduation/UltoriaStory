@@ -2,7 +2,7 @@
 
 
 #include "EnemyFieldAIComponent.h"
-#include "../../../../Battle/Character/TestPlayer/TestPlayerMC.h"
+#include "../../../Ally/MainPlayer.h"
 #include "../../Patrol/PatrolComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
@@ -46,7 +46,7 @@ void UEnemyFieldAIComponent::BeginPlay()
 
 	// ...
 
-	m_Player = Cast<ATestPlayerMC>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	m_Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	m_PatrolComponent = m_Owner->GetComponent<UPatrolComponent>();
 
 	// UI‚ðŽæ“¾

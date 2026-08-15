@@ -7,10 +7,9 @@
 #include "Ally/AllyDataRow.h"
 #include "../Battle/Combat/Components/CombatComponent.h"
 #include "../Battle/Combat/Components/Status/CombatStatusComponent.h"
+#include "Data/CharacterDataManager.h"
 #include <fstream>
 #include <iostream>
-
-#define ENEMY_MAX 3
 
 using namespace std;
 
@@ -64,100 +63,54 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 /// <param name="type">
 /// 取得したい味方データを指定
 /// </param>
-void ACharacterBase::LoadAllyStatusData(FStatus status[], EPlayerType type)
-{
-	TArray<uint8> binaryData;	// バイト列
-
-	// ファイルを開く
-	FString path = FPaths::ProjectContentDir() + TEXT("Data/Status/AllyStatus.bin");
-	if (!FFileHelper::LoadFileToArray(binaryData, *path))
-	{
-		// ファイルが開けなかった
-		UE_LOG(LogTemp, Error, TEXT("AllyStatus/Read Failed"));
-		return;
-	}
-
-	// Reader作成
-	FMemoryReader ar(binaryData);	// バイト列を読み込む(ストリーム化)
-	ar.Seek(0);	// 読み込り順を0番目に指定
-
-	// 読み込み
-	for (int i = 1; i <= LEVEL_MAX; i++)
-	{
-		ar << status[i].m_TotalEXP;
-		ar << status[i].m_HP;
-		ar << status[i].m_MP;
-		ar << status[i].m_ATK;
-		ar << status[i].m_MGC;
-		ar << status[i].m_DEF;
-		ar << status[i].m_SPD;
-		ar << status[i].m_Break;
-		ar << status[i].m_BreakGauge;
-	}
-
-	// データアセットをロード
-	UAllyDataAsset* allyDA = LoadObject<UAllyDataAsset>(nullptr, TEXT("/Script/UltoriaProject.JobDataAsset'/Game/MembarFiles/Sakumoto/DataAsset/DA_AllyData.DA_AllyData'"));
-
-	if (!allyDA)
-	{
-		// ロード失敗
-		UE_LOG(LogTemp, Error, TEXT("AllyDataAsset/false"));
-		return;
-	}
-	// 味方データのリスト
-	TArray<FAllyDataRow*> rows;
-	rows.Empty();
-	allyDA->m_AllyDataMappingTable->GetAllRows<FAllyDataRow>(TEXT(""), rows);
-
-	// 引数で指定した味方データを取得
-	m_Name = rows[static_cast<int32>(type)]->Name;
-}
-
-/// <summary>
-/// 敵ステータスのバイナリファイルをロード
-/// </summary>
-/// <param name="status">
-/// 読み込んだ敵ステータスを格納する構造体
-/// </param>
-void ACharacterBase::LoadEnemyStatusData(FStatus status, int id)
-{
-	TArray<uint8> binaryData;	// バイト列
-
-	// ファイルを開く
-	FString path = FPaths::ProjectContentDir() + TEXT("Data/Status/EnemyStatus.bin");
-	if (!FFileHelper::LoadFileToArray(binaryData, *path))
-	{
-		// ファイルが開けなかった
-		UE_LOG(LogTemp, Error, TEXT("EnemyStatus/Read Failed"));
-		return;
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("EnemyStatus/Read Success"));		// 成功
-	UE_LOG(LogTemp, Warning, TEXT("Size = %d"), binaryData.Num());	// ファイルサイズ
-
-	// Reader作成
-	FMemoryReader ar(binaryData);	// バイト列を読み込む(ストリーム化)
-	ar.Seek(0);						// 読み込り順を0番目に指定
-
-	// 読み込み
-	for (int i = 1; i <= ENEMY_MAX; i++)
-	{
-		ar << status.m_TotalEXP;
-		ar << status.m_HP;
-		ar << status.m_MP;
-		ar << status.m_ATK;
-		ar << status.m_MGC;
-		ar << status.m_DEF;
-		ar << status.m_SPD;
-		ar << status.m_Break;
-		ar << status.m_BreakGauge;
-
-		if (i == id)
-		{
-			break;
-		}
-	}
-}
+//void ACharacterBase::LoadAllyStatusData(FStatus status[], EPlayerType type)
+//{
+//	TArray<uint8> binaryData;	// バイト列
+//
+//	// ファイルを開く
+//	FString path = FPaths::ProjectContentDir() + TEXT("Data/Status/AllyStatus.bin");
+//	if (!FFileHelper::LoadFileToArray(binaryData, *path))
+//	{
+//		// ファイルが開けなかった
+//		UE_LOG(LogTemp, Error, TEXT("AllyStatus/Read Failed"));
+//		return;
+//	}
+//
+//	// Reader作成
+//	FMemoryReader ar(binaryData);	// バイト列を読み込む(ストリーム化)
+//	ar.Seek(0);	// 読み込り順を0番目に指定
+//
+//	// 読み込み
+//	for (int i = 1; i <= LEVEL_MAX; i++)
+//	{
+//		ar << status[i].m_TotalEXP;
+//		ar << status[i].m_HP;
+//		ar << status[i].m_MP;
+//		ar << status[i].m_ATK;
+//		ar << status[i].m_MGC;
+//		ar << status[i].m_DEF;
+//		ar << status[i].m_SPD;
+//		ar << status[i].m_Break;
+//		ar << status[i].m_BreakGauge;
+//	}
+//
+//	// データアセットをロード
+//	UAllyDataAsset* allyDA = LoadObject<UAllyDataAsset>(nullptr, TEXT("/Script/UltoriaProject.JobDataAsset'/Game/MembarFiles/Sakumoto/DataAsset/DA_AllyData.DA_AllyData'"));
+//
+//	if (!allyDA)
+//	{
+//		// ロード失敗
+//		UE_LOG(LogTemp, Error, TEXT("AllyDataAsset/false"));
+//		return;
+//	}
+//	// 味方データのリスト
+//	TArray<FAllyDataRow*> rows;
+//	rows.Empty();
+//	allyDA->m_AllyDataMappingTable->GetAllRows<FAllyDataRow>(TEXT(""), rows);
+//
+//	// 引数で指定した味方データを取得
+//	m_Name = rows[static_cast<int32>(type)]->Name;
+//}
 
 /// <summary>
 /// キャラクターのステータスを上げる
@@ -232,6 +185,36 @@ void ACharacterBase::SetStatus(FStatus* status, int exp, int hp, int mp, int atk
 	status->m_SPD		 = spd;
 	status->m_Break		 = br;
 	status->m_BreakGauge = brGauge;
+}
+
+void ACharacterBase::SetStatus()
+{
+	// Lvが0以下だったら1にする
+	if (m_Level <= 0)
+	{
+		m_Level = 1;
+	}
+
+	UCharacterDataManager* dataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
+	if (!dataMg) return;
+
+	FAllyLevelData levelData = dataMg->GetAllyLevelData(m_ID, m_Level);
+	FAllyMasterData masterData = dataMg->GetAllyMasterData(m_ID);
+
+	m_Name = masterData.Name.ToString();
+
+	m_BaseStatus.m_TotalEXP = levelData.Exp;
+	m_BaseStatus.m_HP = levelData.HP;
+	m_BaseStatus.m_MP = levelData.MP;
+	m_BaseStatus.m_ATK = levelData.ATK;
+	m_BaseStatus.m_MGC = levelData.MGC;
+	m_BaseStatus.m_DEF = levelData.DEF;
+	m_BaseStatus.m_SPD = levelData.SPD;
+	m_BaseStatus.m_Break = levelData.Break;
+	m_BaseStatus.m_BreakGauge = levelData.BreakGauge;
+
+	m_MaxHP = levelData.HP;
+	m_MaxMP = levelData.MP;
 }
 
 void ACharacterBase::SetHP(int newHP)

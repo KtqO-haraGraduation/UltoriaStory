@@ -3,7 +3,7 @@
 
 #include "EncounterManager.h"
 #include "../../System/Controller/PlayPlayerController.h"
-#include "../Character/TestPlayer/TestPlayerMC.h"
+#include "../../Character/Ally/MainPlayer.h"
 #include "../../Character/CharacterBase.h"
 #include "../BattleManager.h"
 #include "Camera/CameraComponent.h"
@@ -38,7 +38,7 @@ void UEncounterManager::StartEncounter(ACharacterBase* player, ACharacterBase* e
 	if (pc) pc->ChangeInputMode(PlayInputMode::BATTLE);
 
 	// ƒJƒƒ‰‰‰o
-	ATestPlayerMC* Player = Cast<ATestPlayerMC>(player);
+	AMainPlayer* Player = Cast<AMainPlayer>(player);
 	if (!Player) return;
 
 	m_Boom = Player->GetCameraBoom();

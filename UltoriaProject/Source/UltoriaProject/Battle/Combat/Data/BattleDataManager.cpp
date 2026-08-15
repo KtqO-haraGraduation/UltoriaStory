@@ -8,8 +8,7 @@
 void UBattleDataManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-
-	m_EnemyPartyTablePaths.Add(EStageType::FOREST,		 FSoftObjectPath("/Game/MembarFiles/Matsubara/Data_MC/EnemyParty/DT_Forest_EnemyParty.DT_Forest_EnemyParty"));
+	m_EnemyPartyTablePaths.Add(EStageType::FOREST,		 FSoftObjectPath("/Game/Data/Character/Enemy/Party/DT_Forest_EnemyParty.DT_Forest_EnemyParty"));
 	m_EnemyPartyTablePaths.Add(EStageType::CAVE,		 FSoftObjectPath(""));
 	m_EnemyPartyTablePaths.Add(EStageType::POISON_SWAMP, FSoftObjectPath(""));
 	m_EnemyPartyTablePaths.Add(EStageType::CASTLE,		 FSoftObjectPath(""));
@@ -45,7 +44,7 @@ void UBattleDataManager::LoadEnemyPartyData()
 
 void UBattleDataManager::LoadCommandData()
 {
-	FSoftObjectPath path = FSoftObjectPath("/Game/MembarFiles/Matsubara/Data_MC/DT_BattleCommand.DT_BattleCommand");
+	FSoftObjectPath path = FSoftObjectPath("/Game/Data/Battle/DT_BattleCommand.DT_BattleCommand");
 	UDataTable* table = Cast<UDataTable>(path.TryLoad());
 	if (!table) return;
 
@@ -68,7 +67,7 @@ void UBattleDataManager::LoadCommandData()
 
 void UBattleDataManager::LoadStatusData()
 {
-	FSoftObjectPath path = FSoftObjectPath("/Game/MembarFiles/Matsubara/Data_MC/DT_CharacterStatus.DT_CharacterStatus");
+	FSoftObjectPath path = FSoftObjectPath("/Game/Data/Character/Status/DT_CharacterStatus.DT_CharacterStatus");
 	UDataTable* table = Cast<UDataTable>(path.TryLoad());
 	if (!table) return;
 

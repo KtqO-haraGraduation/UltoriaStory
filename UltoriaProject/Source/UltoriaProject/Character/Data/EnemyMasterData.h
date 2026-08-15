@@ -12,6 +12,9 @@ struct FEnemyMasterData : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AEnemyBase> EnemyClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

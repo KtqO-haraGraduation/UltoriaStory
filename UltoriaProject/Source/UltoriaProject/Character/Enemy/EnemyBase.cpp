@@ -151,7 +151,7 @@ void AEnemyBase::SetStatus()
 
 	FEnemyMasterData data = characterDataMg->GetEnemyData(m_ID);
 
-	m_Name = m_ID.ToString();
+	m_Name = data.Name.ToString();
 	m_BaseStatus.m_TotalEXP		= data.EXP;
 	m_BaseStatus.m_HP			= data.HP;
 	m_BaseStatus.m_MP			= data.MP;

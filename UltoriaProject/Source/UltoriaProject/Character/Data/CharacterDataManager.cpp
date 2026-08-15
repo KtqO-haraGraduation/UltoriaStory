@@ -2,19 +2,76 @@
 
 
 #include "CharacterDataManager.h"
+#include "CharacterDataAsset.h"
 
 void UCharacterDataManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	// 敵のデータをロード
+	// キャラクターのデータアセットをロード
+	LoadCharacterDataAsset();
+
+	// 必要なキャラデータをロード
+	LoadAllyMasterData();
+	LoadAllyLevelData();
 	LoadEnemyData();
+}
+
+void UCharacterDataManager::LoadCharacterDataAsset()
+{
+	m_CharacterDataAsset = LoadObject<UCharacterDataAsset>(
+		nullptr,
+		TEXT("/Game/Data/Character/DA_Character.DA_Character")
+	);
+}
+
+void UCharacterDataManager::LoadAllyMasterData()
+{
+	if (!IsCharacterDataAssetLoaded()) return;
+
+	UDataTable* table = m_CharacterDataAsset->AllyTable;
+	if (!table) return;
+
+	m_AllyMasterDatas.Empty();
+
+	for (const auto& row : table->GetRowMap())
+	{
+		FName rowName = row.Key;
+		FAllyMasterData* data = reinterpret_cast<FAllyMasterData*>(row.Value);
+
+		if (data)
+		{
+			m_AllyMasterDatas.Add(rowName, *data);
+		}
+	}
+}
+
+void UCharacterDataManager::LoadAllyLevelData()
+{
+	if (!IsCharacterDataAssetLoaded()) return;
+
+	UDataTable* table = m_CharacterDataAsset->AllyLevelTable;
+	if (!table) return;
+
+	m_AllyLevelDatas.Empty();
+
+	for (const auto& row : table->GetRowMap())
+	{
+		FName rowName = row.Key;
+		FAllyLevelData* data = reinterpret_cast<FAllyLevelData*>(row.Value);
+
+		if (data)
+		{
+			m_AllyLevelDatas.Add(rowName, *data);
+		}
+	}
 }
 
 void UCharacterDataManager::LoadEnemyData()
 {
-	FSoftObjectPath path = FSoftObjectPath("/Game/MembarFiles/Matsubara/Data_MC/EnemyData/DT_EnemyMaster.DT_EnemyMaster");
-	UDataTable* table = Cast<UDataTable>(path.TryLoad());
+	if (!IsCharacterDataAssetLoaded()) return;
+
+	UDataTable* table = m_CharacterDataAsset->EnemyTable;
 	if (!table) return;
 
 	m_EnemyDatas.Empty();
@@ -29,6 +86,32 @@ void UCharacterDataManager::LoadEnemyData()
 			m_EnemyDatas.Add(rowName, *data);
 		}
 	}
+}
+
+FAllyLevelData UCharacterDataManager::GetAllyLevelData(FName allyId, int Lv) const
+{
+	FName rowName(
+		*FString::Printf(TEXT("%s_%02d"), *allyId.ToString(), Lv)
+	);
+
+	const FAllyLevelData* data = m_AllyLevelDatas.Find(rowName);
+
+	if (data)
+	{
+		return *data;
+	}
+	return FAllyLevelData();
+}
+
+FAllyMasterData UCharacterDataManager::GetAllyMasterData(FName allyId) const
+{
+	const FAllyMasterData* data = m_AllyMasterDatas.Find(allyId);
+
+	if (data)
+	{
+		return *data;
+	}
+	return FAllyMasterData();
 }
 
 FEnemyMasterData UCharacterDataManager::GetEnemyData(FName enemyId) const
@@ -51,4 +134,13 @@ TSubclassOf<AEnemyBase> UCharacterDataManager::GetEnemyClass(FName enemyId)
 		return data->EnemyClass;
 	}
 	return nullptr;
+}
+
+bool UCharacterDataManager::IsCharacterDataAssetLoaded()
+{
+	if (!m_CharacterDataAsset)
+	{
+		return false;
+	}
+	return true;
 }
