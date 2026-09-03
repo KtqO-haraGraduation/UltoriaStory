@@ -4,6 +4,7 @@
 #include "BattleAreaManager.h"
 #include "../Character/CharacterBase.h"
 #include "../Character/Enemy/EnemyBase.h"
+#include "../Character/Data/CharacterDataManager.h"
 #include "PlayerPartyManager.h"
 #include "Combat/Lifecycle/BattleLifecycle.h"
 #include "Combat/Data/BattleDataManager.h"
@@ -511,6 +512,12 @@ void UBattleManager::StartAttack()
 	}
 	else
 	{
+		// 仮実装、アクティブの先頭のキャラを攻撃する
+		if (m_CurrentCharacter->GetTeamType() == ETeamType::ENEMY)
+		{
+			ExecuteAttack(activeTargets[0]);
+		}
+
 		ShowTargetUI(activeTargets);
 	}
 }
@@ -596,13 +603,24 @@ void UBattleManager::FinishBattle()
 		// フィールドLVを表示
 		encounterMg->SetFieldLevelVisible(true);
 	}
+
+	// プレイヤーパーティーを削除
+	UPlayerPartyManager* playerPartyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
+	if (!playerPartyMg) return;
+
+	playerPartyMg->DeletePlayerParty();
 }
 
 void UBattleManager::CreateParty(AEnemyBase* enemyBase)
 {
 	// 各パーティーを List に追加
-	UPlayerPartyManager* playerPartyManager = GetWorld()->GetSubsystem<UPlayerPartyManager>();
-	m_PlayerParty = playerPartyManager->GetPlayerParty();
+	UPlayerPartyManager* playerPartyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
+	if (!playerPartyMg) return;
+
+	// プレイヤーのパーティーを作成
+	playerPartyMg->CreatePlayerParty();
+
+	m_PlayerParty = playerPartyMg->GetPlayerParty();
 	AddParty(m_PlayerParty);
 
 	m_EnemyParty = enemyBase->CreateEnemyParty();

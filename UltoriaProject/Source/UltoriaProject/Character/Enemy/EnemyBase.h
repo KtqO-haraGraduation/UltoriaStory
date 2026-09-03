@@ -32,6 +32,9 @@ public:
 	// パーティーを生成
 	TArray<ACharacterBase*> CreateEnemyParty();
 
+	// 最終ステータス
+	FStatus GetTotalStatus() const override;
+
 	// Set関数
 	// UIの表示、非表示を切り替える
 	void SetStatusUIVisibility(bool flag);
@@ -39,7 +42,7 @@ public:
 
 	void SetStop(bool bStop) { m_IsStop = bStop; }
 
-	void SetStatus() override;
+	void SetBaseStatus() override;
 
 protected:
 	bool m_IsStop; // 止めるか

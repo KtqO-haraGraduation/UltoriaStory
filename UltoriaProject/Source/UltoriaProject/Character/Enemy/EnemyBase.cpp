@@ -24,7 +24,7 @@ void AEnemyBase::BeginPlay()
 	
 	m_TeamType = ETeamType::ENEMY;
 	// ステータスを設定
-	SetStatus();
+	SetBaseStatus();
 
 	// UIを取得
 	TArray<UWidgetComponent*> widgets;
@@ -132,6 +132,21 @@ TArray<ACharacterBase*> AEnemyBase::CreateEnemyParty()
 	return result;
 }
 
+FStatus AEnemyBase::GetTotalStatus() const
+{
+	// 基本値 + 装備補正値 + ジョブ補正値
+	FStatus result = {};
+
+	result.m_HP  = m_BaseStatus.m_HP;
+	result.m_MP  = m_BaseStatus.m_MP;
+	result.m_ATK = m_BaseStatus.m_ATK;
+	result.m_DEF = m_BaseStatus.m_DEF;
+	result.m_MGC = m_BaseStatus.m_MGC;
+	result.m_SPD = m_BaseStatus.m_SPD;
+
+	return result;
+}
+
 void AEnemyBase::SetStatusUIVisibility(bool flag)
 {
 	if (!m_StatusUIWidget) return;
@@ -144,7 +159,7 @@ void AEnemyBase::SetSelectionUIVisibility(bool flag)
 	m_SelectionUIWidget->SetVisibility(flag);
 }
 
-void AEnemyBase::SetStatus()
+void AEnemyBase::SetBaseStatus()
 {
 	UCharacterDataManager* characterDataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
 	if (!characterDataMg) return;
@@ -162,6 +177,11 @@ void AEnemyBase::SetStatus()
 	m_BaseStatus.m_Break		= data.Break;
 	m_BaseStatus.m_BreakGauge	= data.BreakGauge;
 
-	m_MaxHP = data.HP;
-	m_MaxMP = data.MP;
+	FStatus totalStatus = GetTotalStatus();
+
+	m_MaxHP = totalStatus.m_HP;
+	m_MaxMP = totalStatus.m_MP;
+
+	m_CurrentHP = totalStatus.m_HP;
+	m_CurrentMP = totalStatus.m_MP;
 }

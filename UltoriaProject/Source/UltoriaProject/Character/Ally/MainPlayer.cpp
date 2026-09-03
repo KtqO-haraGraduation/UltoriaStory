@@ -4,7 +4,6 @@
 #include "../../Job/JobDataSubsystem.h"
 #include "../../Battle/Combat/Components/PlayerCombatComponent.h"
 #include "../../Battle/Combat/Data/BattleDataManager.h"
-#include "../../Battle/BattleManager.h"
 #include "../../Battle/PlayerPartyManager.h"
 #include "../../Battle/Encounter/EncounterManager.h"
 #include "EnhancedInputComponent.h"
@@ -14,9 +13,6 @@
 #include "Components/BoxComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-
-// デバッグ用Include
-#include "Engine/Engine.h"
 
 // Sets default values
 AMainPlayer::AMainPlayer()
@@ -38,7 +34,22 @@ void AMainPlayer::BeginPlay()
 	UPlayerPartyManager* partyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
 	if (partyMg)
 	{
-		partyMg->AddPlayerParty(this);
+		FPartyData data_1;
+		data_1.characterID = m_ID;
+
+		FPartyData data_2;
+		data_2.characterID = "Ally001";
+
+		FPartyData data_3;
+		data_3.characterID = "Ally002";
+
+		FPartyData data_4;
+		data_4.characterID = "Ally003";
+
+		partyMg->AddPlayerParty(data_1);
+		partyMg->AddPlayerParty(data_2);
+		partyMg->AddPlayerParty(data_3);
+		partyMg->AddPlayerParty(data_4);
 	}
 
 	// 仮実装（ステージに合わせた敵のパーティーデータをロード）
@@ -48,6 +59,7 @@ void AMainPlayer::BeginPlay()
 		dataMg->LoadEnemyPartyData();
 	}
 
+	// 先制攻撃用当たり判定を取得
 	m_AttackBox = FindComponentByClass<UBoxComponent>();
 
 	if (m_AttackBox)
@@ -61,12 +73,10 @@ void AMainPlayer::BeginPlay()
 	m_CameraBoom = FindComponentByClass<USpringArmComponent>();
 	m_FollowCamera = FindComponentByClass<UCameraComponent>();
 
+
 	m_TeamType = ETeamType::PLAYER;
-	SetStatus();
-
-	//LoadAllyStatusData(m_Status, m_PlayerType);	// 味方のステータスのマスターデータをロード
-
 	JobChange();
+	SetBaseStatus();
 }
 
 // Called every frame
@@ -74,6 +84,7 @@ void AMainPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 先制攻撃の仮実装
 	if (m_IsAttacking)
 	{
 		m_TestCount -= GetWorld()->GetDeltaSeconds();
@@ -138,6 +149,29 @@ void AMainPlayer::AttackEnd()
 	UE_LOG(LogTemp, Warning, TEXT("Attack End"));
 }
 
+// 総合のステータス
+FStatus AMainPlayer::GetTotalStatus() const
+{
+	// 基本値 + 装備補正値 * ジョブ補正値(倍率)
+	FStatus result = {};
+
+	if (!m_JobData) return result;
+
+	result.m_HP  = (int)((m_BaseStatus.m_HP  + m_EquipmentBonus.m_HP) * m_JobData->m_HP);
+	result.m_MP  = (int)((m_BaseStatus.m_MP  + m_EquipmentBonus.m_MP) * m_JobData->m_MP);
+	result.m_ATK = (int)((m_BaseStatus.m_ATK + m_EquipmentBonus.m_ATK) * m_JobData->m_ATK);
+	result.m_DEF = (int)((m_BaseStatus.m_DEF + m_EquipmentBonus.m_DEF) * m_JobData->m_DEF);
+	result.m_MGC = (int)((m_BaseStatus.m_MGC + m_EquipmentBonus.m_MGC) * m_JobData->m_MGC);
+	result.m_SPD = (int)((m_BaseStatus.m_SPD + m_EquipmentBonus.m_SPD) * m_JobData->m_SPD);
+
+	return result;
+}
+
+/// <summary>
+/// オーバーラップ処理（バトル開始）
+/// </summary>
+/// <param name="otherActor">当たったアクター</param>
+/// <param name="isPreemptive">先制攻撃に成功したかどうか（true：成功, false：失敗）</param>
 void AMainPlayer::StartBattle(ACharacterBase* otherActor, bool isPreemptive)
 {
 	if (!otherActor) return;
@@ -159,16 +193,6 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 }
 
-/// <summary>
-/// オーバーラップ処理
-/// </summary>
-/// <param name="otherActor">当たったアクター</param>
-/// <param name="otherComp">当たったコンポーネント</param>
-void AMainPlayer::BeginOverlap(AActor* otherActor, UPrimitiveComponent* otherComp)
-{
-
-}
-
 // ジョブの切り替え
 void AMainPlayer::JobChange()
 {
@@ -180,28 +204,6 @@ void AMainPlayer::JobChange()
 	m_JobData = jobDataSubsystem->GetJobData(m_JobId);
 	m_JobBase = jobDataSubsystem->GetJobBase(m_JobId);
 }
-
-// デバッグ用のレベルに合わせたステータスにする
-//FStatus AMainPlayer::SetStatusByDebugLevel()
-//{
-//	FStatus status;
-//	
-//	if (m_DebugLevel < 1)	// Level1未満だったら
-//	{
-//		m_DebugLevel = 1;	// Level1にする
-//	}
-//	else if (m_DebugLevel > LEVEL_MAX)	// LevelMaxを超えたら
-//	{
-//		m_DebugLevel = LEVEL_MAX;	// LevelMaxにする
-//	}
-//	// デバッグ用のレベルに合わせたステータスにする
-//	status = m_Status[m_DebugLevel];
-//
-//	m_Level = m_DebugLevel;	
-//	m_Exp = m_Status[m_DebugLevel].m_TotalEXP;
-//
-//	return status;
-//}
 
 /// <summary>
 /// 総合ステータス

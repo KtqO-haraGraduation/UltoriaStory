@@ -25,7 +25,7 @@ void ATestPlayerMC::BeginPlay()
 
 	// 仮実装（Playerをパーティーに追加）
 	UPlayerPartyManager* playerParty = GetWorld()->GetSubsystem<UPlayerPartyManager>();
-	playerParty->AddPlayerParty(this);
+	//playerParty->AddPlayerParty(this);
 
 	// 仮実装（バトルに必要なデータを読み込む）
 	UBattleDataManager* dataManager = GetWorld()->GetSubsystem<UBattleDataManager>();

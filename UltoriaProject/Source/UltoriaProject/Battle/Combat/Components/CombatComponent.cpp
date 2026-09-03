@@ -184,7 +184,7 @@ void UCombatComponent::TakeDamage(int damage)
 	// 防御中は、ダメージを半分にする
 	int nweDamage = isGuarding ? (damage / data.value) : damage;
 
-	int newHP = m_Owner->GetBaseStatus().m_HP - nweDamage;
+	int newHP = m_Owner->GetCurrentHP() - nweDamage;
 	
 	m_Owner->SetHP(newHP);
 

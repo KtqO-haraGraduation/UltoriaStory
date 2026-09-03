@@ -68,10 +68,16 @@ public:
 
 	//Get関数
 	FStatus GetBaseStatus() const { return m_BaseStatus; }
+	FStatus GetEquipmentBonus() const { return m_EquipmentBonus; }
+
+	// 最終ステータス
+	virtual FStatus GetTotalStatus() const { return FStatus(); }
 
 	FString GetCharacterName() const { return m_Name; }
 	int GetLevel() const { return m_Level; }
 	virtual int GetExp() const { return m_Exp; }
+	int GetCurrentHP() const { return m_CurrentHP; }
+	int GetCurrentMP() const { return m_CurrentMP; }
 	int GetMaxHP() const { return m_MaxHP; }
 	int GetMaxMP() const { return m_MaxMP; }
 	ETeamType GetTeamType() const { return m_TeamType; }
@@ -82,10 +88,8 @@ public:
 	virtual float GetMPRate();
 
 	//Set関数
-	// br = m_Break
-	void SetStatus(FStatus* status, int exp, int hp, int mp, int atk, int mgc, int def, int spd, int br, int brGauge);
-
-	virtual void SetStatus();
+	virtual void SetBaseStatus();
+	virtual void SetEquipmentBonus(FStatus bonus);
 
 	virtual void SetHP(int newHP);
 	virtual void SetMP(int newMP);
@@ -115,13 +119,10 @@ public:
 	FOnMPChanged& GetOnMPChanged() { return m_OnMPChanged; }
 
 protected:
-	bool CheckLevelUp(int nextLevelTotalExp);				// レベルが上がったか
-	void LevelUp(FStatus baseStatus, FStatus status[]);		// レベルが上がった
+	bool CheckLevelUp(int nextLevelTotalExp);	// レベルが上がったか
+	void LevelUp();								// レベルが上がった
 
 	void InitComponent();	// コンポーネントの初期化
-
-public:
-	
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -130,12 +131,15 @@ protected:
 	FString m_Name;	// 名前
 	int m_Level;	// レベル
 	int m_Exp;		// 経験値
+	int m_CurrentHP;// 現在のHP
+	int m_CurrentMP;// 現在のMP
 	int m_MaxHP;	// 最大HP
 	int m_MaxMP;	// 最大MP
 
 	ETeamType m_TeamType; // チームタイプ
 
-	FStatus m_BaseStatus;	// ステータス(基本値)
+	FStatus m_BaseStatus;	  // ステータス(基本値)
+	FStatus m_EquipmentBonus; // 装備補正値
 
 	// コンポーネントリスト
 	TArray<UComponentBase*> m_Components;

@@ -54,7 +54,7 @@ void UCharacterStatusWidget::UpdateHP()
 	HPText->SetText(
 		FText::Format(
 			FText::FromString(TEXT("{0}/{1}")),
-			m_Character->GetBaseStatus().m_HP,
+			m_Character->GetCurrentHP(),
 			m_Character->GetMaxHP()
 		)
 	);
@@ -69,7 +69,7 @@ void UCharacterStatusWidget::UpdateMP()
 	MPText->SetText(
 		FText::Format(
 			FText::FromString(TEXT("{0}/{1}")),
-			m_Character->GetBaseStatus().m_MP,
+			m_Character->GetCurrentMP(),
 			m_Character->GetMaxMP()
 		)
 	);

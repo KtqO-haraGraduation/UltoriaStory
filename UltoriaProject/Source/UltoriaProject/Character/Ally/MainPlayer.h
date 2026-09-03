@@ -4,9 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "../CharacterBase.h"
-#include "InputAction.h"
 #include "InputActionValue.h"
-#include "InputMappingContext.h"
 #include "MainPlayer.generated.h"
 
 struct FJobData;
@@ -32,10 +30,6 @@ public:
 	void BeginPlay() override;
 
 public:
-	// 当たり判定
-	UFUNCTION(BlueprintCallable)
-	virtual void BeginOverlap(AActor* otherActor, UPrimitiveComponent* otherComp);
-
 	void SetPrevPos();
 
 	void Move(const FInputActionValue& Value);
@@ -45,6 +39,9 @@ public:
 
 	USpringArmComponent* GetCameraBoom() const { return m_CameraBoom; }
 	UCameraComponent* GetFollowCamera() const { return m_FollowCamera; }
+
+	// 最終ステータス
+	FStatus GetTotalStatus() const override;
 
 public:
 	// Called every frame
@@ -57,14 +54,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void StartBattle(ACharacterBase* otherActor, bool isPreemptive);
 
-private: 
+private:
 	void JobChange();	// ジョブの切り替え
 	FStatus TotalStatus();	// 総合ステータス
-
-private: // デバッグ用の変数
-
-	UPROPERTY(EditAnywhere)
-	int m_ChengeJobId;		// ジョブIDの切り替え先
 
 private:
 	UPROPERTY(EditAnywhere)

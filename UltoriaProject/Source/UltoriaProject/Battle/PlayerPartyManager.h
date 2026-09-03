@@ -8,6 +8,20 @@
 
 class ACharacterBase;
 
+USTRUCT(BlueprintType)
+struct FPartyData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName characterID;
+
+	bool operator==(const FPartyData& other) const
+	{
+		return characterID == other.characterID;
+	}
+};
+
 /**
  * 
  */
@@ -17,12 +31,17 @@ class ULTORIAPROJECT_API UPlayerPartyManager : public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
-	void AddPlayerParty(ACharacterBase* character);
-	void RemovePlayerParty(ACharacterBase* character);
+	void AddPlayerParty(const FPartyData& character);
+	void RemovePlayerParty(const FPartyData& character);
+
+	void CreatePlayerParty();
+	void DeletePlayerParty();
 
 	UFUNCTION(BlueprintCallable)
+	TArray<FPartyData> GetPartyData() const { return m_PartyData; }
 	TArray<ACharacterBase*> GetPlayerParty() const { return m_PlayerParty; }
 
 private:
+	TArray<FPartyData> m_PartyData;
 	TArray<ACharacterBase*> m_PlayerParty;
 };

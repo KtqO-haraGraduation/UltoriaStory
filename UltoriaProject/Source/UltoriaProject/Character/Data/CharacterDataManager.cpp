@@ -17,6 +17,9 @@ void UCharacterDataManager::Initialize(FSubsystemCollectionBase& Collection)
 	LoadEnemyData();
 }
 
+/// <summary>
+/// キャラクターのデータアセットをロード
+/// </summary>
 void UCharacterDataManager::LoadCharacterDataAsset()
 {
 	m_CharacterDataAsset = LoadObject<UCharacterDataAsset>(
@@ -25,6 +28,9 @@ void UCharacterDataManager::LoadCharacterDataAsset()
 	);
 }
 
+/// <summary>
+/// プレイヤーと仲間のマスターデータをロード
+/// </summary>
 void UCharacterDataManager::LoadAllyMasterData()
 {
 	if (!IsCharacterDataAssetLoaded()) return;
@@ -46,6 +52,9 @@ void UCharacterDataManager::LoadAllyMasterData()
 	}
 }
 
+/// <summary>
+/// 仲間のLVごとのデータをロード
+/// </summary>
 void UCharacterDataManager::LoadAllyLevelData()
 {
 	if (!IsCharacterDataAssetLoaded()) return;
@@ -67,6 +76,9 @@ void UCharacterDataManager::LoadAllyLevelData()
 	}
 }
 
+/// <summary>
+/// 敵のデータをロード
+/// </summary>
 void UCharacterDataManager::LoadEnemyData()
 {
 	if (!IsCharacterDataAssetLoaded()) return;
@@ -88,6 +100,12 @@ void UCharacterDataManager::LoadEnemyData()
 	}
 }
 
+/// <summary>
+/// 指定した仲間のLVデータを取得
+/// </summary>
+/// <param name="allyId">キャラクターID</param>
+/// <param name="Lv">ほしいデータのLV</param>
+/// <returns>指定したLVでデータ</returns>
 FAllyLevelData UCharacterDataManager::GetAllyLevelData(FName allyId, int Lv) const
 {
 	FName rowName(
@@ -103,6 +121,11 @@ FAllyLevelData UCharacterDataManager::GetAllyLevelData(FName allyId, int Lv) con
 	return FAllyLevelData();
 }
 
+/// <summary>
+/// 指定した仲間のマスターデータを取得
+/// </summary>
+/// <param name="allyId">敵のID</param>
+/// <returns>指定した仲間のマスターデータ</returns>
 FAllyMasterData UCharacterDataManager::GetAllyMasterData(FName allyId) const
 {
 	const FAllyMasterData* data = m_AllyMasterDatas.Find(allyId);
@@ -114,6 +137,11 @@ FAllyMasterData UCharacterDataManager::GetAllyMasterData(FName allyId) const
 	return FAllyMasterData();
 }
 
+/// <summary>
+/// 指定した敵のデータを取得
+/// </summary>
+/// <param name="enemyId">敵のID</param>
+/// <returns>指定した敵のデータ</returns>
 FEnemyMasterData UCharacterDataManager::GetEnemyData(FName enemyId) const
 {
 	const FEnemyMasterData* data = m_EnemyDatas.Find(enemyId);
@@ -125,6 +153,11 @@ FEnemyMasterData UCharacterDataManager::GetEnemyData(FName enemyId) const
 	return FEnemyMasterData();
 }
 
+/// <summary>
+/// 指定した敵クラスを取得
+/// </summary>
+/// <param name="enemyId">敵のID</param>
+/// <returns>指定した敵のクラス</returns>
 TSubclassOf<AEnemyBase> UCharacterDataManager::GetEnemyClass(FName enemyId)
 {
 	const FEnemyMasterData* data = m_EnemyDatas.Find(enemyId);
