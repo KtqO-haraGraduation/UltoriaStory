@@ -25,6 +25,10 @@ enum class EUIInputType
 	DOWN,
 	LEFT,
 	RIGHT,
+	L1,
+	R1,
+	L2,
+	R2,
 	INPUTTYPE_MAX
 };
 
@@ -91,6 +95,15 @@ protected:
 	void InputCancel_Menu();
 	// 十字キー(矢印/WASD)入力関数
 	void InputDirectional_Menu(EUIInputType type);
+	// L1入力関数
+	void InputL1_Menu();
+	// L2入力関数
+	void InputL2_Menu();
+	// R1入力関数
+	void InputR1_Menu();
+	// R2入力関数
+	void InputR2_Menu();
+
 
 // ショップ用入力関数
 	// 決定入力関数

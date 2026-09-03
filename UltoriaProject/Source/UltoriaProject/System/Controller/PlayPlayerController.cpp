@@ -79,6 +79,10 @@ void APlayPlayerController::SetupInputComponent()
 	input->BindAction(m_InputConfirn,ETriggerEvent::Started,   this, &APlayPlayerController::InputConfirm);
 	input->BindAction(m_InputCancel,ETriggerEvent::Started,   this, &APlayPlayerController::InputCancel);
 	input->BindAction(m_InputMenuOpen, ETriggerEvent::Started, this, &APlayPlayerController::InputOpen_Menu);
+	input->BindAction(m_InputL1, ETriggerEvent::Started, this, &APlayPlayerController::InputL1_Menu);
+	input->BindAction(m_InputL2, ETriggerEvent::Started, this, &APlayPlayerController::InputL2_Menu);
+	input->BindAction(m_InputR1, ETriggerEvent::Started, this, &APlayPlayerController::InputR1_Menu);
+	input->BindAction(m_InputR2, ETriggerEvent::Started, this, &APlayPlayerController::InputR2_Menu);
 }
 
 bool APlayPlayerController::InputKey(const FInputKeyEventArgs& Params)
@@ -308,6 +312,39 @@ void APlayPlayerController::InputDirectional_Menu(EUIInputType type)
 		menu->InputNavigateDown();
 	}
 }
+
+void APlayPlayerController::InputL1_Menu()
+{
+	UMenuStateManager* menu = GetGameInstance()->GetSubsystem<UMenuStateManager>();
+	if (!menu) return;
+
+	menu->InputLButton();
+}
+
+void APlayPlayerController::InputL2_Menu()
+{
+	UMenuStateManager* menu = GetGameInstance()->GetSubsystem<UMenuStateManager>();
+	if (!menu) return;
+
+	menu->InputL2Button();
+}
+
+void APlayPlayerController::InputR1_Menu()
+{
+	UMenuStateManager* menu = GetGameInstance()->GetSubsystem<UMenuStateManager>();
+	if (!menu) return;
+
+	menu->InputRButton();
+}
+
+void APlayPlayerController::InputR2_Menu()
+{
+	UMenuStateManager* menu = GetGameInstance()->GetSubsystem<UMenuStateManager>();
+	if (!menu) return;
+
+	menu->InputR2Button();
+}
+
 
 void APlayPlayerController::InputConfirm_Shop()
 {

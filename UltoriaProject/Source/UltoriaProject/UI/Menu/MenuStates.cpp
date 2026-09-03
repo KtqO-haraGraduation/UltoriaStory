@@ -49,6 +49,8 @@ void UMenuStates::OnRButton()
 	if (tabIndex > 2)tabIndex = 0;
 	// インデックスを列挙型にまた戻す
 	m_CurrentTab = (EStatusTab)tabIndex;
+	// タブを更新
+	UpdateTab();
 }
 
 void UMenuStates::OnL2Button()
