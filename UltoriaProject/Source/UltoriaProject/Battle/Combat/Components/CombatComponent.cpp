@@ -174,11 +174,13 @@ void UCombatComponent::TakeDamage(int damage)
 	m_CurrentState = CombatState::DAMEGE;
 
 	UCombatStatusComponent* statusComponent = m_Owner->GetComponent<UCombatStatusComponent>();
+	// ガード中か
 	bool isGuarding = statusComponent->IsGuarding();
 
 	UBattleDataManager* dataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
 	FBattleStatusData data;
 
+	// ガード値を取得
 	if (isGuarding) data = dataMg->FindStatusData("Guard");
 
 	// 防御中は、ダメージを半分にする
@@ -187,8 +189,6 @@ void UCombatComponent::TakeDamage(int damage)
 	int newHP = m_Owner->GetCurrentHP() - nweDamage;
 	
 	m_Owner->SetHP(newHP);
-
-	// オーナーからHPを取得して、damege 分減らす
 
 	// HP が 0 以下だったら、死亡判定
 	if (newHP <= 0)
@@ -230,6 +230,7 @@ void UCombatComponent::OnAttackHit()
 {
 	if (!m_Target) return;
 	UCombatComponent* combat = m_Target->GetComponent<UCombatComponent>();
+
 	combat->TakeDamage(m_Owner->GetBaseStatus().m_ATK);
 }
 

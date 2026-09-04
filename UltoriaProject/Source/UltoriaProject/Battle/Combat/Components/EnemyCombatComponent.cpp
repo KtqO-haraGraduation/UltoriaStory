@@ -4,10 +4,12 @@
 #include "EnemyCombatComponent.h"
 #include "CombatComponent.h"
 #include "Status/CombatStatusComponent.h"
+#include "../Data/BattleDataManager.h"
 #include "../../BattleGaugeManager.h"
 #include "../../../Character/CharacterBase.h"
 #include "../../../Character/AI/Patrol/PatrolComponent.h"
 #include "../../../Character/AI/Field/Enemy/EnemyFieldAIComponent.h"
+
 
 // Sets default values for this component's properties
 UEnemyCombatComponent::UEnemyCombatComponent()
@@ -48,16 +50,15 @@ void UEnemyCombatComponent::TakeDamage(int damage)
 	UCombatStatusComponent* statusComponent = m_Owner->GetComponent<UCombatStatusComponent>();
 	bool breaking = statusComponent->IsBreaking();
 	
-
-
-	//FActiveStatus* Break = m_Owner->GetStatus()->FindStatus(StatusType::BREAK);
-	float breakValue = 1.0f;
-	/*if (breaking)
+	if (breaking)
 	{
-		breakValue = Break->value;
-	}*/
+		UBattleDataManager* dataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
+		FBattleStatusData data;
 
-	//int newDamage = damage * breakValue;
+		// ガード値を取得
+		data = dataMg->FindStatusData("Break");
+		damage = (int)(damage * data.value);
+	}
 
 	UCombatComponent::TakeDamage(damage);
 
@@ -67,11 +68,6 @@ void UEnemyCombatComponent::TakeDamage(int damage)
 		gaugeManager->AddEnemyBreakGauge(20);
 	}
 
-	// ブレイクフラグを立たせる
-	if (gaugeManager->GetEnemyBreakGaugePercent() >= 1.0f)
-	{
-		statusComponent->SetBreaking(true);
-	}
 }
 
 

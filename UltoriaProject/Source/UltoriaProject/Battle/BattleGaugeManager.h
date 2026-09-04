@@ -36,6 +36,8 @@ protected:
 	FOnEnemyBreakGaugeChanged OnEnemyBreakGaugeChanged;
 
 private:
+	bool m_IsStartUltorla;
+	bool m_IsStartBreak;
 	int m_UltoriaGauge;
 	int m_EnemyBreakGauge;
 	float m_MaxGauge = 100.0f;

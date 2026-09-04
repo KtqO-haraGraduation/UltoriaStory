@@ -70,7 +70,7 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable)
-	void OnAttackHit();
+	virtual void OnAttackHit();
 
 	UFUNCTION(BlueprintCallable)
 	void OnActionEnd();

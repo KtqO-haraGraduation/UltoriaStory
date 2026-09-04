@@ -3,6 +3,7 @@
 
 #include "CombatStatusComponent.h"
 #include "../../Data/BattleDataManager.h"
+#include "../../../BattleGaugeManager.h"
 
 // Sets default values for this component's properties
 UCombatStatusComponent::UCombatStatusComponent()
@@ -36,6 +37,7 @@ void UCombatStatusComponent::UpdateTurn()
 
 		status.turn--;
 
+		// ƒ^[ƒ“‚ªI—¹‚µ‚½‚Ìˆ—
 		if (status.turn <= 0)
 		{
 			m_StatusList.RemoveAt(i);
@@ -43,6 +45,11 @@ void UCombatStatusComponent::UpdateTurn()
 			if (status.type == StatusType::GUARD)
 			{
 				m_IsGuarding = false;
+			}
+			if (status.type == StatusType::BREAK)
+			{
+				UBattleGaugeManager* gaugeMg = GetWorld()->GetSubsystem<UBattleGaugeManager>();
+				if (gaugeMg)gaugeMg->ResetEnemyBreakGauge();
 			}
 		}
 	}

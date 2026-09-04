@@ -10,6 +10,7 @@ enum class StatusType : uint8
 {
 	GUARD,
 	BREAK,
+	ULTORIA,
 	HEAL,
 	POISON,
 	BUFF,
