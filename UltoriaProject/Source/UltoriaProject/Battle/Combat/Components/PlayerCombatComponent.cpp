@@ -52,7 +52,7 @@ void UPlayerCombatComponent::OnAttackHit()
 		FBattleStatusData data;
 
 		// ƒK[ƒh’l‚ðŽæ“¾
-		data = dataMg->FindStatusData("Ultoria");
+		data = dataMg->FindStatusData(StatusType::ULTORIA);
 		damage *= data.value;
 	}
 

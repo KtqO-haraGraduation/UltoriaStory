@@ -20,7 +20,7 @@ public:
 	void UpdateTurn();
 
 	// 状態リストに追加
-	void AddStatus(StatusType type, FName statusID);
+	void AddStatus(StatusType type);
 
 	// 状態リストの中身を検索
 	bool HasStatus(StatusType type) const;

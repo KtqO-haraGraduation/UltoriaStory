@@ -56,12 +56,13 @@ void UEnemyCombatComponent::TakeDamage(int damage)
 		FBattleStatusData data;
 
 		// ガード値を取得
-		data = dataMg->FindStatusData("Break");
+		data = dataMg->FindStatusData(StatusType::BREAK);
 		damage = (int)(damage * data.value);
 	}
 
 	UCombatComponent::TakeDamage(damage);
 
+	// 敵のブレイクゲージを増加
 	UBattleGaugeManager* gaugeManager = GetWorld()->GetSubsystem<UBattleGaugeManager>();
 	if (gaugeManager)
 	{

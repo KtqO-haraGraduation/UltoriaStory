@@ -7,7 +7,7 @@
 #include "PlayerCombatComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ULTORIAPROJECT_API UPlayerCombatComponent : public UCombatComponent
 {
 	GENERATED_BODY()

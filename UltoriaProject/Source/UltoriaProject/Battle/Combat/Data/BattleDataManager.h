@@ -33,7 +33,7 @@ public:
 	const TArray<FBattleStatusData>& GetStatusDatas() const { return m_StatusDatas; }
 
 	// 指定したステータスのデータを返す
-	const FBattleStatusData FindStatusData(FName statusID);
+	const FBattleStatusData FindStatusData(StatusType type);
 
 protected:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

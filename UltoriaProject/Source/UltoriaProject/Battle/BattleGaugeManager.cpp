@@ -31,7 +31,7 @@ void UBattleGaugeManager::AddUltoriaGauge(int value)
 			{
 				if (!character) continue;
 				UCombatStatusComponent* status = character->GetComponent<UCombatStatusComponent>();
-				status->AddStatus(StatusType::ULTORIA, "Ultoria");
+				status->AddStatus(StatusType::ULTORIA);
 				m_IsStartUltorla = true;
 			}
 		}
@@ -75,7 +75,7 @@ void UBattleGaugeManager::AddEnemyBreakGauge(int value)
 			{
 				if (!character) continue;
 				UCombatStatusComponent* status = character->GetComponent<UCombatStatusComponent>();
-				status->AddStatus(StatusType::BREAK, "Break");
+				status->AddStatus(StatusType::BREAK);
 				m_IsStartBreak = true;
 			}
 		}

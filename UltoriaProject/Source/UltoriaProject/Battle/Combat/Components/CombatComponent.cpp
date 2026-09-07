@@ -110,7 +110,7 @@ void UCombatComponent::Guard()
 	UCombatStatusComponent* statusComponent = m_Owner->GetComponent<UCombatStatusComponent>();
 	statusComponent->SetGuarding(true);
 
-	statusComponent->AddStatus(StatusType::GUARD, "Guard");
+	statusComponent->AddStatus(StatusType::GUARD);
 
 	// 次のキャラへ（0.2秒後）
 	FTimerHandle Timer;
@@ -181,7 +181,10 @@ void UCombatComponent::TakeDamage(int damage)
 	FBattleStatusData data;
 
 	// ガード値を取得
-	if (isGuarding) data = dataMg->FindStatusData("Guard");
+	if (isGuarding)
+	{
+		data = dataMg->FindStatusData(StatusType::GUARD);
+	}
 
 	// 防御中は、ダメージを半分にする
 	int nweDamage = isGuarding ? (damage / data.value) : damage;
@@ -189,6 +192,13 @@ void UCombatComponent::TakeDamage(int damage)
 	int newHP = m_Owner->GetCurrentHP() - nweDamage;
 	
 	m_Owner->SetHP(newHP);
+
+	// ダメージを受けたらウルトリアゲージを増加
+	UBattleGaugeManager* gaugeMg = GetWorld()->GetSubsystem<UBattleGaugeManager>();
+	if (gaugeMg)
+	{
+		gaugeMg->AddUltoriaGauge(20);
+	}
 
 	// HP が 0 以下だったら、死亡判定
 	if (newHP <= 0)
