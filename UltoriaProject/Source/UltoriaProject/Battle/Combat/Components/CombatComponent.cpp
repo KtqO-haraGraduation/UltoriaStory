@@ -193,12 +193,6 @@ void UCombatComponent::TakeDamage(int damage)
 	
 	m_Owner->SetHP(newHP);
 
-	// ダメージを受けたらウルトリアゲージを増加
-	UBattleGaugeManager* gaugeMg = GetWorld()->GetSubsystem<UBattleGaugeManager>();
-	if (gaugeMg)
-	{
-		gaugeMg->AddUltoriaGauge(20);
-	}
 
 	// HP が 0 以下だったら、死亡判定
 	if (newHP <= 0)

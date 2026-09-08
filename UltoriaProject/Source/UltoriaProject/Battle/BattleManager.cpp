@@ -13,12 +13,14 @@
 #include "../System/Controller/PlayPlayerController.h"
 #include "Combat/Components/CombatComponent.h"
 #include "Combat/Components/Status/CombatStatusComponent.h"
+#include "../System/Sound/SoundManager.h"
 
 void UBattleManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
 	m_Lifecycle = NewObject<UBattleLifecycle>(this);
+
 }
 
 void UBattleManager::BattleStart(ACharacterBase* player, ACharacterBase* enemy, bool isPreemptive)
@@ -27,6 +29,9 @@ void UBattleManager::BattleStart(ACharacterBase* player, ACharacterBase* enemy, 
 	m_IsBattle = true;
 	m_Characters.Empty();
 	m_CurrentIndex = 0;
+
+	USoundManager* soundMg = GetWorld()->GetGameInstance()->GetSubsystem<USoundManager>();
+	if (soundMg) soundMg->PlayBGM("BGM_Battle");
 
 	UEncounterManager* encounter = GetWorld()->GetSubsystem<UEncounterManager>();
 	//if (encounter) encounter->SetEncounterFogEnabled(false);
@@ -609,6 +614,9 @@ void UBattleManager::FinishBattle()
 	if (!playerPartyMg) return;
 
 	playerPartyMg->DeletePlayerParty();
+
+	USoundManager* soundMg = GetWorld()->GetGameInstance()->GetSubsystem<USoundManager>();
+	if (soundMg) soundMg->PlayBGM("BGM_Field_1");
 }
 
 void UBattleManager::CreateParty(AEnemyBase* enemyBase)
