@@ -3,11 +3,14 @@
 #include "CombatComponent.h"
 #include "Status/CombatStatusComponent.h"
 #include "../../../Character/CharacterBase.h"
-#include "../../BattleManager.h"
-#include "../../BattleGaugeManager.h"
 #include "../../../UI/Battle/BattleUIManager.h"
 #include "../../../UI/Battle/DamageWidget.h"
+#include "../../../System/Effect/EffectManager.h"
+#include "../../../System/Sound/SoundManager.h"
+#include "../../BattleManager.h"
+#include "../../BattleGaugeManager.h"
 #include "../Data/BattleDataManager.h"
+
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -193,6 +196,12 @@ void UCombatComponent::TakeDamage(int damage)
 	
 	m_Owner->SetHP(newHP);
 
+	// Sound‚ÆEffect‚ğÄ¶
+	USoundManager* soundMg   = GetWorld()->GetGameInstance()->GetSubsystem<USoundManager>();
+	UEffectManager* effectMg = GetWorld()->GetGameInstance()->GetSubsystem<UEffectManager>();
+
+	if (soundMg) soundMg->PlaySE("SE_Hit");
+	if (effectMg) effectMg->PlayEffect("NS_Hit", m_Owner->GetActorLocation());
 
 	// HP ‚ª 0 ˆÈ‰º‚¾‚Á‚½‚çA€–S”»’è
 	if (newHP <= 0)

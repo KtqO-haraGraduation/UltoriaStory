@@ -30,8 +30,8 @@ class ULTORIAPROJECT_API USoundManager : public UGameInstanceSubsystem
 	
 
 public:
-	UFUNCTION(BlueprintCallable)
 	// Sound ì«Ç›çûÇ›
+	UFUNCTION(BlueprintCallable)
 	void LoadSoundGroup(ESoundType type);
 
 	// BGM
@@ -53,8 +53,8 @@ public:
 	void SetSEVolume(float volume);
 
 private:
-	float m_BGMVolume = 1.0f;
-	float m_SEVolume  = 1.0f;
+	float m_BGMVolume = 0.5f;
+	float m_SEVolume  = 0.2f;
 
 	UPROPERTY()
 	TObjectPtr<UAudioComponent> m_CurrentBGM;

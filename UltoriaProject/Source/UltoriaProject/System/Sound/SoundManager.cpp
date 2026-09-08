@@ -124,8 +124,11 @@ void USoundManager::StopBGM(float fadeTime)
 void USoundManager::PlaySE(FName name)
 {
 	USoundBase* sound = FindSE(name);
-	if (!sound) return;
-
+	if (!sound)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SE‚ªŒ©‚Â‚©‚ç‚È‚¢"));
+		return;
+	}
 	UGameplayStatics::PlaySound2D(
 		this,
 		sound,
