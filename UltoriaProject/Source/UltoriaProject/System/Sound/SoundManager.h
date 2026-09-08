@@ -53,8 +53,8 @@ public:
 	void SetSEVolume(float volume);
 
 private:
-	float m_BGMVolume = 0.5f;
-	float m_SEVolume  = 0.2f;
+	float m_BGMVolume = 0.7f;
+	float m_SEVolume  = 0.1f;
 
 	UPROPERTY()
 	TObjectPtr<UAudioComponent> m_CurrentBGM;
