@@ -20,10 +20,12 @@ public:
 	// ゲージの更新
 	void UpdateGauge();
 
+	void StartUltoria();
 	void AddUltoriaGauge(int value);
 	void ResetUltoriaGauge();
 	float GetUltoriaGaugePercent() const;
 
+	void StartBreakGauge();
 	void AddEnemyBreakGauge(int value);
 	void ResetEnemyBreakGauge();
 	float GetEnemyBreakGaugePercent() const;

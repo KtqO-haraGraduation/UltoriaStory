@@ -51,26 +51,32 @@ void UCombatStatusComponent::UpdateTurn()
 				UBattleGaugeManager* gaugeMg = GetWorld()->GetSubsystem<UBattleGaugeManager>();
 				if (gaugeMg)gaugeMg->ResetEnemyBreakGauge();
 			}
+			if (status.type == StatusType::ULTORIA)
+			{
+				UBattleGaugeManager* gaugeMg = GetWorld()->GetSubsystem<UBattleGaugeManager>();
+				if (gaugeMg)gaugeMg->ResetUltoriaGauge();
+			}
 		}
 	}
 }
 
-void UCombatStatusComponent::AddStatus(StatusType type, FName statusID)
+void UCombatStatusComponent::AddStatus(StatusType type)
 {
+	// すでに指定されたtypeのステータスが入っているかの検索
 	FBattleStatusData* status = FindStatus(type);
 
+	// データを取得
 	UBattleDataManager* dataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
+	FBattleStatusData data = dataMg->FindStatusData(type);
 
 	// 同じタイプがすでにリストの中に入っていたら
 	if (status)
 	{
 		// そのステータスのターンを初期化
-		FBattleStatusData data = dataMg->FindStatusData(statusID);
 		status->turn = data.turn;
 	}
 	else
 	{
-		FBattleStatusData data = dataMg->FindStatusData(statusID);
 		m_StatusList.Add(data);
 	}
 }

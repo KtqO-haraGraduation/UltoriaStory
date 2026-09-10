@@ -20,7 +20,7 @@ public:
 	void UpdateTurn();
 
 	// 状態リストに追加
-	void AddStatus(StatusType type, FName statusID);
+	void AddStatus(StatusType type);
 
 	// 状態リストの中身を検索
 	bool HasStatus(StatusType type) const;
@@ -29,9 +29,11 @@ public:
 
 	bool IsBreaking() const { return m_IsBreaking; }
 	bool IsGuarding() const { return m_IsGuarding; }
+	bool IsUltoria() const { return m_IsUltoria; }
 
 	void SetBreaking(bool flag) { if(m_IsBreaking != flag) m_IsBreaking = flag; }
 	void SetGuarding(bool flag) { if(m_IsGuarding != flag) m_IsGuarding = flag; }
+	void SetUltoria(bool flag)  { if(m_IsUltoria != flag) m_IsUltoria = flag; }
 
 private:
 	// それぞれの効果
@@ -47,7 +49,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 private:
-	bool m_IsBreaking = false; // ブレイク中か
-	bool m_IsGuarding = false; // ガード中か
+	bool m_IsBreaking; // ブレイク中か
+	bool m_IsGuarding; // ガード中か
+	bool m_IsUltoria;  // ウルトリア中か
 	TArray<FBattleStatusData> m_StatusList;
 };

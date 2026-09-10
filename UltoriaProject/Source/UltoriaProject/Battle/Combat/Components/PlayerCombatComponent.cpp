@@ -18,6 +18,18 @@ UPlayerCombatComponent::UPlayerCombatComponent()
 	// ...
 }
 
+void UPlayerCombatComponent::TakeDamage(int damage)
+{
+	UCombatComponent::TakeDamage(damage);
+
+	// ダメージを受けたらウルトリアゲージを増加
+	UBattleGaugeManager* gaugeMg = GetWorld()->GetSubsystem<UBattleGaugeManager>();
+	if (gaugeMg)
+	{
+		gaugeMg->AddUltoriaGauge(20);
+	}
+}
+
 
 
 // Called when the game starts
@@ -48,12 +60,15 @@ void UPlayerCombatComponent::OnAttackHit()
 	UCombatStatusComponent* status = m_Owner->GetComponent<UCombatStatusComponent>();
 	if (status)
 	{
-		UBattleDataManager* dataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
-		FBattleStatusData data;
+		if (status->IsUltoria())
+		{
+			UBattleDataManager* dataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
+			FBattleStatusData data;
 
-		// ガード値を取得
-		data = dataMg->FindStatusData("Ultoria");
-		damage *= data.value;
+			// ガード値を取得
+			data = dataMg->FindStatusData(StatusType::ULTORIA);
+			damage *= data.value;
+		}
 	}
 
 	combat->TakeDamage(damage);

@@ -3,11 +3,14 @@
 #include "CombatComponent.h"
 #include "Status/CombatStatusComponent.h"
 #include "../../../Character/CharacterBase.h"
-#include "../../BattleManager.h"
-#include "../../BattleGaugeManager.h"
 #include "../../../UI/Battle/BattleUIManager.h"
 #include "../../../UI/Battle/DamageWidget.h"
+#include "../../../System/Effect/EffectManager.h"
+#include "../../../System/Sound/SoundManager.h"
+#include "../../BattleManager.h"
+#include "../../BattleGaugeManager.h"
 #include "../Data/BattleDataManager.h"
+
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -110,7 +113,7 @@ void UCombatComponent::Guard()
 	UCombatStatusComponent* statusComponent = m_Owner->GetComponent<UCombatStatusComponent>();
 	statusComponent->SetGuarding(true);
 
-	statusComponent->AddStatus(StatusType::GUARD, "Guard");
+	statusComponent->AddStatus(StatusType::GUARD);
 
 	// 次のキャラへ（0.2秒後）
 	FTimerHandle Timer;
@@ -181,7 +184,10 @@ void UCombatComponent::TakeDamage(int damage)
 	FBattleStatusData data;
 
 	// ガード値を取得
-	if (isGuarding) data = dataMg->FindStatusData("Guard");
+	if (isGuarding)
+	{
+		data = dataMg->FindStatusData(StatusType::GUARD);
+	}
 
 	// 防御中は、ダメージを半分にする
 	int nweDamage = isGuarding ? (damage / data.value) : damage;
@@ -189,6 +195,13 @@ void UCombatComponent::TakeDamage(int damage)
 	int newHP = m_Owner->GetCurrentHP() - nweDamage;
 	
 	m_Owner->SetHP(newHP);
+
+	// SoundとEffectを再生
+	USoundManager* soundMg   = GetWorld()->GetGameInstance()->GetSubsystem<USoundManager>();
+	UEffectManager* effectMg = GetWorld()->GetGameInstance()->GetSubsystem<UEffectManager>();
+
+	if (soundMg) soundMg->PlaySE("SE_Hit");
+	if (effectMg) effectMg->PlayEffect("NS_Hit", m_Owner->GetActorLocation());
 
 	// HP が 0 以下だったら、死亡判定
 	if (newHP <= 0)

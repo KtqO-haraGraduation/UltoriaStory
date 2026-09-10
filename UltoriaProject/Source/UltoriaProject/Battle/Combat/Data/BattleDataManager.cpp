@@ -88,13 +88,13 @@ void UBattleDataManager::LoadStatusData()
 	}
 }
 
-const FBattleStatusData UBattleDataManager::FindStatusData(FName statusID)
+const FBattleStatusData UBattleDataManager::FindStatusData(StatusType type)
 {
 	FBattleStatusData result;
 
 	for (const FBattleStatusData& data : m_StatusDatas)
 	{
-		if (data.id == statusID)
+		if (data.type == type)
 		{
 			result = data;
 		}
