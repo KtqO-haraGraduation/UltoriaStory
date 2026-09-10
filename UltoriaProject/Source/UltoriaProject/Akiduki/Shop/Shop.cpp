@@ -46,19 +46,22 @@ void AShop::OpenShop()
 
         if (ShopMenuWidget)
         {
-            ShopMenuWidget->AddToViewport();
+            UShopMenuWidget* ShopUI = Cast<UShopMenuWidget>(ShopMenuWidget);
 
-            UShopManager* ShopManager = GetWorld()->GetSubsystem<UShopManager>();
-                
-            if (ShopManager)
+            if (ShopUI)
             {
-                UShopMenuWidget* Menu = Cast<UShopMenuWidget>(ShopMenuWidget);
+                UShopManager* ShopManager = GetWorld()->GetSubsystem<UShopManager>();
                     
-                if (Menu)
+                if (ShopManager)
                 {
-                    Menu->SetupItems(ShopManager->GetCurrentItems());
+                    ShopUI->SetupItems(ShopManager->GetCurrentItems());
+
+                    UE_LOG(LogTemp, Warning, TEXT("SetupItems Count = %d"),
+                        ShopManager->GetCurrentItems().Num());
                 }
             }
+
+            ShopMenuWidget->AddToViewport();
         }
     }
 }
@@ -72,13 +75,13 @@ void AShop::CloseShop()
     }
 
     // まだ範囲内ならPrompt再表示
-    if (PromptWidget)
+    if (PromptWidget && !PromptWidget->IsInViewport())
     {
         PromptWidget->AddToViewport();
     }
 
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bCanEverTick = true;
 
 }
 
@@ -121,12 +124,16 @@ void AShop::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 
 void AShop::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-    UShopManager* shopMager = GetWorld()->GetSubsystem<UShopManager>();
+    UShopManager* ShopManager = GetWorld()->GetSubsystem<UShopManager>();
 
     if (OtherActor)
     {
-        // ショップ解除
-        shopMager->SetCurrentShop(nullptr);
+        // ショップ開いてたら閉じる
+        if (ShopManager)
+        {
+            ShopManager->CancelShopUI();
+            ShopManager->SetCurrentShop(nullptr);// ショップ解除
+        }
 
         // UI削除
         if (PromptWidget)

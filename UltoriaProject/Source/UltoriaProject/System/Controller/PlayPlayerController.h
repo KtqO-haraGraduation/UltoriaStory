@@ -148,6 +148,7 @@ private:
 
 // ショップ入力関連
 	// ショップ入力用IMC
+	UPROPERTY(EditAnywhere)
 	UInputMappingContext* m_InputShop;
 
 // 汎用入力関連

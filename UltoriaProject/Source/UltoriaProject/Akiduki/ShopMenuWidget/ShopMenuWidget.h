@@ -55,10 +55,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DescriptionText;
 
-	// DataTable
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shop")
-	UDataTable* ItemDataTable;
-
 	// アイテム行Widget
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shop")
 	TSubclassOf<UUserWidget> ShopItemEntryClass;

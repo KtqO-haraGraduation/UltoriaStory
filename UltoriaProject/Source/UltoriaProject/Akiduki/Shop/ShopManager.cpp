@@ -23,7 +23,7 @@ void UShopManager::Initialize(FSubsystemCollectionBase& Collection)
 	m_UIOpenInputLockTime = 0.0f;
 
 	// ストーリー進行度(仮)
-	m_StoryProgress = 0;
+	m_StoryProgress = 1;
 
 	// 十字キー入力関数を追加
     m_InputDirectionalMap.Add(EUIInputType::UP, &UShopManager::ShopDirectionalUp);
@@ -51,9 +51,18 @@ void UShopManager::InputInteract()
 		{
 			// ショップのアイテムリストを構築
 			BuildShopItemList();
+			UE_LOG(LogTemp, Warning, TEXT("CurrentItems = %d"),
+				CurrentItems.Num());
 			// ショップを開く
 			m_CurrentShop->OpenShop();
 			m_IsOpenedShop = true;
+			APlayPlayerController* PC = Cast<APlayPlayerController>(GetWorld()->GetFirstPlayerController());
+			if (PC)
+			{
+				PC->ChangeInputMode(PlayInputMode::SHOP);
+				PC->ChangeCursorMode(true);   // 必要ならUI入力モード
+			}
+
 			// UI開いた直後入力ロック
 			m_UIOpenInputLockTime = 0.2f;
 		}
@@ -120,11 +129,19 @@ void UShopManager::CancelShopUI()
 
 		// ショップ使用中フラグをオフ
 		m_IsOpenedShop = false;
+
+		APlayPlayerController* PC = Cast<APlayPlayerController>(GetWorld()->GetFirstPlayerController());
+		if (PC)
+		{
+			PC->ChangeInputMode(PlayInputMode::FIELD);
+			PC->ChangeCursorMode(false);
+		}
 	}
 }
 
 void UShopManager::DirectionalInput(EUIInputType type)
 {
+	UE_LOG(LogTemp, Warning, TEXT("DirectionalInput Called"));
 	DirectionalInputFunc* func = m_InputDirectionalMap.Find(type);
 
 	if (func)
@@ -271,7 +288,7 @@ void UShopManager::BuildShopItemList()
 		{
 			CurrentItems.Add(*Item);
 		}
-
 	}
+
 }
 
