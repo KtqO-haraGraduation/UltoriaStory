@@ -418,13 +418,15 @@ void UEventScriptEngine::Command_BattleResume(FEventScriptRow* Row)
 
 void UEventScriptEngine::Command_BattleStart(FEventScriptRow* Row)
 {
-	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	UE_LOG(LogTemp, Log, TEXT("[BattleStart]"));
+
+	/*UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	if (!battleMg) return;
 
 	ACharacterBase* player = nullptr;
 
 	ACharacterBase* enemy = nullptr;
 
-	battleMg->BattaleStart(player, enemy, false);
+	battleMg->BattaleStart(player, enemy, false);*/
 }
 
