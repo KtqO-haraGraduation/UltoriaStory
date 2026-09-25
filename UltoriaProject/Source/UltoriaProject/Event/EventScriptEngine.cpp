@@ -7,7 +7,7 @@
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "../Battle/BattleManager.h"
 
 // Sets default values for this component's properties
 UEventScriptEngine::UEventScriptEngine()
@@ -36,6 +36,7 @@ void UEventScriptEngine::BeginPlay()
 	m_CommandMap.Add(TEXT("Sequence"), &UEventScriptEngine::Command_Sequence);
 	m_CommandMap.Add(TEXT("BattlePause"), &UEventScriptEngine::Command_BattlePause);
 	m_CommandMap.Add(TEXT("BattleResume"), &UEventScriptEngine::Command_BattleResume);
+	m_CommandMap.Add(TEXT("BattleStart"), &UEventScriptEngine::Command_BattleStart);
 }
 
 
@@ -413,5 +414,17 @@ void UEventScriptEngine::Command_BattlePause(FEventScriptRow* Row)
 void UEventScriptEngine::Command_BattleResume(FEventScriptRow* Row)
 {
 	UE_LOG(LogTemp, Log, TEXT("[BattleResume]"));
+}
+
+void UEventScriptEngine::Command_BattleStart(FEventScriptRow* Row)
+{
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+
+	ACharacterBase* player = nullptr;
+
+	ACharacterBase* enemy = nullptr;
+
+	battleMg->BattaleStart(player, enemy, false);
 }
 

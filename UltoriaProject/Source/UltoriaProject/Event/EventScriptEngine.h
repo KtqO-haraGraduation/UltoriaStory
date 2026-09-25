@@ -61,6 +61,7 @@ private:
 	void Command_Sequence(FEventScriptRow* Row);
 	void Command_BattlePause(FEventScriptRow* Row);
 	void Command_BattleResume(FEventScriptRow* Row);
+	void Command_BattleStart(FEventScriptRow* Row);
 
 	// スクリプト終了関数
 	void FinishedScript();
