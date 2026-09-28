@@ -11,6 +11,14 @@
  * 
  */
 
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	None,   // ïêäÌà»äO
+	Sword, // åï
+	Staff   // èÒ
+};
+
 USTRUCT(BlueprintType)
 struct FEquipItemRow : public FTableRowBase
 {
@@ -21,4 +29,10 @@ struct FEquipItemRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	EEquipSlot Slot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Status;	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EWeaponType WeaponType;
 };

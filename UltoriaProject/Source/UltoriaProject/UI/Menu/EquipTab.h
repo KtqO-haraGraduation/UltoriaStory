@@ -16,7 +16,7 @@
 UENUM(BluePrintType)
 enum class EEquipSlot : uint8
 {
-	Wepon,
+	Weapon,
 	Head,
 	Body,
 	Waist,
@@ -46,10 +46,11 @@ public:
 private:
 	void UpdateSlotDisplay();
 	void UpdateItemList();
+	void UpdateEquipInfo();
 
 private:
 // 装備中の装備名テキスト
-	// 剣
+	// 武器
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* m_EquippedNameWeapon;
 
@@ -85,6 +86,23 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UBorder* m_FrameEquip4;
 
+// 表示ステータス
+	// ATK
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_TextATK;
+
+	// MGC
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_TextMGC;
+
+	// DEF
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_TextDEF;
+
+	// SPD
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_TextSPD;
+
 	// アイテムリスト小窓
 	UPROPERTY(meta = (BindWidget))
 	UBorder* m_ItemListPopup;
@@ -101,9 +119,23 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	class UBorder* m_ChangeStatus;
 
+	// 現在値
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_CurrentATK;
+
+	// 選択中の装備に変えた後の値
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_NextATK;
+
 	// 装備説明
 	UPROPERTY(meta = (BindWidget))
 	class UBorder* m_EquipItemStatus;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_EquipItemName;
+
+	UPROPERTY(meta = (BindaWidget))
+	UTextBlock* m_EquipItemStatusValue;
 
 	// 現在の装備スロット
 	EEquipSlot m_CurrentSlot;

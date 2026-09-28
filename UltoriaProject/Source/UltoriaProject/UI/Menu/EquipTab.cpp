@@ -1,25 +1,26 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "EquipTab.h"
 #include "../../Equip/EquipmentManager.h"
-#include "../../TestPlayer/TestPlayer.h"
+#include "Components/TextBlock.h"
+#include "../../Character/Ally/MainPlayer.h"
 
 void UEquipTab::OnEnter()
 {
-	// Œ»İ‚Ìƒ‚[ƒh‚ğ‘•”õ‰ÓŠ‘I‘ğ‚Éİ’è
+	// ç¾åœ¨ã®ãƒ¢ãƒ¼ãƒ‰ã‚’è£…å‚™ç®‡æ‰€é¸æŠã«è¨­å®š
 	m_CurrentMode = EEquipTabMode::SlotSelect;
-	// Å‰‚ÌƒXƒƒbƒg‚ğ“ª‚Éİ’è
+	// æœ€åˆã®ã‚¹ãƒ­ãƒƒãƒˆã‚’é ­ã«è¨­å®š
 	m_CurrentSlot = EEquipSlot::Head;
-	// Œ»İ‚ÌƒAƒCƒeƒ€‚Ì‡”Ô‚ğn‚ß‚Éİ’è
+	// ç¾åœ¨ã®ã‚¢ã‚¤ãƒ†ãƒ ã®é †ç•ªã‚’å§‹ã‚ã«è¨­å®š
 	m_CurrentItemIndex = 0;
-	// Œ»İ‚ÌƒXƒƒbƒg‚ÌŠ‘•”õ‚ğ‹ó‚É
+	// ç¾åœ¨ã®ã‚¹ãƒ­ãƒƒãƒˆã®æ‰€æŒè£…å‚™ã‚’ç©ºã«
 	m_CurrentSlotItems.Empty();
 
-	// ¬‘‹‚ª‚ ‚ê‚Î
+	// å°çª“ãŒã‚ã‚Œã°
 	if (m_ItemListPopup)
 	{
-		// ”ñ•\¦‚É
+		// éè¡¨ç¤ºã«
 		m_ItemListPopup->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
@@ -33,6 +34,9 @@ void UEquipTab::OnExit()
 void UEquipTab::NavigateUp()
 {
 
+	UE_LOG(LogTemp, Log, TEXT("EquipTab NavigateUp! Mode: %d, Slot: %d"),
+		(int32)m_CurrentMode, (int32)m_CurrentSlot);
+
 	if (m_CurrentMode == EEquipTabMode::SlotSelect)
 	{
 		int32 slotIndex = (int32)m_CurrentSlot - 1;
@@ -42,7 +46,7 @@ void UEquipTab::NavigateUp()
 	}
 	else
 	{
-		// ƒAƒCƒeƒ€ƒŠƒXƒgãˆÚ“®
+		// ã‚¢ã‚¤ãƒ†ãƒ ãƒªã‚¹ãƒˆä¸Šç§»å‹•
 		m_CurrentItemIndex--;
 		if (m_CurrentItemIndex < 0)
 		{
@@ -54,35 +58,43 @@ void UEquipTab::NavigateUp()
 
 void UEquipTab::NavigateDown()
 {
+	UE_LOG(LogTemp, Log, TEXT("EquipTab NavigateDown! Mode: %d, Slot: %d"),
+		(int32)m_CurrentMode, (int32)m_CurrentSlot);
+
 	if (m_CurrentMode == EEquipTabMode::SlotSelect)
 	{
-		return;
+		int32 slotIndex = (int32)m_CurrentSlot + 1;
+		if (slotIndex > 4) slotIndex = 0;
+		m_CurrentSlot = (EEquipSlot)slotIndex;
+		UpdateSlotDisplay();
 	}
 	else
 	{
-		// Ÿ‚ÌƒAƒCƒeƒ€‚Ö‡”Ô‚ği‚ß‚é
+		// æ¬¡ã®ã‚¢ã‚¤ãƒ†ãƒ ã¸é †ç•ªã‚’é€²ã‚ã‚‹
 		m_CurrentItemIndex++;
-		// Œ»İ‚ÌƒAƒCƒeƒ€‚Ì‡”Ô‚ª0‚æ‚è‰º‚È‚ç
+		// ç¾åœ¨ã®ã‚¢ã‚¤ãƒ†ãƒ ã®é †ç•ªãŒ0ã‚ˆã‚Šä¸‹ãªã‚‰
 		if (m_CurrentItemIndex >= m_CurrentSlotItems.Num())
 		{
 			m_CurrentItemIndex = 0;
 		}
-		// ƒAƒCƒeƒ€ƒŠƒXƒg‚ğXV
+		// ã‚¢ã‚¤ãƒ†ãƒ ãƒªã‚¹ãƒˆã‚’æ›´æ–°
 		UpdateItemList();
 	}
 }
 
 void UEquipTab::Confirm()
 {
-	// ‘•”õ‰ÓŠ‘I‘ğ’†
+	UE_LOG(LogTemp, Log, TEXT("EquipTab Confirm! Mode=%d"), (int32)m_CurrentMode);
+
+	// è£…å‚™ç®‡æ‰€é¸æŠä¸­
 	if (m_CurrentMode == EEquipTabMode::SlotSelect)
 	{
-		// ItemSelectƒ‚[ƒh‚ÉØ‚è‘Ö‚¦
+		// ItemSelectãƒ¢ãƒ¼ãƒ‰ã«åˆ‡ã‚Šæ›¿ãˆ
 		m_CurrentMode = EEquipTabMode::ItemSelect;
-		// Œ»İ‚Ì‘I‘ğ”Ô†‚ğ‰Šú‰»
+		// ç¾åœ¨ã®é¸æŠç•ªå·ã‚’åˆæœŸåŒ–
 		m_CurrentItemIndex = 0;
 
-		// Œ»İ‘I‚ñ‚Å‚¢‚é‘•”õ‰ÓŠ‚ğæ“¾
+		// ç¾åœ¨é¸ã‚“ã§ã„ã‚‹è£…å‚™ç®‡æ‰€ã‚’å–å¾—
 		UEquipmentManager* equipManager =
 			GetGameInstance()->GetSubsystem<UEquipmentManager>();
 		if (equipManager)
@@ -90,27 +102,27 @@ void UEquipTab::Confirm()
 			m_CurrentSlotItems = equipManager->GetOwnedItemsBySlot(m_CurrentSlot);
 		}
 
-		// ‘I‘ğ’†‚Ì‘•”õ‰ÓŠ‚É‰‚¶‚½Š‘•”õƒŠƒXƒg‚ğ”½‰f
+		// é¸æŠä¸­ã®è£…å‚™ç®‡æ‰€ã«å¿œã˜ãŸæ‰€æŒè£…å‚™ãƒªã‚¹ãƒˆã‚’åæ˜ 
 		UpdateItemList();
 	}
 	else
 	{
-		// ‘•”õŠm’è
+		// è£…å‚™ç¢ºå®š
 		if (!m_CurrentSlotItems.IsValidIndex(m_CurrentItemIndex)) return;
 
-		// ‘I‘ğ‚µ‚Ä‚¢‚é‘•”õ‚ğId‚©‚çæ“¾
+		// é¸æŠã—ã¦ã„ã‚‹è£…å‚™ã‚’Idã‹ã‚‰å–å¾—
 		FName selectedId = m_CurrentSlotItems[m_CurrentItemIndex];
 		APlayerController* PC = GetWorld()->GetFirstPlayerController();
 		if (!PC) return;
 
-		// ƒvƒŒƒCƒ„[‚Ì‘•”õ‚ğXV
-		ATestPlayer* player = Cast<ATestPlayer>(PC->GetPawn());
+		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è£…å‚™ã‚’æ›´æ–°
+		AMainPlayer* player = Cast<AMainPlayer>(PC->GetPawn());
 		if (player)
 		{
-			player->EquipItem(m_CurrentSlot, selectedId);
+			player->AddEquipItem(m_CurrentSlot, selectedId);
 		}
 
-		// SlotSelectMode‚É–ß‚é
+		// SlotSelectModeã«æˆ»ã‚‹
 		m_CurrentMode = EEquipTabMode::SlotSelect;
 		UpdateSlotDisplay();
 	}
@@ -120,7 +132,7 @@ void UEquipTab::Cancel()
 {
 	if (m_CurrentMode == EEquipTabMode::ItemSelect)
 	{
-		// SlotSelectƒ‚[ƒh‚É–ß‚é
+		// SlotSelectãƒ¢ãƒ¼ãƒ‰ã«æˆ»ã‚‹
 		m_CurrentMode = EEquipTabMode::SlotSelect;
 		UpdateSlotDisplay();
 	}
@@ -128,15 +140,20 @@ void UEquipTab::Cancel()
 
 void UEquipTab::UpdateSlotDisplay()
 {
+
+	UE_LOG(LogTemp, Log, TEXT("UpdateSlotDisplay: Slot=%d, FrameEquip=%s"),
+		(int32)m_CurrentSlot,
+		m_FrameEquip ? TEXT("valid") : TEXT("nullptr"));
+
 	TArray<UBorder*> frames = {
 		m_FrameEquip,m_FrameEquip1,m_FrameEquip2,m_FrameEquip3,m_FrameEquip4
 	};
 
 	for (int32 i = 0; i < frames.Num(); i++)
 	{
-		// w’è‚µ‚½ƒtƒŒ[ƒ€‚ª‘¶İ‚µ‚È‚¯‚ê‚Î
+		// æŒ‡å®šã—ãŸãƒ•ãƒ¬ãƒ¼ãƒ ãŒå­˜åœ¨ã—ãªã‘ã‚Œã°
 		if (!frames[i]) continue;
-		// ‘I‘ğ‚³‚ê‚½ƒtƒŒ[ƒ€‚ğ•\¦
+		// é¸æŠã•ã‚ŒãŸãƒ•ãƒ¬ãƒ¼ãƒ ã‚’è¡¨ç¤º
 		frames[i]->SetVisibility(
 			i == (int32)m_CurrentSlot
 			? ESlateVisibility::Visible
@@ -144,7 +161,7 @@ void UEquipTab::UpdateSlotDisplay()
 		);
 	}
 
-	// Œ»İ‘•”õ’†‚Ì‘•”õ–¼‚ğXV
+	// ç¾åœ¨è£…å‚™ä¸­ã®è£…å‚™åã‚’æ›´æ–°
 	TArray<UTextBlock*> nameTexts = {
 		m_EquippedNameWeapon,m_EquippedNameHead,m_EquippedNameBody,
 		m_EquippedNameWaist,m_EquippedNameFeet
@@ -152,72 +169,83 @@ void UEquipTab::UpdateSlotDisplay()
 
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!PC) return;
-	ATestPlayer* player = Cast<ATestPlayer>(PC->GetPawn());
+	AMainPlayer* player = Cast<AMainPlayer>(PC->GetPawn());
 	if (!player)return;
 	UEquipmentManager* equipManager = GetGameInstance()->GetSubsystem<UEquipmentManager>();
 	if (!equipManager)return;
 
 	for (int32 i = 0; i < nameTexts.Num(); i++)
 	{
-		// ‘•”õ–¼‚ÌƒeƒLƒXƒg‚ª–³‚¯‚ê‚Î
+		// è£…å‚™åã®ãƒ†ã‚­ã‚¹ãƒˆãŒç„¡ã‘ã‚Œã°
 		if (!nameTexts[i])continue;
 
-		// ‘•”õ–¼‚ğæ“¾
+		// è£…å‚™åã‚’å–å¾—
 		FName equippedId = player->GetEquippedId((EEquipSlot)i);
 
-		// ‘•”õ–¼‚ª–³‚µ‚É‚È‚Á‚Ä‚¢‚ê‚Î
+		// è£…å‚™åãŒç„¡ã—ã«ãªã£ã¦ã„ã‚Œã°
 		if (equippedId == NAME_None)
 		{
-			nameTexts[i]->SetText(FText::FromString(TEXT("‚È‚µ")));
+			nameTexts[i]->SetText(FText::FromString(TEXT("ãªã—")));
 		}
 		else
 		{
 			FEquipItemRow* data = equipManager->GetEquipData(equippedId);
-			nameTexts[i]->SetText(FText::FromString(data ? data->ItemName : TEXT("•s–¾")));
+			nameTexts[i]->SetText(FText::FromString(data ? data->ItemName : TEXT("ä¸æ˜")));
 		}
 	}
 }
 
 void UEquipTab::UpdateItemList()
 {
-	// ƒAƒCƒeƒ€ƒXƒNƒ[ƒ‹ƒ{ƒbƒNƒX‚ª‚È‚¯‚ê‚Î
-	if (!m_ItemScrollBox)return;
+	UE_LOG(LogTemp, Log, TEXT("UpdateItemList called! Mode=%d, Items=%d"),
+		(int32)m_CurrentMode, m_CurrentSlotItems.Num());
 
-	// ˆê’UƒNƒŠƒA
+	// ã‚¢ã‚¤ãƒ†ãƒ ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒœãƒƒã‚¯ã‚¹ãŒç„¡ã‘ã‚Œã°çµ‚äº†
+	if (!m_ItemScrollBox)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ItemScrollBox is nullptr!"));
+		return;
+	}
+
+	// ä¸€æ—¦ã‚¯ãƒªã‚¢
 	m_ItemScrollBox->ClearChildren();
 
-	// Œ»İ‚Ìƒ‚[ƒh‚ª‘•”õ‘I‘ğ‚¾‚Á‚½ê‡
+	// ç¾åœ¨ã®ãƒ¢ãƒ¼ãƒ‰ãŒè£…å‚™é¸æŠã ã£ãŸå ´åˆ
 	if (m_CurrentMode == EEquipTabMode::ItemSelect)
 	{
-		// ¬‘‹‚ğ•\¦
+		// å°çª“ã‚’è¡¨ç¤º
 		if (m_ItemListPopup)
 		{
 			m_ItemListPopup->SetVisibility(ESlateVisibility::Visible);
 		}
 
-		// ƒAƒCƒeƒ€ƒGƒ“ƒgƒŠ‚ğ“®“I¶¬
+		// ã‚¢ã‚¤ãƒ†ãƒ ã‚¨ãƒ³ãƒˆãƒªã‚’å‹•çš„ç”Ÿæˆ
 		UEquipmentManager* equipManager = GetGameInstance()->GetSubsystem<UEquipmentManager>();
 		if (!equipManager)return;
 
-		// ƒAƒCƒeƒ€ƒGƒ“ƒgƒŠ“®“I¶¬
+		// ã‚¢ã‚¤ãƒ†ãƒ ã‚¨ãƒ³ãƒˆãƒªå‹•çš„ç”Ÿæˆ
 		for (int32 i = 0; i < m_CurrentSlotItems.Num(); i++)
 		{
-			// ƒAƒCƒeƒ€ƒGƒ“ƒgƒŠƒNƒ‰ƒX‚ª–³‚¯‚ê‚ÎŸ‚Ö
-			if (!m_ItemEntryClass)continue;
+			// ã‚¢ã‚¤ãƒ†ãƒ ã‚¨ãƒ³ãƒˆãƒªãƒ¼ã‚¯ãƒ©ã‚¹ãŒã‚ã‚Œã°æ¬¡ã¸
+			if (!m_ItemEntryClass)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ItemEntryClass is nullptr!"));
+				continue;
+			}
 
-			// ƒAƒCƒeƒ€–¼‚ğƒ}ƒXƒ^[ƒf[ƒ^‚©‚çæ“¾
+			// ã‚¢ã‚¤ãƒ†ãƒ åã‚’ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã‹ã‚‰å–å¾—
 			FEquipItemRow* data = equipManager->GetEquipData(m_CurrentSlotItems[i]);
 			if (!data)continue;
 
-			// ƒAƒCƒeƒ€ƒGƒ“ƒgƒŠƒEƒBƒWƒFƒbƒg‚ğì¬
+			// ã‚¢ã‚¤ãƒ†ãƒ ã‚¨ãƒ³ãƒˆãƒªã‚¦ã‚£ã‚¸ã‚§ãƒƒãƒˆã‚’ä½œæˆ
 			UEquipItemEntry* entry = CreateWidget<UEquipItemEntry>(
 				GetOwningPlayer(), m_ItemEntryClass
 			);
 
-			// ƒGƒ“ƒgƒŠƒNƒ‰ƒX‚ğì¬o—ˆ‚ê‚Î
+			// ã‚¨ãƒ³ãƒˆãƒªã‚¯ãƒ©ã‚¹ã‚’ä½œæˆå‡ºæ¥ã‚Œã°
 			if (entry)
 			{
-				// ‘•”õ‚Ì–¼‘O‚Æ‘I‘ğ‚µ‚½ƒAƒCƒeƒ€‚ğİ’è‚·‚é
+				// è£…å‚™ã®åå‰ã¨é¸æŠã—ãŸã‚¢ã‚¤ãƒ†ãƒ ã‚’è¨­å®šã™ã‚‹
 				entry->SetItemName(data->ItemName);
 				entry->SetSelected(i == m_CurrentItemIndex);
 				m_ItemScrollBox->AddChild(entry);
@@ -226,10 +254,95 @@ void UEquipTab::UpdateItemList()
 	}
 	else
 	{
-		// ¬‘‹‚ğ”ñ•\¦
+		// å°çª“ã‚’éè¡¨ç¤º
 		if (m_ItemListPopup)
 		{
 			m_ItemListPopup->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
+}
+
+void UEquipTab::UpdateEquipInfo()
+{
+/*
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã‚’å–å¾—
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’å–å¾—
+	AMainPlayer* player = Cast<AMainPlayer>(PC->GetPawn());
+
+	// EquipManagerã‚’å–å¾—
+	UEquipmentManager* equipManager = GetGameInstance()->GetSubsystem<UEquipmentManager>();
+
+	// ç¾åœ¨ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’å–å¾—
+	FStatus currentStatus = player->GetTotalStatus();
+
+	// é¸æŠä¸­ã®è£…å‚™ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—
+	FEquipItemRow* selectedData = nullptr;
+	if (m_CurrentSlotItems.IsValidIndex(m_CurrentItemIndex))
+	{
+		selectedData = equipManager->GetEquipData(m_CurrentSlotItems[m_CurrentItemIndex]);
+	}
+
+	// ç¾åœ¨è£…å‚™ä¸­ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’å–å¾—
+	FName currentEquippedId = player->GetEquippedId(m_CurrentSlot);
+	FEquipItemRow* currentEquippedData = equipManager->GetEquipData(currentEquippedId);
+	int32 currentEquippedStatus = currentEquippedData ? currentEquippedData->Status : 0;
+	int32 selectedStatus = selectedData ? selectedData->Status : 0;
+
+	// ã‚¹ãƒ­ãƒƒãƒˆã”ã¨ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã®å½±éŸ¿ã‚’åˆ¤å®š
+	auto GetStatusValue = [&](FStatus& status, EEquipSlot slot, EWeaponType weaponType) -> int32
+	{
+		switch (slot)
+		{
+		case EEquipSlot::Weapon:
+			return weaponType == EWeaponType::Staff ? status.m_MGC : status.m_ATK;
+			break;
+		case EEquipSlot::Head:
+			break;
+		case EEquipSlot::Body:
+			break;
+		case EEquipSlot::Waist:
+			return status.m_DEF;
+			break;
+		case EEquipSlot::Feet:
+			return status.m_SPD;
+			break;
+		default:
+			return 0;
+			break;
+		}
+	};
+
+	// æ­¦å™¨ã®ã‚¿ã‚¤ãƒ—ãŒNoneã‹
+	EWeaponType weponType = selectedData ? selectedData->WeaponType : EWeaponType::None;
+
+	// ç¾åœ¨ã®è£…å‚™ã—ã¦ã„ã‚‹æ­¦å™¨ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹
+	int32 currentValue = GetStatusValue(currentStatus, m_CurrentSlot, weponType);
+	// 
+	int32 nextValue = currentValue - currentEquippedStatus + selectedStatus;
+
+	// ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹åã‚’å–å¾—
+	FString statName;
+	switch (m_CurrentSlot)
+	{
+	case EEquipSlot::Weapon:
+		statName = weponType == EWeaponType::Staff ? TEXT("MGC") : TEXT("ATK");
+		break;
+	case EEquipSlot::Head:
+		break;
+	case EEquipSlot::Body:
+		break;
+	case EEquipSlot::Waist:
+		statName = TEXT("DEF");
+		break;
+	case EEquipSlot::Feet:
+		statName = TEXT("SPD");
+		break;
+	default:
+		break;
+	}
+
+	// ä¸Šã®ãƒœãƒƒã‚¯ã‚¹ã‚’æ›´æ–°
+*/
 }

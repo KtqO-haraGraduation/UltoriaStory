@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "../Battle/Combat/Components/ComponentBase.h"
 #include "GameFramework/Character.h"
+#include "../Data/EquipItemRow.h"
 #include "CharacterBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHPChanged);
@@ -118,6 +119,14 @@ public:
 	FOnHPChanged& GetOnHPChanged() { return m_OnHPChanged; }
 	FOnMPChanged& GetOnMPChanged() { return m_OnMPChanged; }
 
+	// 装備している武器・防具を追加する関数
+	UFUNCTION(BlueprintCallable)
+	void AddEquipItem(EEquipSlot Slot, FName id);
+
+	// 装備している武器・防具のIDを取得する関数
+	UFUNCTION(BlueprintCallable)
+	FName GetEquippedId(EEquipSlot Slot);
+
 protected:
 	bool CheckLevelUp(int nextLevelTotalExp);	// レベルが上がったか
 	void LevelUp();								// レベルが上がった
@@ -140,6 +149,10 @@ protected:
 
 	FStatus m_BaseStatus;	  // ステータス(基本値)
 	FStatus m_EquipmentBonus; // 装備補正値
+
+	// 装備している武器・防具
+	UPROPERTY()
+	TMap<EEquipSlot, FName> m_EquippedIds;
 
 	// コンポーネントリスト
 	TArray<UComponentBase*> m_Components;

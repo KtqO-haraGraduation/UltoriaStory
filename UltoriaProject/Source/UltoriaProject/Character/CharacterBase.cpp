@@ -155,3 +155,15 @@ void ACharacterBase::SetMP(int newMP)
 	m_CurrentMP = FMath::Clamp(newMP, 0, m_MaxMP);
 	m_OnMPChanged.Broadcast();
 }
+
+void ACharacterBase::AddEquipItem(EEquipSlot Slot, FName id)
+{
+	m_EquippedIds.Add(Slot, id);
+}
+
+FName ACharacterBase::GetEquippedId(EEquipSlot Slot)
+{
+	FName* id = m_EquippedIds.Find(Slot);
+	if (id) return *id;
+	return NAME_None;
+}

@@ -32,6 +32,12 @@ public:
 	void OnRButton()override;
 	void OnL2Button()override;
 	void OnR2Button()override;
+	void NavigateUp()override;
+	void NavigateDown()override;
+	void NavigateLeft()override;
+	void NavigateRight()override;
+	void Confirm()override;
+	void Cancel()override;
 
 private:
 	TSubclassOf<UMenuBase> GetTabClass(EStatusTab tab);

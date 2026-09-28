@@ -15,6 +15,12 @@ void UEquipmentManager::Initialize(FSubsystemCollectionBase& Collection)
 	m_OwnedEquipIds.Add(FName("row_2"));
 	m_OwnedEquipIds.Add(FName("row_3"));
 	m_OwnedEquipIds.Add(FName("row_4"));
+	m_OwnedEquipIds.Add(FName("row_5"));
+	m_OwnedEquipIds.Add(FName("row_6"));
+	m_OwnedEquipIds.Add(FName("row_7"));
+	m_OwnedEquipIds.Add(FName("row_8"));
+	m_OwnedEquipIds.Add(FName("row_9"));
+	m_OwnedEquipIds.Add(FName("row_10"));
 }
 
 FEquipItemRow* UEquipmentManager::GetEquipData(FName id)

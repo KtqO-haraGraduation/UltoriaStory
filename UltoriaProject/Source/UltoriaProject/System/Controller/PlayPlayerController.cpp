@@ -311,6 +311,14 @@ void APlayPlayerController::InputDirectional_Menu(EUIInputType type)
 	{
 		menu->InputNavigateDown();
 	}
+	else if (type == EUIInputType::LEFT)
+	{
+		menu->InputNavigateLeft();
+	}
+	else if (type == EUIInputType::RIGHT)
+	{
+		menu->InputNavigateRight();
+	}
 }
 
 void APlayPlayerController::InputL1_Menu()

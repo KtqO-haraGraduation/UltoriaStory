@@ -63,6 +63,54 @@ void UMenuStates::OnR2Button()
 
 }
 
+void UMenuStates::NavigateUp()
+{
+	if (m_CurrentTabWidget)
+	{
+		m_CurrentTabWidget->NavigateUp();
+	}
+}
+
+void UMenuStates::NavigateDown()
+{
+	if (m_CurrentTabWidget)
+	{
+		m_CurrentTabWidget->NavigateDown();
+	}
+}
+
+void UMenuStates::NavigateLeft()
+{
+	if (m_CurrentTabWidget)
+	{
+		m_CurrentTabWidget->NavigateLeft();
+	}
+}
+
+void UMenuStates::NavigateRight()
+{
+	if (m_CurrentTabWidget)
+	{
+		m_CurrentTabWidget->NavigateRight();
+	}
+}
+
+void UMenuStates::Confirm()
+{
+	if (m_CurrentTabWidget)
+	{
+		m_CurrentTabWidget->Confirm();
+	}
+}
+
+void UMenuStates::Cancel()
+{
+	if (m_CurrentTabWidget)
+	{
+		m_CurrentTabWidget->Cancel();
+	}
+}
+
 TSubclassOf<UMenuBase> UMenuStates::GetTabClass(EStatusTab tab)
 {
 	TSubclassOf<UMenuBase>* tabClass = m_TabClassMap.Find(tab);
