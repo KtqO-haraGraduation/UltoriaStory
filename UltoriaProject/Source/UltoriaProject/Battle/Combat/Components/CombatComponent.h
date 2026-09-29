@@ -59,8 +59,8 @@ public:
 	// ‘SƒLƒƒƒ‰‹¤’Ê‚Å‚Á‚Ä‚éˆ—
 	virtual void Attack(ACharacterBase* target);
 	virtual void Guard();
-	virtual void Skill(); // Œã‚ÅSkillBase‚ğæ“¾‚Å‚«‚é‚æ‚¤‚É‚·‚é
-	virtual void Item();
+	virtual void Skill(const TArray<ACharacterBase*>& targets); // Œã‚ÅSkillBase‚ğæ“¾‚Å‚«‚é‚æ‚¤‚É‚·‚é
+	virtual void Item(ACharacterBase* target);
 	virtual bool Escape();
 	virtual void TakeDamage(int damage);
 	virtual void Deading();

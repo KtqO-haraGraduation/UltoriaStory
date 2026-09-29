@@ -29,7 +29,7 @@ struct FJobBase
 // ジョブデータの構造体
 struct FJobData
 {
-	FString m_Name;		// 名前
+	FName m_Name;		// 名前
 	float	m_HP;		// 体力
 	float	m_MP;		// マナ
 	float	m_ATK;		// 攻撃力

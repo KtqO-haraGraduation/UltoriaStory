@@ -15,6 +15,11 @@ void UCharacterDataManager::Initialize(FSubsystemCollectionBase& Collection)
 	LoadAllyMasterData();
 	LoadAllyLevelData();
 	LoadEnemyData();
+
+	LoadSkillData();
+
+	LoadJobData();
+	LoadJobLvData();
 }
 
 /// <summary>
@@ -101,6 +106,82 @@ void UCharacterDataManager::LoadEnemyData()
 }
 
 /// <summary>
+/// スキルデータをロード
+/// </summary>
+void UCharacterDataManager::LoadSkillData()
+{
+	if (!IsCharacterDataAssetLoaded()) return;
+
+	UDataTable* table = m_CharacterDataAsset->SkillTable;
+	if (!table) return;
+
+	m_SkillDatas.Empty();
+
+	for (const auto& row : table->GetRowMap())
+	{
+		FSkillDataRow* data = reinterpret_cast<FSkillDataRow*>(row.Value);
+
+		if (data)
+		{
+			m_SkillDatas.Add(data->Name, *data);
+		}
+	}
+}
+
+/// <summary>
+/// ジョブデータをロード
+/// </summary>
+void UCharacterDataManager::LoadJobData()
+{
+	if (!IsCharacterDataAssetLoaded()) return;
+
+	UDataTable* table = m_CharacterDataAsset->JobTable;
+	if (!table) return;
+
+	m_JobDatas.Empty();
+
+	for (const auto& row : table->GetRowMap())
+	{
+		FJobDataRow* data = reinterpret_cast<FJobDataRow*>(row.Value);
+
+		if (data)
+		{
+			m_JobDatas.Add(data->Name, *data);
+		}
+	}
+}
+
+/// <summary>
+/// ジョブのEXPのデータをロード
+/// </summary>
+void UCharacterDataManager::LoadJobLvData()
+{
+	if (!IsCharacterDataAssetLoaded()) return;
+
+	UDataTable* table = m_CharacterDataAsset->JobLvTable;
+	if (!table) return;
+
+	m_JobLvDatas.Empty();
+
+	for (const auto& row : table->GetRowMap())
+	{
+		FString rowName = row.Key.ToString();
+
+		FString lvString;
+		if (!rowName.Split(TEXT("_"), nullptr, &lvString)) continue;
+
+		int jobLv = FCString::Atoi(*lvString);
+
+		FJobLvRow* data = reinterpret_cast<FJobLvRow*>(row.Value);
+
+		if (data)
+		{
+			m_JobLvDatas.Add(jobLv, *data);
+		}
+	}
+}
+
+/// <summary>
 /// 指定した仲間のLVデータを取得
 /// </summary>
 /// <param name="allyId">キャラクターID</param>
@@ -167,6 +248,66 @@ TSubclassOf<AEnemyBase> UCharacterDataManager::GetEnemyClass(FName enemyId)
 		return data->EnemyClass;
 	}
 	return nullptr;
+}
+
+/// <summary>
+/// 指定したスキルデータを取得
+/// </summary>
+/// <param name="name">スキルの名前</param>
+/// <returns></returns>
+FSkillDataRow UCharacterDataManager::GetSkillData(FName name)
+{
+	const FSkillDataRow* data = m_SkillDatas.Find(name);
+
+	if (data)
+	{
+		return *data;
+	}
+	return FSkillDataRow();
+}
+
+/// <summary>
+/// 指定したジョブのデータを取得
+/// </summary>
+/// <param name="jobName">ジョブの名前</param>
+/// <returns></returns>
+FJobDataRow UCharacterDataManager::GetJobData(FName jobName)
+{
+	const FJobDataRow* data = m_JobDatas.Find(jobName);
+
+	if (data)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("① data: %s / %s"),
+			*data->Skill_1.ToString(),
+			*data->Skill_2.ToString());
+
+		FJobDataRow result = *data;
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("GetJobData: %s / %s"),
+			*result.Skill_1.ToString(),
+			*result.Skill_2.ToString());
+
+		return result;
+	}
+	return FJobDataRow();
+}
+
+/// <summary>
+/// 指定したジョブの解放に必要な経験値の値のデータを返す
+/// </summary>
+/// <param name="nowJobLv">次のLv</param>
+/// <returns></returns>
+FJobLvRow UCharacterDataManager::GetJobLvData(int nexJobLv)
+{
+	const FJobLvRow* data = m_JobLvDatas.Find(nexJobLv);
+
+	if (data)
+	{
+		return *data;
+	}
+	return FJobLvRow();
 }
 
 bool UCharacterDataManager::IsCharacterDataAssetLoaded()

@@ -7,6 +7,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Components/WidgetComponent.h"
+#include "NavigationSystem.h"
+#include "NavigationPath.h"
+//#include "AIController.h"
 
 // Sets default values for this component's properties
 UEnemyFieldAIComponent::UEnemyFieldAIComponent()
@@ -136,6 +139,8 @@ void UEnemyFieldAIComponent::UpdateState()
 
 void UEnemyFieldAIComponent::UpdatePatrol()
 {
+	UPatrolComponent* patrol = m_Owner->GetComponent<UPatrolComponent>();
+	if (patrol) patrol->UpdatePatrol();
 }
 
 void UEnemyFieldAIComponent::UpdateSearch()
@@ -150,8 +155,39 @@ void UEnemyFieldAIComponent::UpdateChase()
 	if (!IsPreChaseWaitFinished())
 	{
 		m_PreChaseWaitTimer -= GetWorld()->GetDeltaSeconds();
+		return;
 	}
-	else
+
+	ShowPreChaseUI(false);
+
+	FVector start = m_Owner->GetActorLocation();
+	FVector target = m_Player->GetActorLocation();
+
+	UNavigationSystemV1* navSystem = UNavigationSystemV1::GetCurrent(GetWorld());
+
+	if (!navSystem) return;
+
+	UNavigationPath* path =
+		navSystem->FindPathToActorSynchronously(
+			GetWorld(),
+			start,
+			m_Player,
+			100.0f,
+			m_Owner
+		);
+
+	if (!path || path->PathPoints.Num() < 2) return;
+
+	// NavMeshで計算された次の地点
+	FVector nextPoint = path->PathPoints[1];
+
+	// 次の地点へ向かう
+	FVector dir =
+		(nextPoint - start).GetSafeNormal();
+
+	m_Owner->AddMovementInput(dir, 1.0f);
+
+	/*else
 	{
 		ShowPreChaseUI(false);
 
@@ -162,7 +198,7 @@ void UEnemyFieldAIComponent::UpdateChase()
 		dir.Normalize();
 
 		m_Owner->AddMovementInput(dir, 1.0f);
-	}
+	}*/
 }
 
 void UEnemyFieldAIComponent::UpdateReturn()

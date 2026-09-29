@@ -8,6 +8,9 @@
 #include "EnemyMasterData.h"
 #include "AllyLevelData.h"
 #include "AllyMasterData.h"
+#include "../../Job/Skill/SkillDataRow.h"
+#include "../../Job/JobDataRow.h"
+#include "../../Job/JobLvRow.h"
 #include "CharacterDataManager.generated.h"
 
 class UCharacterDataAsset;
@@ -30,6 +33,11 @@ public:
 	void LoadAllyLevelData();
 	void LoadEnemyData();
 
+	void LoadSkillData();
+
+	void LoadJobData();
+	void LoadJobLvData();
+
 	// Get関数
 	// Idで指定した仲間のステータスデータを取得 
 	FAllyLevelData GetAllyLevelData(FName allyId, int Lv) const;
@@ -39,6 +47,14 @@ public:
 	FEnemyMasterData GetEnemyData(FName enemyId) const;
 	// 敵のデータからクラスを検索して取得
 	TSubclassOf<AEnemyBase> GetEnemyClass(FName enemyId);
+
+	// 名前で指定したスキルのデータを取得
+	FSkillDataRow GetSkillData(FName name);
+
+	// 名前で指定したジョブのデータ取得
+	FJobDataRow GetJobData(FName jobName);
+	// ジョブのLvのExp値を検索して返す
+	FJobLvRow GetJobLvData(int nexJobLv);
 
 private:
 	bool IsCharacterDataAssetLoaded();
@@ -50,4 +66,9 @@ private:
 	TMap<FName, FAllyLevelData> m_AllyLevelDatas;		// 仲間のデータ
 	TMap<FName, FAllyMasterData> m_AllyMasterDatas;		// 仲間の設定データ
 	TMap<FName, FEnemyMasterData> m_EnemyDatas;			// 敵のデータ
+
+	TMap<FName, FSkillDataRow> m_SkillDatas;			// スキルのデータ
+
+	TMap<FName, FJobDataRow> m_JobDatas;				// ジョブのデータ
+	TMap<int, FJobLvRow> m_JobLvDatas;					// ジョブLvのデータ
 };

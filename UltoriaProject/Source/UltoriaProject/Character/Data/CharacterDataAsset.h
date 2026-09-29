@@ -31,5 +31,8 @@ public:
 	TObjectPtr<UDataTable> JobTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UDataTable> JobLvTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UDataTable> StatusTable;
 };

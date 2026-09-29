@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "../CharacterBase.h"
+#include "PlayerCharacterBase.h"
 #include "InputActionValue.h"
 #include "MainPlayer.generated.h"
 
@@ -12,12 +13,13 @@ struct FJobBase;
 class UBoxComponent;
 class USpringArmComponent;
 class UCameraComponent;
+class UJobDataComponent;
 
 /**
  * 
  */
 UCLASS()
-class ULTORIAPROJECT_API AMainPlayer : public ACharacterBase
+class ULTORIAPROJECT_API AMainPlayer : public APlayerCharacterBase
 {
 	GENERATED_BODY()
 
@@ -40,9 +42,6 @@ public:
 	USpringArmComponent* GetCameraBoom() const { return m_CameraBoom; }
 	UCameraComponent* GetFollowCamera() const { return m_FollowCamera; }
 
-	// 最終ステータス
-	FStatus GetTotalStatus() const override;
-
 public:
 	// Called every frame
 	void Tick(float DeltaTime) override;
@@ -55,19 +54,19 @@ protected:
 	void StartBattle(ACharacterBase* otherActor, bool isPreemptive);
 
 private:
-	void JobChange();	// ジョブの切り替え
-	FStatus TotalStatus();	// 総合ステータス
+
+	//void JobChange();	// ジョブの切り替え
+	//FStatus TotalStatus();	// 総合ステータス
 
 private:
-	UPROPERTY(EditAnywhere)
-	EPlayerType m_PlayerType;
+	/*UPROPERTY(EditAnywhere)
+	EPlayerType m_PlayerType;*/
 	
-	UPROPERTY(EditAnywhere)
-	int m_JobId;
+	/*UPROPERTY(EditAnywhere)
+	int m_JobId;*/
 
-	// ジョブの情報
-	FJobBase* m_JobBase;	// ベース
-	FJobData* m_JobData;	// データ
+	//FJobBase* m_JobBase;	// ベース
+	//FJobData* m_JobData;	// データ
 
 	FVector m_PrevPos;  // 前回の座標（バトル開始時の座標）
 	bool m_IsAttacking; // アタック中か

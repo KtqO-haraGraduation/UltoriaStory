@@ -12,23 +12,41 @@ struct FJobDataRow : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Name;
+	FName Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int HP;
+	float HP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int MP;
+	float MP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int ATK;
+	float ATK;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int MGC;
+	float MGC;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int DEF;
+	float DEF;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int SPD;
+	float SPD;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Skill_1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Skill_2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Skill_3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Skill_4;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Skill_5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Skill_6;
 };

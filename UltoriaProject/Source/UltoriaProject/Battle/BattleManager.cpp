@@ -201,13 +201,13 @@ void UBattleManager::ExecuteCommand(ECommandType type)
 	case ECommandType::SKILL:
 	{
 		m_SelectionType = SelectionType::SKILL;
-		combat->Skill();
+		//combat->Skill();
 		break;
 	}
 	case ECommandType::ITEM:
 	{
 		m_SelectionType = SelectionType::ITEM;
-		combat->Item();
+		//combat->Item();
 		break;
 	}
 	case ECommandType::ESCAPE:

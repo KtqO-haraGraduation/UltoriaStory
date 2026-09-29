@@ -1,11 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "JobDataComponent.h"
 #include "JobDataSubsystem.h"
 #include "Skill/SkillSubsystem.h"
 #include "Skill/SkillBaseComponent.h"
 #include "../Character/CharacterBase.h"
+#include "../Character/Data/CharacterDataManager.h"
+
+#define STATUS_DIAMETER 100.0f // ”{—¦
 
 // Sets default values for this component's properties
 UJobDataComponent::UJobDataComponent()
@@ -14,19 +16,13 @@ UJobDataComponent::UJobDataComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	for (int i = 0; i < SKILL_MAX; i++)
+	/*for (int i = 0; i < SKILL_MAX; i++)
 	{
 		m_Skill[i] = nullptr;
-	}
+	}*/
 
 	m_Level = 0;
 	m_Exp = 0;
-	m_HP = 0.0f;
-	m_MP = 0.0f;
-	m_ATK = 0.0f;
-	m_MGC = 0.0f;
-	m_DEF = 0.0f;
-	m_SPD = 0.0f;
 	m_Break = 0.0f;
 	m_BreakGauge = 0.0f;
 }
@@ -36,7 +32,7 @@ void UJobDataComponent::BeginPlay()
     Super::BeginPlay();
 
 	m_Level = 1;
-
+	m_Skill = GetOwner()->FindComponentByClass<USkillBaseComponent>();
 }
 
 /// <summary>
@@ -75,7 +71,71 @@ void UJobDataComponent::SetJobData(int id, ACharacterBase* character)
 	}*/
 }
 
+void UJobDataComponent::SetJobData(FName jobName)
+{
+	UCharacterDataManager* dataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
+	if (!dataMg) return;
+
+	m_Data = dataMg->GetJobData(jobName);
+
+	UE_LOG(LogTemp, Warning, TEXT("Data"));
+	UE_LOG(LogTemp, Warning, TEXT("Name : %s"), *m_Data.Name.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("HP : %f"), m_Data.HP);
+	UE_LOG(LogTemp, Warning, TEXT("MP : %f"), m_Data.MP);
+	UE_LOG(LogTemp, Warning, TEXT("ATK : %f"), m_Data.ATK);
+	UE_LOG(LogTemp, Warning, TEXT("MGC : %f"), m_Data.MGC);
+	UE_LOG(LogTemp, Warning, TEXT("DEF : %f"), m_Data.DEF);
+	UE_LOG(LogTemp, Warning, TEXT("SPD : %f"), m_Data.SPD);
+	UE_LOG(LogTemp, Warning, TEXT("Skill_1 : %s"), *m_Data.Skill_1.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Skill_2 : %s"), *m_Data.Skill_2.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Skill_3 : %s"), *m_Data.Skill_3.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Skill_4 : %s"), *m_Data.Skill_4.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Skill_5 : %s"), *m_Data.Skill_5.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Skill_6 : %s"), *m_Data.Skill_6.ToString());
+
+	m_Data.HP /= STATUS_DIAMETER;
+	m_Data.MP /= STATUS_DIAMETER;
+	m_Data.ATK /= STATUS_DIAMETER;
+	m_Data.MGC /= STATUS_DIAMETER;
+	m_Data.DEF /= STATUS_DIAMETER;
+	m_Data.SPD /= STATUS_DIAMETER;
+
+	UE_LOG(LogTemp, Warning, TEXT("HP : %f"), m_Data.HP);
+	UE_LOG(LogTemp, Warning, TEXT("MP : %f"), m_Data.MP);
+	UE_LOG(LogTemp, Warning, TEXT("ATK : %f"), m_Data.ATK);
+	UE_LOG(LogTemp, Warning, TEXT("MGC : %f"), m_Data.MGC);
+	UE_LOG(LogTemp, Warning, TEXT("DEF : %f"), m_Data.DEF);
+	UE_LOG(LogTemp, Warning, TEXT("SPD : %f"), m_Data.SPD);
+
+	CreateSkill();
+}
+
+bool UJobDataComponent::CanLevelUp()
+{
+	UCharacterDataManager* dataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
+	if (!dataMg) return false;
+
+	int nexJobLv = m_Level + 1;
+	FJobLvRow jobLvData = dataMg->GetJobLvData(nexJobLv);
+
+	return m_Exp >= jobLvData.TotalExp;
+}
+
 void UJobDataComponent::LevelUp()
 {
+	if (!CanLevelUp()) return;
 	m_Level++;
 }
+
+void UJobDataComponent::CreateSkill()
+{
+	m_Skill->Reset();
+
+	m_Skill->Create(m_Data.Skill_1);
+	m_Skill->Create(m_Data.Skill_2);
+	m_Skill->Create(m_Data.Skill_3);
+	m_Skill->Create(m_Data.Skill_4);
+	m_Skill->Create(m_Data.Skill_5);
+	m_Skill->Create(m_Data.Skill_6);
+}
+

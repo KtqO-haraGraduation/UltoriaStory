@@ -6,16 +6,25 @@
 #include "Engine/DataTable.h"
 #include "SkillDataRow.generated.h"
 
+UENUM(BlueprintType)
+enum class ESkillType : uint8
+{
+	NONE,
+	ATTACK,
+	BUFF,
+	HEAL,
+};
+
 USTRUCT(BlueprintType)
 struct FSkillDataRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-	FString SkillType;
+	ESkillType SkillType;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-	FString Name;
+	FName Name;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	int MpCost;

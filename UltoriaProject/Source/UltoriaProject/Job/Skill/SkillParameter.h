@@ -1,4 +1,6 @@
 #pragma once
+#include "SkillDataRow.h"
+
 // -------------- 定数 -------------- //
 #define SKILL_MAX 6	// ジョブごとのスキル数
 // ---------------------------------- //
@@ -10,8 +12,8 @@
 // ------------- 構造体 ------------- //
 struct FSkillData
 {
-	FString m_Type;		// スキルタイプ
-	FString m_Name;		// 技名
+	ESkillType m_Type;		// スキルタイプ
+	FName m_Name;		// 技名
 	int   m_MpCost;		// 消費MP
 	float m_EffectValue;// 効果量
 	float m_BreakMult;	// ブレイク倍率

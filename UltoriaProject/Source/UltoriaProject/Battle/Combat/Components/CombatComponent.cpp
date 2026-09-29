@@ -128,14 +128,19 @@ void UCombatComponent::Guard()
 	);
 }
 
-void UCombatComponent::Skill()
+void UCombatComponent::Skill(const TArray<ACharacterBase*>& targets)
 {
 	m_CurrentState = CombatState::SKILL;
+	
+	
+
 }
 
-void UCombatComponent::Item()
+void UCombatComponent::Item(ACharacterBase* target)
 {
 	m_CurrentState = CombatState::ITEM;
+
+
 }
 
 bool UCombatComponent::Escape()
