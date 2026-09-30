@@ -4,6 +4,29 @@
 #include "Engine/DataTable.h"
 #include "ItemData.generated.h"
 
+// ItemTarget
+UENUM(BlueprintType)
+enum class EItemType : uint8
+{
+    Consumable,
+    Material,
+    Weapon,
+    Armor,
+    KeyItem
+};
+
+// UseTarget
+UENUM(BlueprintType)
+enum class EItemUseTarget : uint8
+{
+    None,
+    Ally,
+    Enemy,
+    Self,
+    AllAllies
+};
+
+
 USTRUCT(BlueprintType)
 struct FItemData : public FTableRowBase
 {
@@ -40,4 +63,16 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 SellPrice = 0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    EItemType Type;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    EItemUseTarget Target;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bUsableInField;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bUsableInBattle;
 };
