@@ -7,6 +7,7 @@
 #include "DebugMapActor.generated.h"
 
 class UMapWidget;
+class UMiniMapWidget;
 
 UCLASS()
 class ULTORIAPROJECT_API ADebugMapActor : public AActor
@@ -28,4 +29,8 @@ public:
 private:
 	UPROPERTY(EditAnywhere)
 	UMapWidget* m_MapWidget;
+	UPROPERTY(EditAnywhere)
+	UMiniMapWidget* m_MiniMapWidget;
+	UPROPERTY(EditAnywhere)
+	bool m_EntireArea;
 };

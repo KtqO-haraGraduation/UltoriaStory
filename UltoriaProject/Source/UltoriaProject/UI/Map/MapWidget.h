@@ -21,10 +21,17 @@ public:
 	virtual void NativeConstruct() override;
 	// XVˆ—
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+public:
+	void InitMap();
+
+	void SetStageMosts(TArray<AActor*> stageMosts) { m_StageMosts = stageMosts; }
 	
 private:
-	void InitMap();
+
 	void UpdateMapPlayer();
+
+	void AddStageMosts(FName tag);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
