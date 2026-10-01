@@ -119,20 +119,10 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	class UBorder* m_ChangeStatus;
 
-	// Œ»İ’l
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* m_CurrentATK;
-
-	// ‘I‘ğ’†‚Ì‘•”õ‚É•Ï‚¦‚½Œã‚Ì’l
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* m_NextATK;
-
 	// ‘•”õà–¾
 	UPROPERTY(meta = (BindWidget))
 	class UBorder* m_EquipItemStatus;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* m_EquipItemName;
 
 	UPROPERTY(meta = (BindaWidget))
 	UTextBlock* m_EquipItemStatusValue;
