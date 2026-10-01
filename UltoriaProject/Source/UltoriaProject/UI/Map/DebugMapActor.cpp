@@ -3,6 +3,7 @@
 
 #include "DebugMapActor.h"
 #include "MapWidget.h"
+#include "MiniMapWidget.h"
 #include "Blueprint/UserWidget.h"
 
 // Sets default values
@@ -18,9 +19,14 @@ void ADebugMapActor::BeginPlay()
 	Super::BeginPlay();
 
 	// BPで設定したウィジェットを表示
-	if (m_MapWidget)
+	if (m_MapWidget && m_EntireArea)
 	{
 		m_MapWidget->AddToViewport();
+	}
+
+	if (m_MiniMapWidget && !m_EntireArea)
+	{
+		m_MiniMapWidget->AddToViewport();
 	}
 }
 

@@ -2,6 +2,7 @@
 #include "ShopMenuWidget.h"
 #include "ShopItemEntryWidget.h"
 #include "BuyConfirmWidget.h"
+#include "../../Inventory/InventorySubsystem.h"
 #include "Components/ScrollBox.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/DataTable.h"
@@ -10,36 +11,6 @@ void UShopMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	//if (!ItemDataTable) return;
-	//if (!ShopItemEntryClass) return;
-	//if (!ItemList) return;
-
-	//// 全行取得
-	//static const FString ContextString(TEXT("ItemData"));
-
-	//TArray<FItemData*> Rows;
-	//ItemDataTable->GetAllRows<FItemData>(ContextString, Rows);
-
-
-	//for (FItemData* Row : Rows)
-	//{
-	//	if (!Row) continue;
-
-	//	// Widget生成	
-	//	UShopItemEntryWidget* Entry = CreateWidget<UShopItemEntryWidget>(GetWorld(), ShopItemEntryClass);
-	//			
-	//	if (Entry)
-	//	{
-	//		// データセット
-	//		Entry->SetItemData(*Row);
-	//		// ScrollBox追加
-	//		ItemList->AddChild(Entry);
-	//		// 配列追加
-	//		ItemEntries.Add(Entry);
-	//	}
-	//}
-
-	//UpdateSelection();
 	UpdateMoney();// 所持金更新
 }
 
@@ -102,6 +73,7 @@ bool UShopMenuWidget::ConfirmSelection()
 	UShopManager* Shop = GetWorld()->GetSubsystem<UShopManager>();
 	if (!Shop) return false;
 
+
 	 //所持金不足
 	if (Shop->GetMoney() < Item.Price)
 	{
@@ -116,15 +88,6 @@ bool UShopMenuWidget::ConfirmSelection()
 	BuyConfirmWidget->SetupItem(Item, Shop->GetMoney());
 
 	return true;
-	//if (Shop->GetMoney() >= Item.Price)
-	//{
-	//	BuyConfirmWidget = CreateWidget<UBuyConfirmWidget>(GetWorld(), BuyConfirmClass);
-
-	//	BuyConfirmWidget->AddToViewport();
-
-	//	BuyConfirmWidget->SetupItem(Item,Shop->GetMoney());
-	//}
-
 }
 
 void UShopMenuWidget::BuyCurrentItem()
@@ -140,6 +103,9 @@ void UShopMenuWidget::BuyCurrentItem()
 	UShopManager* Shop = GetWorld()->GetSubsystem<UShopManager>();
 	if (!Shop) return;
 
+	UInventorySubsystem* Inventory = GetGameInstance()->GetSubsystem<UInventorySubsystem>();
+	if (!Inventory) return;
+
 	FItemData Item = BuyConfirmWidget->GetItemData();		
 	int32 Count = BuyConfirmWidget->GetBuyCount();		
 	int32 TotalPrice = Item.Price * Count;
@@ -151,6 +117,9 @@ void UShopMenuWidget::BuyCurrentItem()
 		int nowMoney = Shop->GetMoney();
 		nowMoney -= TotalPrice;
 		Shop->SetMoney(nowMoney);
+
+		// インベントリに追加
+		Inventory->AddItem(Item.ID, Count);
 
 		UpdateMoney();// 所持金更新
 

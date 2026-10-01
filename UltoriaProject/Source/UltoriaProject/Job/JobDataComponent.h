@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "JobDataRow.h"
+#include "../Battle/Combat/Components/ComponentBase.h"
 #include "JobDataComponent.generated.h"
 
 class ACharacterBase;
 class USkillBaseComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ULTORIAPROJECT_API UJobDataComponent : public UActorComponent
+class ULTORIAPROJECT_API UJobDataComponent : public UComponentBase
 {
 	GENERATED_BODY()
 
@@ -23,35 +25,37 @@ public:
 	void BeginPlay() override;
 
 public:
-	USkillBaseComponent* GetSkill(int id) { return m_Skill[id]; }
-	const FString GetFString()	const { return m_Name; }
+	//USkillBaseComponent* GetSkill(int id) { return m_Skill[id]; }
+	USkillBaseComponent* GetSkill() { return m_Skill; }
+	const FName GetName()	const { return m_Data.Name; }
 	const int	GetLevel()			const { return m_Level; }
 	const int	GetExp()			const { return m_Exp; }
-	const float GetHP()			const { return m_HP; }
-	const float GetMP()			const { return m_MP; }
-	const float GetATK()		const { return m_ATK; }
-	const float GetMGC()		const { return m_MGC; }
-	const float GetDEF()		const { return m_DEF; }
-	const float GetSPD()		const { return m_SPD; }
+	const float GetHP()			const { return m_Data.HP; }
+	const float GetMP()			const { return m_Data.MP; }
+	const float GetATK()		const { return m_Data.ATK; }
+	const float GetMGC()		const { return m_Data.MGC; }
+	const float GetDEF()		const { return m_Data.DEF; }
+	const float GetSPD()		const { return m_Data.SPD; }
 	const float GetBreak()		const { return m_Break; }
 	const float GetBreakGauge() const { return m_BreakGauge; }
 
 	void SetJobData(int id, ACharacterBase* character);
 
+	void SetJobData(FName jobName);
+
 public:
+	bool CanLevelUp();
 	void LevelUp();
 
+	void CreateSkill();
+
 private:
-	USkillBaseComponent* m_Skill[6];
-	FString m_Name;
+	//USkillBaseComponent* m_Skill[6];
+	USkillBaseComponent* m_Skill;
+	FJobDataRow m_Data;
 	int m_Level;
 	int m_Exp;
-	float m_HP;
-	float m_MP;
-	float m_ATK;
-	float m_MGC;
-	float m_DEF;
-	float m_SPD;
+
 	float m_Break;
 	float m_BreakGauge;
 };

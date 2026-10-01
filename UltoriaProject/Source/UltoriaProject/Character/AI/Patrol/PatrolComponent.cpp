@@ -46,9 +46,9 @@ void UPatrolComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// ...
 }
 
-void UPatrolComponent::Update()
+void UPatrolComponent::UpdatePatrol()
 {
-	if (!m_CurrentPoint || !m_PatrolRoute) return;
+	if (!m_CurrentPoint) return;
 
 	if (m_IsWaiting)
 	{
@@ -56,8 +56,6 @@ void UPatrolComponent::Update()
 	}
 	else
 	{
-		EPatrolType type = m_PatrolRoute->GetPatrolType();
-
 		FVector currentPos = m_Owner->GetActorLocation();
 		FVector targetPos = m_CurrentPoint->GetActorLocation();
 
@@ -74,7 +72,6 @@ void UPatrolComponent::Update()
 		FVector dir = delta.GetSafeNormal();
 		m_Owner->AddMovementInput(dir, 1.0f);
 	}
-	
 }
 
 int UPatrolComponent::FindNearestPointIndex()

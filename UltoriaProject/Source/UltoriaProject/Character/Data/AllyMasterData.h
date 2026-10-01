@@ -17,5 +17,8 @@ struct FAllyMasterData : public FTableRowBase
 	int InitialLv;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName JobType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ACharacterBase> Class;
 };

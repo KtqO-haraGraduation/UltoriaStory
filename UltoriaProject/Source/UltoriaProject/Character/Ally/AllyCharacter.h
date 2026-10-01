@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "../CharacterBase.h"
+#include "PlayerCharacterBase.h"
 #include "AllyCharacter.generated.h"
 
 struct FJobData;
 struct FJobBase;
+class UJobDataComponent;
 
 UCLASS()
-class ULTORIAPROJECT_API AAllyCharacter : public ACharacterBase
+class ULTORIAPROJECT_API AAllyCharacter : public APlayerCharacterBase
 {
 	GENERATED_BODY()
 
@@ -29,20 +31,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// 最終ステータス
-	FStatus GetTotalStatus() const override;
-
 private:
-	void JobChange();	// ジョブの切り替え
 
-private:
-	UPROPERTY(EditAnywhere)
-	EPlayerType m_PlayerType;
-
-	UPROPERTY(EditAnywhere)
-	int m_JobId;
+	//UPROPERTY(EditAnywhere)
+	//int m_JobId;
 
 	// ジョブの情報
-	FJobBase* m_JobBase;	// ベース
-	FJobData* m_JobData;	// データ
+	//FJobBase* m_JobBase;	// ベース
+	//FJobData* m_JobData;	// データ
 };

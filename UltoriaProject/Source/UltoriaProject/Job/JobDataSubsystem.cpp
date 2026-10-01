@@ -32,37 +32,37 @@ void UJobDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	Super::Initialize(Collection);
 
-	LoadJobDataAsset();
+	//LoadJobDataAsset();
 
-	if (!m_JobDA)
-	{
-		UE_LOG(LogTemp, Error, TEXT("JobDataAsset/false"));
-		return;
-	}
+	//if (!m_JobDA)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("JobDataAsset/false"));
+	//	return;
+	//}
 
-	// 初期化
-	m_JobDataRows.Empty();
-	m_JobLvRows.Empty();
-	// 全データ・レベルを取得
-	m_JobDA->m_JobDataMappingTable->GetAllRows<FJobDataRow>(TEXT(""), m_JobDataRows);
-	m_JobDA->m_JobLvMappingTable->GetAllRows<FJobLvRow>(TEXT(""), m_JobLvRows);
+	//// 初期化
+	//m_JobDataRows.Empty();
+	//m_JobLvRows.Empty();
+	//// 全データ・レベルを取得
+	//m_JobDA->m_JobDataMappingTable->GetAllRows<FJobDataRow>(TEXT(""), m_JobDataRows);
+	//m_JobDA->m_JobLvMappingTable->GetAllRows<FJobLvRow>(TEXT(""), m_JobLvRows);
 
-	for (int i = FENCER; i < JOB_MAX; i++)
-	{
-		m_JobBase[i] = CreateJobBase(i);
-		// ジョブデータの要素数を超えたか
-		// falseが呼ばれると超えている
-		if (!m_JobDataRows.IsValidIndex(i))
-		{
-			continue; // 超えていたら処理をスルー
-		}
-		m_JobData[i] = CreateJobData(i);
-	}
-	
-	for (int j = 0; j < JOB_LEVEL_MAX; j++)
-	{
-		m_TotalExp[j] = m_JobLvRows[j]->TotalExp;
-	}
+	//for (int i = FENCER; i < JOB_MAX; i++)
+	//{
+	//	m_JobBase[i] = CreateJobBase(i);
+	//	// ジョブデータの要素数を超えたか
+	//	// falseが呼ばれると超えている
+	//	if (!m_JobDataRows.IsValidIndex(i))
+	//	{
+	//		continue; // 超えていたら処理をスルー
+	//	}
+	//	m_JobData[i] = CreateJobData(i);
+	//}
+	//
+	//for (int j = 0; j < JOB_LEVEL_MAX; j++)
+	//{
+	//	m_TotalExp[j] = m_JobLvRows[j]->TotalExp;
+	//}
 }
 
 void UJobDataSubsystem::LoadJobDataAsset()
