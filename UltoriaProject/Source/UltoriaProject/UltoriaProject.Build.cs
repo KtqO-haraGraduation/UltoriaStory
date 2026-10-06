@@ -7,10 +7,26 @@ public class UltoriaProject : ModuleRules
 	public UltoriaProject(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput","LevelSequence","MovieScene","CinematicCamera","UMG", "Niagara", "NavigationSystem"});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PublicDependencyModuleNames.AddRange(new string[] {
+			"Core",
+			"CoreUObject",
+			"Engine",
+			"InputCore",
+			"EnhancedInput",
+			"LevelSequence",
+			"MovieScene",
+			"CinematicCamera",
+			"UMG",
+			"Niagara",
+			"NavigationSystem",
+		    "OnlineSubsystem",
+			"OnlineSubsystemEOS",
+			"OnlineSubsystemUtils",
+            "Slate",
+            "SlateCore"});
+
+		PrivateDependencyModuleNames.AddRange(new string[] { "OnlineSubsystem", "Slate", "SlateCore" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
