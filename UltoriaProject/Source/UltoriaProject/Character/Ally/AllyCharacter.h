@@ -3,13 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../CharacterBase.h"
 #include "PlayerCharacterBase.h"
 #include "AllyCharacter.generated.h"
-
-struct FJobData;
-struct FJobBase;
-class UJobDataComponent;
 
 UCLASS()
 class ULTORIAPROJECT_API AAllyCharacter : public APlayerCharacterBase
@@ -31,12 +26,4 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-private:
-
-	//UPROPERTY(EditAnywhere)
-	//int m_JobId;
-
-	// ジョブの情報
-	//FJobBase* m_JobBase;	// ベース
-	//FJobData* m_JobData;	// データ
 };

@@ -10,7 +10,6 @@
 class UBattleManager;
 class ABattleAreaManager;
 class AEnemyBase;
-class ABattleAreaManager;
 
 /**
  * 

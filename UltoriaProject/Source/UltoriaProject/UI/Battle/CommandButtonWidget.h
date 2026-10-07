@@ -3,10 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
-#include "Components/Button.h"
-#include "Components/TextBlock.h"
-#include "BattleUIBase.h"
+#include "Base/BattleButtonBase.h"
 #include "../../Battle/BattleManager.h"
 #include "CommandButtonWidget.generated.h"
 
@@ -16,39 +13,21 @@ class UCommandUIWidget;
  * 
  */
 UCLASS()
-class ULTORIAPROJECT_API UCommandButtonWidget : public UBattleUIBase
+class ULTORIAPROJECT_API UCommandButtonWidget : public UBattleButtonBase
 {
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
-
 	void SetCommandData(const FBattleCommandData& data);
-	void SetOwner(UCommandUIWidget* owner, int index);
-	void SetSelected(bool flag);
+	void SetSelected(bool flag) override;
+
+protected:
+	void OnClickButton() override;
+	void OnHoverButton() override;
 
 private:
-	UFUNCTION()
-	void OnClickCommandButton();
-
-	UFUNCTION()
-	void OnHoverCommandButton();
-
-private:
-	UPROPERTY(meta = (BindWidget))
-	UButton* Button;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* TB_Name;
-
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	UWidgetAnimation* SelectAnim;
 
 	FBattleCommandData m_CommandData;
-
-	UPROPERTY()
-	UCommandUIWidget* m_Owner;
-
-	bool m_IsSelected = false;
-	int m_Index = 0;
 };

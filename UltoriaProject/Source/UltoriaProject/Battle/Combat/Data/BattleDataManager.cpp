@@ -3,8 +3,6 @@
 
 #include "BattleDataManager.h"
 
-
-
 void UBattleDataManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);

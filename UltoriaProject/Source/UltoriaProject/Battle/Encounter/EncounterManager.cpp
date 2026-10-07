@@ -27,7 +27,7 @@ bool UEncounterManager::IsTickable() const
 	return m_IsZoom;
 }
 
-void UEncounterManager::StartEncounter(ACharacterBase* player, ACharacterBase* enemy, bool isPreemptive)
+void UEncounterManager::StartEncounter(ACharacterBase* enemy, bool isPreemptive)
 {
 	if (m_IsZoom) return;
 
@@ -38,11 +38,11 @@ void UEncounterManager::StartEncounter(ACharacterBase* player, ACharacterBase* e
 	if (pc) pc->ChangeInputMode(PlayInputMode::BATTLE);
 
 	// ƒJƒƒ‰‰‰o
-	AMainPlayer* Player = Cast<AMainPlayer>(player);
-	if (!Player) return;
+	AMainPlayer* player = Cast<AMainPlayer>(pc->GetPawn());
+	if (!player) return;
 
-	m_Boom = Player->GetCameraBoom();
-	m_Camera = Player->GetFollowCamera();
+	m_Boom = player->GetCameraBoom();
+	m_Camera = player->GetFollowCamera();
 
 	if (!m_Boom || !m_Camera)
 	{
@@ -232,5 +232,5 @@ void UEncounterManager::EnterBattle()
 
 	m_BattleLevel = SetLevelVisible("LV_BattleMC", true);
 	mFieldLevel   = SetLevelVisible("LV_Matsubara", false);
-	battleManager->BattleStart(m_Player, m_Enemy, m_Flag);
+	battleManager->BattleStart(m_Enemy, m_Flag);
 }

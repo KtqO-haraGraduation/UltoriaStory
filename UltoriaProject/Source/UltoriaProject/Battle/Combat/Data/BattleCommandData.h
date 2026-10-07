@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "BattleParameter.h"
 #include "BattleCommandData.generated.h"
 
 // コマンドタイプ

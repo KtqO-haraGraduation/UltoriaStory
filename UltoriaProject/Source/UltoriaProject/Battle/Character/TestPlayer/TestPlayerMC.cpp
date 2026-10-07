@@ -148,7 +148,7 @@ void ATestPlayerMC::StartBattle(ACharacterBase* otherActor, bool isPreemptive)
 	UEncounterManager* encounter = GetWorld()->GetSubsystem<UEncounterManager>();
 	if (encounter)
 	{
-		encounter->StartEncounter(this, otherActor, isPreemptive);
+		encounter->StartEncounter(otherActor, isPreemptive);
 	}
 }
 

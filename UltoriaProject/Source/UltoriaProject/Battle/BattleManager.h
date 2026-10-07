@@ -12,18 +12,22 @@ class ACharacterBase;
 class AEnemyBase;
 class ABattleAreaManager;
 class UBattleLifecycle;
+class UBattleTurnManager;
 enum class EUIInputType;
+//enum class ESelectionType;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTurnChanged, ACharacterBase*, ACharacterBase*);
 
+// 選択肢の種類
+UENUM(BlueprintType)
 enum class SelectionType : uint8
 {
+	NONE,
 	COMMAND,
 	TARGET,
 	SKILL,
 	ITEM,
 	RESULT,
-	NONE,
 };
 
 /**
@@ -37,16 +41,12 @@ class ULTORIAPROJECT_API UBattleManager : public UWorldSubsystem
 public:
 	void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	void BattleStart(ACharacterBase* player, ACharacterBase* enemy, bool isPreemptive);	// バトル開始
+	void BattleStart(ACharacterBase* enemy, bool isPreemptive);	// バトル開始
 	void NextTurn();	// 次のターン
 	void BattleEnd();	// バトル終了
 
 	// 現在行動してるキャラクターを取得
-	ACharacterBase* GetCurrentCharacter() { return m_CurrentCharacter; }
-
-	// キャラクターをリストの中に追加
-	void AddCharacter(ACharacterBase* character);			  // 単体で追加
-	void AddParty(const TArray<ACharacterBase*>& characters); // パーティー単位で追加
+	ACharacterBase* GetCurrentCharacter();
 
 	// バトル中かのフラグ
 	UFUNCTION(BlueprintCallable)
@@ -69,12 +69,12 @@ public:
 	void SetCharacterPos(ABattleAreaManager* area);
 	// パーティー作成
 	void CreateParty(AEnemyBase* enemyBase);
-	// スピード順に並びかえる
-	void SortBySpeedDescending();
 
 	// 敵を取得
 	AEnemyBase* GetEnemyCurrentSelect();
 	const TArray<ACharacterBase*>& GetEnemyParty() const { return m_EnemyParty; }
+
+	UBattleTurnManager* GetTurnManager() { return m_TurnManager; }
 
 	// コマンドセレクトのインデックスを設定
 	void SetCommandSelectIndex(int index);
@@ -92,6 +92,8 @@ private:
 
 	// Attackの処理
 	void StartAttack();
+	void StartSkill();
+	void StartItem();
 
 	void ExecuteAttack(ACharacterBase* target);
 	void ShowTargetUI(const TArray<ACharacterBase*>& targets);
@@ -102,7 +104,6 @@ private:
 	void FinishBattle();
 
 private:
-	int m_CurrentIndex;
 	bool m_IsBattle;							 // バトル中か
 	bool m_IsVictory;							 //	プレイヤー側が勝負に勝ったか
 	SelectionType m_SelectionType;
@@ -110,11 +111,11 @@ private:
 
 	UPROPERTY()
 	UBattleLifecycle* m_Lifecycle;
-	ACharacterBase* m_PrevCharacter;    // 前回行動してるキャラクター
-	ACharacterBase* m_CurrentCharacter;    // 現在行動してるキャラクター
+	UPROPERTY()
+	UBattleTurnManager* m_TurnManager;
+
 	TArray<ACharacterBase*> m_PlayerParty; // 戦闘時のプレイヤーリスト
 	TArray<ACharacterBase*> m_EnemyParty;  // 戦闘時の敵リスト
-	TArray<ACharacterBase*> m_Characters;  // 戦闘時のキャラクターリスト
 	TSelectionSystem<ACharacterBase*> m_EnemySelection; // 敵の選択システム
 	TSelectionSystem<FBattleCommandData> m_CommandSelection; // コマンドの選択システム
 };

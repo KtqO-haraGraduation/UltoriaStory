@@ -13,9 +13,6 @@
 #include "Components/BoxComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "../../Job/JobDataComponent.h"
-#include "../Data/AllyMasterData.h"
-#include "../Data/CharacterDataManager.h"
 
 // Sets default values
 AMainPlayer::AMainPlayer()
@@ -23,9 +20,6 @@ AMainPlayer::AMainPlayer()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//m_JobBase = nullptr;
-	//m_JobData = nullptr;
-	//m_JobId = 0;
 }
 
 // Called when the game starts or when spawned
@@ -75,11 +69,6 @@ void AMainPlayer::BeginPlay()
 
 	m_CameraBoom = FindComponentByClass<USpringArmComponent>();
 	m_FollowCamera = FindComponentByClass<UCameraComponent>();
-
-	//m_TeamType = ETeamType::PLAYER;
-	//JobChange();
-	/*SetJob();
-	SetBaseStatus();*/
 }
 
 // Called every frame
@@ -152,33 +141,6 @@ void AMainPlayer::AttackEnd()
 	UE_LOG(LogTemp, Warning, TEXT("Attack End"));
 }
 
-//// 総合のステータス
-//FStatus AMainPlayer::GetTotalStatus() const
-//{
-//	// 基本値 + 装備補正値 * ジョブ補正値(倍率)
-//	FStatus result = {};
-//
-//	/*if (!m_JobData) return result;
-//
-//	result.m_HP  = (int)((m_BaseStatus.m_HP  + m_EquipmentBonus.m_HP) * m_JobData->m_HP);
-//	result.m_MP  = (int)((m_BaseStatus.m_MP  + m_EquipmentBonus.m_MP) * m_JobData->m_MP);
-//	result.m_ATK = (int)((m_BaseStatus.m_ATK + m_EquipmentBonus.m_ATK) * m_JobData->m_ATK);
-//	result.m_DEF = (int)((m_BaseStatus.m_DEF + m_EquipmentBonus.m_DEF) * m_JobData->m_DEF);
-//	result.m_MGC = (int)((m_BaseStatus.m_MGC + m_EquipmentBonus.m_MGC) * m_JobData->m_MGC);
-//	result.m_SPD = (int)((m_BaseStatus.m_SPD + m_EquipmentBonus.m_SPD) * m_JobData->m_SPD);*/
-//
-//	if (!m_Job) return result;
-//
-//	result.m_HP = (int)((m_BaseStatus.m_HP + m_EquipmentBonus.m_HP) * m_Job->GetHP());
-//	result.m_MP = (int)((m_BaseStatus.m_MP + m_EquipmentBonus.m_MP) * m_Job->GetMP());
-//	result.m_ATK = (int)((m_BaseStatus.m_ATK + m_EquipmentBonus.m_ATK) * m_Job->GetATK());
-//	result.m_DEF = (int)((m_BaseStatus.m_DEF + m_EquipmentBonus.m_DEF) * m_Job->GetDEF());
-//	result.m_MGC = (int)((m_BaseStatus.m_MGC + m_EquipmentBonus.m_MGC) * m_Job->GetMGC());
-//	result.m_SPD = (int)((m_BaseStatus.m_SPD + m_EquipmentBonus.m_SPD) * m_Job->GetSPD());
-//
-//	return result;
-//}
-
 /// <summary>
 /// オーバーラップ処理（バトル開始）
 /// </summary>
@@ -195,7 +157,7 @@ void AMainPlayer::StartBattle(ACharacterBase* otherActor, bool isPreemptive)
 	UEncounterManager* encounter = GetWorld()->GetSubsystem<UEncounterManager>();
 	if (encounter)
 	{
-		encounter->StartEncounter(this, otherActor, isPreemptive);
+		encounter->StartEncounter(otherActor, isPreemptive);
 	}
 }
 
@@ -204,40 +166,3 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
-
-//// ジョブの切り替え
-//void AMainPlayer::JobChange()
-//{
-//	UJobDataSubsystem* jobDataSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UJobDataSubsystem>();
-//	if (!jobDataSubsystem)
-//	{
-//		return;	// UJobDataSubsystemの取得失敗
-//	}
-//	/*m_JobData = jobDataSubsystem->GetJobData(m_JobId);
-//	m_JobBase = jobDataSubsystem->GetJobBase(m_JobId);*/
-//}
-
-/// <summary>
-/// 総合ステータス
-/// </summary>
-/// <returns>総合ステータスを返す</returns>
-//FStatus AMainPlayer::TotalStatus()
-//{
-//	if (!m_Job)
-//	{
-//		return m_BaseStatus;
-//	}
-//
-//	FStatus result;
-//
-//	result.m_HP			= m_BaseStatus.m_HP			* m_JobData->m_HP;
-//	result.m_MP			= m_BaseStatus.m_MP			* m_JobData->m_MP;
-//	result.m_ATK		= m_BaseStatus.m_ATK		* m_JobData->m_ATK;
-//	result.m_MGC		= m_BaseStatus.m_MGC		* m_JobData->m_MGC;
-//	result.m_DEF		= m_BaseStatus.m_DEF		* m_JobData->m_DEF;
-//	result.m_SPD		= m_BaseStatus.m_SPD		* m_JobData->m_SPD;
-//	result.m_Break		= m_BaseStatus.m_Break;
-//	result.m_BreakGauge = m_BaseStatus.m_BreakGauge;
-//
-//	return result;
-//}

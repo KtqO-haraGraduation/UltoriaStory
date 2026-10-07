@@ -2,9 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "BattleParameter.h"
 #include "BattleStatusData.generated.h"
 
-// コマンドタイプ
+// ステータスのタイプ
 UENUM(BlueprintType)
 enum class StatusType : uint8
 {

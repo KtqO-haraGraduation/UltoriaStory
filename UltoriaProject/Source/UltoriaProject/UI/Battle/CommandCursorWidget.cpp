@@ -67,6 +67,7 @@ void UCommandCursorWidget::MoveTo(const FVector2D& pos)
 {
 	if (m_IsFirst)
 	{
+		SetVisible(true);
 		SetCursorPos(pos);
 		PlayMove();
 

@@ -2,6 +2,7 @@
 
 #include "BattleUIManager.h"
 #include "Blueprint/UserWidget.h"
+#include "BattleUIBase.h"
 #include "BattleUIWidget.h"
 #include "BattleResultWidget.h"
 #include "CommandUIWidget.h"
@@ -57,9 +58,6 @@ void UBattleUIManager::RemoveBattleUI()
 	UBattleManager* battleManager =
 		GetWorld()->GetSubsystem<UBattleManager>();
 
-	UBattleGaugeManager* gaugeManager 
-		= GetWorld()->GetSubsystem<UBattleGaugeManager>();
-
 	if (battleManager)
 	{
 		battleManager->OnTurnChanged().RemoveAll(this);
@@ -77,11 +75,11 @@ void UBattleUIManager::RemoveResultUI()
 	m_ResultUIWidget = nullptr;
 }
 
-void UBattleUIManager::UpdateCommandSelection(int index)
+void UBattleUIManager::UpdateSelection(EBattleUIType type, int index)
 {
 	if (!m_BattleUIWidget) return;
 
-	m_BattleUIWidget->GetCommandWidget()->UpdateSelection(index);
+	m_BattleUIWidget->GetSelectionUI(type)->UpdateSelection(index);
 }
 
 void UBattleUIManager::SetUIVisible(EBattleUIType type, bool flag)
@@ -91,14 +89,30 @@ void UBattleUIManager::SetUIVisible(EBattleUIType type, bool flag)
 	switch (type)
 	{
 	case EBattleUIType::STATUS:
-		m_BattleUIWidget->GetHBCharacterStatus()->SetVisibility(flag ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	{
+		m_BattleUIWidget->GetHBCharacterStatus()->SetVisibility(
+			flag ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 		break;
+	}
+	
 	case EBattleUIType::COMMAND:
-		m_BattleUIWidget->GetCommandWidget()->SetVisible(flag);
+	case EBattleUIType::SKILL:
+	case EBattleUIType::ITEM:
+	{
+		UBattleSelectionUIBase* selectionUI =
+			m_BattleUIWidget->GetSelectionUI(type);
+
+		if (selectionUI)
+		{
+			selectionUI->SetVisible(flag);
+		}
 		break;
+	}
+		
 	case EBattleUIType::TARGET:
 		SetEnemySelectionUI(flag);
 		break;
+
 	default:
 		break;
 	}
@@ -121,7 +135,7 @@ void UBattleUIManager::OnTurnChanged(ACharacterBase* prevCharacter, ACharacterBa
 	bool isPlayerTurn = currentCharacter->GetTeamType() == ETeamType::PLAYER;
 
 	// コマンドUIの 表示 / 非表示 切り替え
-	UCommandUIWidget* commandWidget = m_BattleUIWidget->GetCommandWidget();
+	UBattleSelectionUIBase* commandWidget = m_BattleUIWidget->GetSelectionUI(EBattleUIType::COMMAND);
 	isPlayerTurn ? commandWidget->ShowUI() : commandWidget->HideUI();
 
 	// プレイヤーパーティーのターンのみ行う

@@ -14,14 +14,7 @@ class UBattleUIWidget;
 class UBattleResultWidget;
 class UDamageWidget;
 
-enum class EBattleUIType
-{
-	NONE,
-
-	STATUS,
-	COMMAND,
-	TARGET,
-};
+enum class EBattleUIType;
 
 /**
  * 
@@ -40,7 +33,7 @@ public:
 	void RemoveBattleUI();
 	void RemoveResultUI();
 
-	void UpdateCommandSelection(int index);
+	void UpdateSelection(EBattleUIType type, int index);
 	void SetUIVisible(EBattleUIType type, bool visible);
 
 	void CreateDamageWidget(ACharacterBase* target, int damage);

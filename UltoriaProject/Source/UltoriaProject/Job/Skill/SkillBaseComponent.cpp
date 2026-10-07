@@ -15,11 +15,7 @@ USkillBaseComponent::USkillBaseComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
-	m_Name = "";
-	m_MpCost = 0;
-	m_EffectValue = 0.0f;
-	m_BreakMult = 0.0f;
-	m_UnLockLevel = 0;
+
 }
 
 
@@ -30,42 +26,6 @@ void USkillBaseComponent::BeginPlay()
 
 	// ...
 }
-
-void USkillBaseComponent::SetSkillData(ESkillType type, FName name, int mpCost, float effectValue, float breakMult, int unlockLevel)
-{
-	m_Type			= type;
-	m_Name			= name;
-	m_MpCost		= mpCost;
-	m_EffectValue	= effectValue;
-	m_BreakMult		= breakMult;
-	m_UnLockLevel	= unlockLevel;
-}
-
-///// <summary>
-///// スキルが発動できるか
-///// </summary>
-///// <param name="mp">	 現在のMP			</param>
-///// <param name="mpCost">スキルに消費するMP </param>
-///// <returns>true：発動できる,false：発動できない</returns>
-//bool USkillBaseComponent::CanSkillInvocation(int mp)
-//{
-//	// MPが足りるか
-//	if (mp < m_MpCost)
-//	{
-//		return false;
-//	}
-//
-//	return true;
-//}
-//
-///// <summary>
-///// スキル発動
-///// </summary>
-///// <param name="skillId">発動させるスキルのID</param>
-//void USkillBaseComponent::SkillInvocation(FString type, int skillId, int mp, int mpCost, int pAtk)
-//{
-//	mp -= mpCost;
-//}
 
 void USkillBaseComponent::Create(FName name)
 {
@@ -91,24 +51,30 @@ void USkillBaseComponent::Reset()
 	m_SkillList.Reset();
 }
 
-bool USkillBaseComponent::CanUse()
+bool USkillBaseComponent::CanUse(int index)
 {
-	if (m_Owner->GetCurrentMP() >= m_MpCost)
+	const FSkillDataRow* skill = GetSkill(index);
+	if (!skill) return false;
+
+	if (m_Owner->GetCurrentMP() >= skill->MpCost)
 	{
 		return true;
 	}
 	return false;
 }
 
-void USkillBaseComponent::UseSkill(const TArray<ACharacterBase*>& targets)
+void USkillBaseComponent::UseSkill(int index, const TArray<ACharacterBase*>& targets)
 {
-	if (!CanUse())
+	const FSkillDataRow* skill = GetSkill(index);
+	if (!skill) return;
+
+	if (!CanUse(index))
 	{
 		UE_LOG(LogTemp, Log, TEXT("Can Not Skill！"));
 		return;
 	}
 
-	switch (m_Type)
+	switch (skill->SkillType)
 	{
 	case ESkillType::ATTACK:
 		Attack(targets);
@@ -121,8 +87,18 @@ void USkillBaseComponent::UseSkill(const TArray<ACharacterBase*>& targets)
 		break;
 	}
 
-	int newMp = m_Owner->GetCurrentMP() - m_MpCost;
+	int newMp = m_Owner->GetCurrentMP() - skill->MpCost;
 	m_Owner->SetMP(newMp);
+}
+
+const FSkillDataRow* USkillBaseComponent::GetSkill(int index) const
+{
+	if (!m_SkillList.IsValidIndex(index))
+	{
+		return nullptr;
+	}
+
+	return &m_SkillList[index];
 }
 
 TArray<FSkillDataRow> USkillBaseComponent::GetUnlockedSkills()
@@ -149,7 +125,6 @@ void USkillBaseComponent::Attack(const TArray<ACharacterBase*>& targets)
 		UCombatComponent* conbat = m_Owner->GetComponent<UCombatComponent>();
 		if (!conbat) continue;
 
-		m_Owner->GetTotalStatus();
 		conbat->Attack(target);
 	}
 }

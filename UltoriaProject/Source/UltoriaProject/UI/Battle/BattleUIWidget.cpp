@@ -4,6 +4,9 @@
 #include "CharacterStatusWidget.h"
 #include "../../Battle/PlayerPartyManager.h"
 #include "../../Character/CharacterBase.h"
+#include "Base/BattleSelectionUIBase.h"
+#include "BattleUIManager.h"
+
 
 void UBattleUIWidget::NativeConstruct()
 {
@@ -35,5 +38,23 @@ void UBattleUIWidget::NativeConstruct()
 		{
 			status->HideUI();
 		}
+	}
+}
+
+UBattleSelectionUIBase* UBattleUIWidget::GetSelectionUI(EBattleUIType type) const
+{
+	switch (type)
+	{
+	case EBattleUIType::COMMAND:
+		return WBP_Command;
+
+	case EBattleUIType::SKILL:
+		return WBP_Command;
+
+	case EBattleUIType::ITEM:
+		return WBP_Command;
+
+	default:
+		return nullptr;
 	}
 }

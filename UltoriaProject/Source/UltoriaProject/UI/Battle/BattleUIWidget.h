@@ -10,7 +10,9 @@
 #include "BattleUIWidget.generated.h"
 
 class UCommandUIWidget;
+class UBattleSelectionUIBase;
 class UUltoriaGaugeWidget;
+enum class EBattleUIType;
 
 /**
  * 
@@ -25,15 +27,17 @@ public:
 	virtual void NativeConstruct() override;
 
 	UHorizontalBox* GetHBCharacterStatus() const { return HB_CharacterStatus; }
-	UCommandUIWidget* GetCommandWidget() const { return WBP_Command; }
+	UBattleSelectionUIBase* GetCommandWidget() const { return WBP_Command; }
 	UUltoriaGaugeWidget* GetUltoriaGauge() const { return UltoriaGaugeWidget; }
+
+	UBattleSelectionUIBase* GetSelectionUI(EBattleUIType type) const;
 
 private:
 	UPROPERTY(meta = (BindWidget))
 	UHorizontalBox* HB_CharacterStatus;
 
 	UPROPERTY(meta = (BindWidget))
-	UCommandUIWidget* WBP_Command;
+	UBattleSelectionUIBase* WBP_Command;
 
 	UPROPERTY(meta = (BindWidget))
 	UUltoriaGaugeWidget* UltoriaGaugeWidget;
