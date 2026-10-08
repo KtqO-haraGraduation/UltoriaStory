@@ -25,6 +25,9 @@ public:
 	TObjectPtr<UDataTable> EnemyTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<FName, TObjectPtr<UDataTable>> EnemyPartyTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UDataTable> SkillTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

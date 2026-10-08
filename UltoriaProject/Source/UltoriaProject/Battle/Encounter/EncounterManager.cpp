@@ -5,6 +5,7 @@
 #include "../../System/Controller/PlayPlayerController.h"
 #include "../../Character/Ally/MainPlayer.h"
 #include "../../Character/CharacterBase.h"
+#include "../../Stage/StageManager.h"
 #include "../BattleManager.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -228,9 +229,15 @@ ULevelStreaming* UEncounterManager::GetLevel(FName levelName)
 
 void UEncounterManager::EnterBattle()
 {
-	UBattleManager* battleManager = GetWorld()->GetSubsystem<UBattleManager>();
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
+	if (!battleMg || !stageMg) return;
 
-	m_BattleLevel = SetLevelVisible("LV_BattleMC", true);
-	mFieldLevel   = SetLevelVisible("LV_Matsubara", false);
-	battleManager->BattleStart(m_Enemy, m_Flag);
+	mFieldLevel   = SetLevelVisible(stageMg->GetNowStageLvData().FieldLvName, false);
+	m_BattleLevel = SetLevelVisible(stageMg->GetNowStageLvData().BattleLvName, true);
+
+	//mFieldLevel = SetLevelVisible("LV_Matsubara", false);
+	//m_BattleLevel = SetLevelVisible("LV_BattleMC", true);
+	
+	battleMg->BattleStart(m_Enemy, m_Flag);
 }
