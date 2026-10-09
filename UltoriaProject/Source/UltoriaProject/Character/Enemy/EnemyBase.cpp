@@ -84,45 +84,43 @@ TArray<ACharacterBase*> AEnemyBase::CreateEnemyParty()
 {
 	TArray<ACharacterBase*> result;
 
-	UBattleDataManager* dataManager = GetWorld()->GetSubsystem<UBattleDataManager>();
 	UCharacterDataManager* characterDataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
 
-	if (dataManager)
+	if (!characterDataMg) return result;
+
+	// ランダムでパティーデータを取得
+	FEnemyPartyData data = characterDataMg->GetRandomEnemyParty(m_ID);
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *data.Name.ToString());
+
+	TArray<FName> enemyIds =
 	{
-		// ランダムでパティーデータを取得
-		FEnemyPartyData data = dataManager->GetRandomEnemyParty(m_ID);
+		data.Enemy1,
+		data.Enemy2,
+		data.Enemy3,
+		data.Enemy4,
+	};
 
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *data.Name.ToString());
+	for (const FName& enemyId : enemyIds)
+	{
+		if (enemyId.IsNone()) continue;
 
-		TArray<FName> enemyIds =
+		// クラス取得(GetEnemyClassをEnemyBaseクラスに変更する)
+		TSubclassOf<AEnemyBase> enemyClass = characterDataMg->GetEnemyClass(m_ID);
+		if (!enemyClass) continue;
+
+		// 敵生成
+		AEnemyBase* enemy = GetWorld()->SpawnActor<AEnemyBase>(
+			enemyClass,
+			GetActorLocation(),
+			FRotator::ZeroRotator);
+
+		// 成功したら追加
+		if (enemy)
 		{
-			data.Enemy1,
-			data.Enemy2,
-			data.Enemy3,
-			data.Enemy4,
-		};
-
-		for (const FName& enemyId : enemyIds)
-		{
-			if (enemyId.IsNone()) continue;
-
-			// クラス取得(GetEnemyClassをEnemyBaseクラスに変更する)
-			TSubclassOf<AEnemyBase> enemyClass = characterDataMg->GetEnemyClass(m_ID);
-			if (!enemyClass) continue;
-
-			// 敵生成
-			AEnemyBase* enemy = GetWorld()->SpawnActor<AEnemyBase>(
-				enemyClass,
-				GetActorLocation(),
-				FRotator::ZeroRotator);
-
-			// 成功したら追加
-			if (enemy)
-			{
-				// AIControllerを生成して敵に設定
-				enemy->SpawnDefaultController();
-				result.Add(enemy);
-			}
+			// AIControllerを生成して敵に設定
+			enemy->SpawnDefaultController();
+			result.Add(enemy);
 		}
 	}
 

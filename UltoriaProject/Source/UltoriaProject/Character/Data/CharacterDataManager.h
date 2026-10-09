@@ -8,6 +8,7 @@
 #include "EnemyMasterData.h"
 #include "AllyLevelData.h"
 #include "AllyMasterData.h"
+#include "../../Battle/Combat/Data/EnemyPartyData.h"
 #include "../../Job/Skill/SkillDataRow.h"
 #include "../../Job/JobDataRow.h"
 #include "../../Job/JobLvRow.h"
@@ -31,7 +32,9 @@ public:
 
 	void LoadAllyMasterData();
 	void LoadAllyLevelData();
+	
 	void LoadEnemyData();
+	void LoadEnemyPartyData();
 
 	void LoadSkillData();
 
@@ -48,6 +51,10 @@ public:
 	// 敵のデータからクラスを検索して取得
 	TSubclassOf<AEnemyBase> GetEnemyClass(FName enemyId);
 
+	FEnemyPartyData GetRandomEnemyParty(FName enemyId);
+	// 敵のIDを元にパーティー候補を検索して返す
+	TArray<FEnemyPartyData> FindEnemyParty(FName enemyId);
+
 	// 名前で指定したスキルのデータを取得
 	FSkillDataRow GetSkillData(FName name);
 
@@ -59,13 +66,18 @@ public:
 private:
 	bool IsCharacterDataAssetLoaded();
 
+	UDataTable* GetEnemyPartyTable();
+
 private:
 	UPROPERTY()
 	TObjectPtr<UCharacterDataAsset> m_CharacterDataAsset; // キャラクターのデータアセット
 
 	TMap<FName, FAllyLevelData> m_AllyLevelDatas;		// 仲間のデータ
 	TMap<FName, FAllyMasterData> m_AllyMasterDatas;		// 仲間の設定データ
+
 	TMap<FName, FEnemyMasterData> m_EnemyDatas;			// 敵のデータ
+	TArray<FEnemyPartyData> m_EnemyPartyDatas;			// ステージに対応した敵のパーティーデータ
+	FEnemyPartyData m_BossPartyData;					// ボスのパーティーデータ
 
 	TMap<FName, FSkillDataRow> m_SkillDatas;			// スキルのデータ
 

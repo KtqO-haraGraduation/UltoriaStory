@@ -28,11 +28,11 @@ void ATestPlayerMC::BeginPlay()
 	//playerParty->AddPlayerParty(this);
 
 	// 仮実装（バトルに必要なデータを読み込む）
-	UBattleDataManager* dataManager = GetWorld()->GetSubsystem<UBattleDataManager>();
+	/*UBattleDataManager* dataManager = GetWorld()->GetSubsystem<UBattleDataManager>();
 	if (dataManager)
 	{
 		dataManager->LoadEnemyPartyData();
-	}
+	}*/
 
 	m_AttackBox = FindComponentByClass<UBoxComponent>();
 

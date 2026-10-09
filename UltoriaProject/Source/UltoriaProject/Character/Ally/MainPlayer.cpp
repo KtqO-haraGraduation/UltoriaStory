@@ -6,6 +6,7 @@
 #include "../../Battle/Combat/Data/BattleDataManager.h"
 #include "../../Battle/PlayerPartyManager.h"
 #include "../../Battle/Encounter/EncounterManager.h"
+#include "../Data/CharacterDataManager.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -50,10 +51,10 @@ void AMainPlayer::BeginPlay()
 	}
 
 	// 仮実装（ステージに合わせた敵のパーティーデータをロード）
-	UBattleDataManager* battleDataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
-	if (battleDataMg)
+	UCharacterDataManager* characterDataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
+	if (characterDataMg)
 	{
-		battleDataMg->LoadEnemyPartyData();
+		characterDataMg->LoadEnemyPartyData();
 	}
 
 	// 先制攻撃用当たり判定を取得

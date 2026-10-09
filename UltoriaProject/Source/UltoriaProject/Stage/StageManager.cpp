@@ -120,16 +120,6 @@ ULevelStreamingDynamic* UStageManager::LoadLevel(TSoftObjectPtr<UWorld> level)
 			false
 		);
 
-	UE_LOG(LogTemp, Warning, TEXT("LoadLevel : %s / Success: %s"),
-		*level.ToString(),
-		bSuccess ? TEXT("true") : TEXT("false"));
-
-	if (!bSuccess || !streamingLevel)
-	{
-		return nullptr;
-	}
-
-
 	streamingLevel->SetShouldBeLoaded(true);
 	streamingLevel->SetShouldBeVisible(true);
 
