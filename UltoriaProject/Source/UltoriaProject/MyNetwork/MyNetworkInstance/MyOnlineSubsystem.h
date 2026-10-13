@@ -6,13 +6,13 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "MyOnlineSubsystem.generated.h"
 
-//class AMyNetworkPlayerController;
+class AMyNetworkPlayerController;
 
 UCLASS()
 class ULTORIAPROJECT_API UMyOnlineSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-	/*friend class AMyNetworkPlayerController;*/
+	friend class AMyNetworkPlayerController;
 
 private:
 	// EOSÉçÉOÉCÉì
