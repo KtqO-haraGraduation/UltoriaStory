@@ -31,9 +31,9 @@ void UShopManager::Initialize(FSubsystemCollectionBase& Collection)
 	m_InputDirectionalMap.Add(EUIInputType::LEFT, &UShopManager::ShopDirectionalLeft);
 	m_InputDirectionalMap.Add(EUIInputType::RIGHT, &UShopManager::ShopDirectionalRight);
 
-	UUltoriaGameInstance* GI =
-		GetWorld()->GetGameInstance<UUltoriaGameInstance>();
-
+	// ゲームインスタンスを取得
+	UUltoriaGameInstance* GI = GetWorld()->GetGameInstance<UUltoriaGameInstance>();
+	// データテーブルを取得できたか
 	if (GI)
 	{
 		ItemDataTable = GI->ItemDataTable;
@@ -214,12 +214,12 @@ void UShopManager::ShopDirectionalLeft()
 	if (m_IsBuyConfirmOpen)
 	{
 		// カウントを10進める
-		shopUI->BuyConfirmWidget->ChangeCount(+10);
+		shopUI->BuyConfirmWidget->ChangeCount(-10);
 	}
 	else
 	{
 		// ショップナビを下に下げる
-		shopUI->MoveSelection(+5);
+		shopUI->MoveSelection(-5);
 	}
 }
 
@@ -238,12 +238,12 @@ void UShopManager::ShopDirectionalRight()
 	if (m_IsBuyConfirmOpen)
 	{
 		// カウントを10戻す
-		shopUI->BuyConfirmWidget->ChangeCount(-10);
+		shopUI->BuyConfirmWidget->ChangeCount(+10);
 	}
 	else
 	{
 		// ショップナビを上に上げる
-		shopUI->MoveSelection(-5);
+		shopUI->MoveSelection(+5);
 	}
 }
 
@@ -289,6 +289,5 @@ void UShopManager::BuildShopItemList()
 			CurrentItems.Add(*Item);
 		}
 	}
-
 }
 
