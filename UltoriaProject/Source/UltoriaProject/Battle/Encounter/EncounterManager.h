@@ -34,18 +34,14 @@ public:
 
 	void SetEncounterFogEnabled(bool bEnable);
 
-	ULevelStreaming* GetBattleLevel() const { return m_BattleLevel; }
-
 	// バトルLVの表示 / 非表示
 	UFUNCTION(BlueprintCallable)
 	void HideBattleLevels();
-	ULevelStreaming* SetLevelVisible(FName levelName, bool bVisible);
-	void SetBattleLevelVisible(bool bVisible);
-	void SetFieldLevelVisible(bool bVisible);
-	ULevelStreaming* GetLevel(FName levelName);
 
 private:
 	void EnterBattle();
+	void CheckFieldLevelReady();  // フィールドLvの準備が完了したか
+	void CheckBattleLevelReady(); // バトルLvの準備が完了したか
 
 private:
 	float m_PrevArmLength;
@@ -68,6 +64,5 @@ private:
 
 	float m_FogRadius;
 
-	ULevelStreaming* m_BattleLevel;
-	ULevelStreaming* mFieldLevel;
+	FTimerHandle m_ReadyTimer;
 };

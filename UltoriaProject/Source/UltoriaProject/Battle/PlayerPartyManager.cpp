@@ -25,7 +25,7 @@ void UPlayerPartyManager::RemovePlayerParty(const FPartyData& character)
 void UPlayerPartyManager::CreatePlayerParty()
 {
 	// プレイヤーパーティーを取得（ID → CharacterBase 変換）
-	for (const FPartyData& player : GetPartyData())
+	for (const FPartyData& player : m_PartyData)
 	{
 		UCharacterDataManager* characterDataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
 		if (!characterDataMg) return;
@@ -38,11 +38,38 @@ void UPlayerPartyManager::CreatePlayerParty()
 			0.0f
 		);
 
+		// 生成時の当たり判定緩和（ある程度キャラクター同士が重なってても生成してくれる）
+		FActorSpawnParameters spawnParams;
+		spawnParams.SpawnCollisionHandlingOverride =
+			ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		UWorld* world = GetWorld();
+
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("World: %s"),
+			world ? *world->GetName() : TEXT("nullptr")
+		);
+
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Class: %s"),
+			data.Class ? *data.Class->GetPathName() : TEXT("nullptr")
+		);
+
 		// プレイヤーと仲間を生成
-		ACharacterBase* character = GetWorld()->SpawnActor<ACharacterBase>(
-			data.Class,
-			spawnLocation,
-			FRotator::ZeroRotator);
+		ACharacterBase* character = world
+			? world->SpawnActor<ACharacterBase>(
+				data.Class,
+				spawnLocation,
+				FRotator::ZeroRotator,
+				spawnParams)
+			: nullptr;
+
+		UE_LOG(LogTemp, Warning, TEXT("Spawn Result : %s"),
+			character ? *character->GetName() : TEXT("nullptr"));
 
 		// 成功したら追加
 		if (character)

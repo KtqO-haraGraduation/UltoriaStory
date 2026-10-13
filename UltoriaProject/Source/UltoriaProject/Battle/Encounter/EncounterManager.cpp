@@ -191,53 +191,78 @@ void UEncounterManager::HideBattleLevels()
 	}
 }
 
-ULevelStreaming* UEncounterManager::SetLevelVisible(FName levelName, bool bVisible)
-{
-	ULevelStreaming* level = GetLevel(levelName);
-
-	if (level)
-	{
-		level->SetShouldBeVisible(bVisible);
-		return level;
-	}
-	return nullptr;
-}
-
-void UEncounterManager::SetBattleLevelVisible(bool bVisible)
-{
-	if (m_BattleLevel)
-	{
-		m_BattleLevel->SetShouldBeVisible(bVisible);
-	}
-}
-
-void UEncounterManager::SetFieldLevelVisible(bool bVisible)
-{
-	if (mFieldLevel)
-	{
-		mFieldLevel->SetShouldBeVisible(bVisible);
-	}
-}
-
-ULevelStreaming* UEncounterManager::GetLevel(FName levelName)
-{
-	return UGameplayStatics::GetStreamingLevel(
-		GetWorld(),
-		levelName
-	);
-}
-
 void UEncounterManager::EnterBattle()
 {
 	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
 	if (!battleMg || !stageMg) return;
 
-	mFieldLevel   = SetLevelVisible(stageMg->GetNowStageLvData().FieldLvName, false);
-	m_BattleLevel = SetLevelVisible(stageMg->GetNowStageLvData().BattleLvName, true);
+	stageMg->ShowBattleLv();
 
-	//mFieldLevel = SetLevelVisible("LV_Matsubara", false);
-	//m_BattleLevel = SetLevelVisible("LV_BattleMC", true);
-	
+	// FieldLvとBattleLvの準備が完了したらBattleへ
+	GetWorld()->GetTimerManager().SetTimer(
+		m_ReadyTimer,
+		this,
+		&UEncounterManager::CheckBattleLevelReady,
+		0.1f,
+		true
+	);
+}
+
+void UEncounterManager::CheckFieldLevelReady()
+{
+	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
+	if (!stageMg) return;
+
+	ULevelStreaming* battleLv = stageMg->GetBattleLv();
+	ULevelStreaming* fieldLv = stageMg->GetFieldLv();
+	if (!battleLv || !fieldLv) return;
+
+	// Battleの読み込み・表示とFieldの非表示を確認
+	if (!fieldLv->IsLevelLoaded() ||
+		!fieldLv->IsLevelVisible() ||
+		battleLv->IsLevelVisible())
+	{
+		return;
+	}
+
+	// 条件を満たしたらタイマーを停止
+	GetWorld()->GetTimerManager().ClearTimer(
+		m_ReadyTimer
+	);
+
+	// レベル切り替え完了後に戦闘開始
+	/*UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+
+	battleMg->BattleStart(m_Enemy, m_Flag);*/
+}
+
+void UEncounterManager::CheckBattleLevelReady()
+{
+	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
+	if (!stageMg) return;
+
+	ULevelStreaming* battleLv = stageMg->GetBattleLv();
+	ULevelStreaming* fieldLv = stageMg->GetFieldLv();
+	if (!battleLv || !fieldLv) return;
+
+	// Battleの読み込み・表示とFieldの非表示を確認
+	if (!battleLv->IsLevelLoaded()  ||
+        !battleLv->IsLevelVisible() ||
+	    fieldLv->IsLevelVisible())
+	{
+		return;
+	}
+
+	// 条件を満たしたらタイマーを停止
+	GetWorld()->GetTimerManager().ClearTimer(
+		m_ReadyTimer
+	);
+
+	// レベル切り替え完了後に戦闘開始
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+
 	battleMg->BattleStart(m_Enemy, m_Flag);
 }

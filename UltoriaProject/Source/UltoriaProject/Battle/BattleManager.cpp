@@ -560,14 +560,21 @@ void UBattleManager::FinishBattle()
 	m_IsBattle = false;
 	m_IsVictory = false;
 
-	UEncounterManager* encounterMg = GetWorld()->GetSubsystem<UEncounterManager>();
-	if (encounterMg)
-	{
-		// バトルLVを非表示
-		encounterMg->SetBattleLevelVisible(false);
-		// フィールドLVを表示
-		encounterMg->SetFieldLevelVisible(true);
-	}
+
+	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
+	if (stageMg) stageMg->ShowFieldLv();
+
+
+	//UEncounterManager* encounterMg = GetWorld()->GetSubsystem<UEncounterManager>();
+	//if (encounterMg)
+	//{
+
+
+	//	// バトルLVを非表示
+	//	encounterMg->SetBattleLevelVisible(false);
+	//	// フィールドLVを表示
+	//	encounterMg->SetFieldLevelVisible(true);
+	//}
 
 	// プレイヤーパーティーを削除
 	UPlayerPartyManager* playerPartyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();

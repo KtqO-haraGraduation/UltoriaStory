@@ -32,8 +32,6 @@ TArray<FBattleTransform> ABattleAreaManager::GetBattleTransform(int count, bool 
 	TArray<FBattleTransform> result;
 	float offsetX = isEnemy ? m_Offset.X : -m_Offset.X;
 
-	
-
 	for (int i = 0; i < count; i++)
 	{
 		float offsetIndex = i - (count - 1) / 2.0f;

@@ -11,6 +11,8 @@
 #include "../../../Character/Enemy/EnemyBase.h"
 #include "../../../System/Controller/PlayPlayerController.h"
 #include "../../../UI/Battle/BattleUIManager.h"
+
+#include "../../../Stage/StageManager.h"
 #include "Camera/CameraActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/LevelStreaming.h"
@@ -30,6 +32,12 @@ void UBattleLifecycle::Start(UBattleManager* mg, AEnemyBase* enemyBase)
 		
 		// BattleAreaManagerを取得
 		ABattleAreaManager* area = GetBattleArea();
+
+		if (!area)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("nullpttr"));
+		}
+
 		// カメラを切り替える
 		ChangeBattleCamera(area);
 		// 座標を設定
@@ -164,17 +172,25 @@ void UBattleLifecycle::RemoveBattleUI()
 /// <returns>バトルLvに存在するBattleArea</returns>
 ABattleAreaManager* UBattleLifecycle::GetBattleArea()
 {
-	UEncounterManager* encounterMg = GetWorld()->GetSubsystem<UEncounterManager>();
-	ULevel* level = encounterMg->GetBattleLevel()->GetLoadedLevel();
+	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
+	if (!stageMg) return nullptr;
+
+	ULevel* level = stageMg->GetBattleLv()->GetLoadedLevel();
 
 	if (level)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Loaded Battle Level: %s"), *level->GetName());
+
 		for (AActor* actor : level->Actors)
 		{
 			if (!actor) continue;
 			ABattleAreaManager* area = Cast<ABattleAreaManager>(actor);
 			
 			if (!area) continue;
+
+			UE_LOG(LogType, Warning, TEXT("BattleArea Name: %s"), *area->GetName());
+			UE_LOG(LogType, Warning, TEXT("BattleArea Pos: %s"), *area->GetActorLocation().ToString());
+
 			return area;
 		}
 	}

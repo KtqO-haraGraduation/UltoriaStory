@@ -6,7 +6,9 @@
 #include "../../Battle/Combat/Data/BattleDataManager.h"
 #include "../../Battle/PlayerPartyManager.h"
 #include "../../Battle/Encounter/EncounterManager.h"
+#include "../../Stage/StageManager.h"
 #include "../Data/CharacterDataManager.h"
+
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"

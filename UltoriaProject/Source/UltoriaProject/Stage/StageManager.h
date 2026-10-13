@@ -29,15 +29,24 @@ public:
 	// ステージの切り替え
 	void ChangeStage(EStageType type, FName id);
 
+	// 表示、非表示
+	void ShowFieldLv();
+	void ShowBattleLv();
+
 	// IDを元に、StageLvDataを返す
 	FStageLvData GetNowStageLvData();      // 現在開いているLvのデータを取得
 	FStageLvData GetStageLvData(FName id); // 指定したIDのLvのデータを取得
+
+	ULevelStreaming* GetFieldLv() const { return m_CurrentFieldLv; }
+	ULevelStreaming* GetBattleLv() const { return m_CurrentBattleLv; }
 
 	EStageType GetStageType() const { return m_StageType; }
 	FName GetStageName() const { return m_StageName; }
 
 	void SetStageType(EStageType type) { if(m_StageType != type) m_StageType = type; }
 	void SetStageName(FName name) { if(name != "") m_StageName = name; }
+	void SetCurrentFieldLv(ULevelStreaming* field) { if (field) m_CurrentFieldLv = field; }
+	void SetCurrentBattleLv(ULevelStreaming* battle) { if (battle) m_CurrentBattleLv = battle; }
 
 private:
 	bool IsStageDataAssetLoaded();

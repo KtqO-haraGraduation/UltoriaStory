@@ -13,7 +13,12 @@ void UStageManager::Initialize(FSubsystemCollectionBase& Collection)
 	// 必要なステージデータをロード
 	LoadStageLvData();
 
-	//ChangeStage(EStageType::TUTORIAL, "Tutorial");
+	// Lv_Playを開いでいる場合のみ実行
+	UWorld* world = GetWorld();
+	if (world && world->GetName() == TEXT("Lv_Play"))
+	{
+		ChangeStage(EStageType::TUTORIAL, "Tutorial");
+	}
 }
 
 void UStageManager::LoadStageDataAsset()
@@ -74,6 +79,22 @@ void UStageManager::ChangeStage(EStageType type, FName id)
 
 	// バトルLvは非表示
 	m_CurrentBattleLv->SetShouldBeVisible(false);
+}
+
+void UStageManager::ShowFieldLv()
+{
+	if (!m_CurrentFieldLv || m_CurrentBattleLv) return;
+
+	m_CurrentBattleLv->SetShouldBeVisible(false);
+	m_CurrentFieldLv->SetShouldBeVisible(true);
+}
+
+void UStageManager::ShowBattleLv()
+{
+	if (!m_CurrentFieldLv || !m_CurrentBattleLv) return;
+
+	m_CurrentFieldLv->SetShouldBeVisible(false);
+	m_CurrentBattleLv->SetShouldBeVisible(true);
 }
 
 FStageLvData UStageManager::GetNowStageLvData()

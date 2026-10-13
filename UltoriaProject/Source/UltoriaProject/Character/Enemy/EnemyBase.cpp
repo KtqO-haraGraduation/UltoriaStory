@@ -101,6 +101,11 @@ TArray<ACharacterBase*> AEnemyBase::CreateEnemyParty()
 		data.Enemy4,
 	};
 
+	// 生成時の当たり判定緩和（ある程度キャラクター同士が重なってても生成してくれる）
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
 	for (const FName& enemyId : enemyIds)
 	{
 		if (enemyId.IsNone()) continue;
@@ -113,7 +118,8 @@ TArray<ACharacterBase*> AEnemyBase::CreateEnemyParty()
 		AEnemyBase* enemy = GetWorld()->SpawnActor<AEnemyBase>(
 			enemyClass,
 			GetActorLocation(),
-			FRotator::ZeroRotator);
+			FRotator::ZeroRotator,
+			spawnParams);
 
 		// 成功したら追加
 		if (enemy)
