@@ -14,7 +14,6 @@ AMapBoundsActor::AMapBoundsActor()
 void AMapBoundsActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
 
 }
 
@@ -24,4 +23,3 @@ void AMapBoundsActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-

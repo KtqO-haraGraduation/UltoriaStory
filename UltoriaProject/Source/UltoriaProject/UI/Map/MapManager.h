@@ -24,6 +24,9 @@ protected:
 
 	void OnPostLoadMapWithWorld(UWorld* world);
 
+	void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& Params);
+
+	void DebugInit(UWorld* world);
 private:
 	UMapWidgetTable* m_MWT;
 };

@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MiniMapWidget.generated.h"
 
+class URetainerBox;
 class UImage;
 class UCanvasPanelSlot;
 
@@ -24,9 +25,7 @@ public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 public:
-	void InitMap();
-
-	void SetStageMosts(TArray<AActor*> stageMosts) { m_StageMosts = stageMosts; }
+	void InitMap(float mapTexDiameterLength, FVector2D marginLength);
 
 private:
 	void UpdateMapPlayer();
@@ -35,13 +34,22 @@ private:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
+	URetainerBox* RetainerBox;
+	UPROPERTY(meta = (BindWidget))
 	UImage* MapImage;
-	//UPROPERTY(meta = (BindWidget))
-	//UImage* PlayerImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* PlayerImage;
 
 	TArray<AActor*> m_StageMosts;
-	UCanvasPanelSlot* m_MapSlot;
-	UCanvasPanelSlot* m_PlayerSlot;
+	UCanvasPanelSlot* m_RB_Slot;
+	//UCanvasPanelSlot* m_MapSlot;
 	FVector2D m_MapImagePos;
 	FVector2D m_MapImageSize;
+	// テクスチャの直径の長さ
+	// 縦と横の直径の長さは同じなので、変数はfloat型
+	float m_MapTexDiameterLength;
+	// 余白の長さ
+	FVector2D m_MarginLength;
+	// マップの状態をマテリアルグラフに渡す変数
+	UMaterialInstanceDynamic* m_MID;
 };

@@ -16,25 +16,25 @@ void UShopItemEntryWidget::SetItemData(const FItemData& Data)
 
 	if (Text_ItemName)
 	{
-		Text_ItemName->SetText(FText::FromString(ItemData.NameJP));
+		Text_ItemName->SetText(FText::FromString(ItemData.NameJP));// アイテム名
 	}
 
 	if (Text_Price)
 	{
-		Text_Price->SetText(FText::AsNumber(ItemData.Price));
+		Text_Price->SetText(FText::AsNumber(ItemData.Price));// 価格
 	}
 }
 
 void UShopItemEntryWidget::SetSelected(bool bSelected)
 {
-	if (!SelectionBorder) return;
+	if (!SelectionBorder) return;// Borderが取得できていなければ処理を終了する
 
 	if (bSelected)
 	{
-		SelectionBorder->SetBrushColor(FLinearColor::Yellow);
+		SelectionBorder->SetBrushColor(FLinearColor::Yellow);// 選択中なら黄色
 	}
 	else
 	{
-		SelectionBorder->SetBrushColor(FLinearColor::Transparent);
+		SelectionBorder->SetBrushColor(FLinearColor::Transparent);// そうでなければ透明
 	}
 }
