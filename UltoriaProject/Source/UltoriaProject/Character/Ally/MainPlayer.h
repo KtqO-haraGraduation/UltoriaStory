@@ -3,17 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../CharacterBase.h"
 #include "PlayerCharacterBase.h"
 #include "InputActionValue.h"
 #include "MainPlayer.generated.h"
 
-struct FJobData;
-struct FJobBase;
 class UBoxComponent;
 class USpringArmComponent;
 class UCameraComponent;
-class UJobDataComponent;
 
 /**
  * 
@@ -59,15 +55,6 @@ private:
 	//FStatus TotalStatus();	// 総合ステータス
 
 private:
-	/*UPROPERTY(EditAnywhere)
-	EPlayerType m_PlayerType;*/
-	
-	/*UPROPERTY(EditAnywhere)
-	int m_JobId;*/
-
-	//FJobBase* m_JobBase;	// ベース
-	//FJobData* m_JobData;	// データ
-
 	FVector m_PrevPos;  // 前回の座標（バトル開始時の座標）
 	bool m_IsAttacking; // アタック中か
 

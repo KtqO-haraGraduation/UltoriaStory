@@ -135,7 +135,7 @@ void UEventScriptEngine::FinishedScript()
 	if (!cameraManager)return;
 
 	// フェードアウト
-	cameraManager->StartCameraFade(0.0f, 1.0f, 0.5f, FLinearColor::Black, false, true);
+	cameraManager->StartCameraFade(1.0f, 1.0f, 1.0f, FLinearColor::Black, false, true);
 
 	// 暗転中にカメラをプレイヤーに戻す
 	FTimerHandle fadeOutHandle;

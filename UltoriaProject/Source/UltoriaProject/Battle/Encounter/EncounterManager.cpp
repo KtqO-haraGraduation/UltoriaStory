@@ -5,6 +5,7 @@
 #include "../../System/Controller/PlayPlayerController.h"
 #include "../../Character/Ally/MainPlayer.h"
 #include "../../Character/CharacterBase.h"
+#include "../../Stage/StageManager.h"
 #include "../BattleManager.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -27,7 +28,7 @@ bool UEncounterManager::IsTickable() const
 	return m_IsZoom;
 }
 
-void UEncounterManager::StartEncounter(ACharacterBase* player, ACharacterBase* enemy, bool isPreemptive)
+void UEncounterManager::StartEncounter(ACharacterBase* enemy, bool isPreemptive)
 {
 	if (m_IsZoom) return;
 
@@ -38,11 +39,11 @@ void UEncounterManager::StartEncounter(ACharacterBase* player, ACharacterBase* e
 	if (pc) pc->ChangeInputMode(PlayInputMode::BATTLE);
 
 	// ƒJƒƒ‰‰‰o
-	AMainPlayer* Player = Cast<AMainPlayer>(player);
-	if (!Player) return;
+	AMainPlayer* player = Cast<AMainPlayer>(pc->GetPawn());
+	if (!player) return;
 
-	m_Boom = Player->GetCameraBoom();
-	m_Camera = Player->GetFollowCamera();
+	m_Boom = player->GetCameraBoom();
+	m_Camera = player->GetFollowCamera();
 
 	if (!m_Boom || !m_Camera)
 	{
@@ -228,9 +229,15 @@ ULevelStreaming* UEncounterManager::GetLevel(FName levelName)
 
 void UEncounterManager::EnterBattle()
 {
-	UBattleManager* battleManager = GetWorld()->GetSubsystem<UBattleManager>();
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
+	if (!battleMg || !stageMg) return;
 
-	m_BattleLevel = SetLevelVisible("LV_BattleMC", true);
-	mFieldLevel   = SetLevelVisible("LV_Matsubara", false);
-	battleManager->BattleStart(m_Player, m_Enemy, m_Flag);
+	mFieldLevel   = SetLevelVisible(stageMg->GetNowStageLvData().FieldLvName, false);
+	m_BattleLevel = SetLevelVisible(stageMg->GetNowStageLvData().BattleLvName, true);
+
+	//mFieldLevel = SetLevelVisible("LV_Matsubara", false);
+	//m_BattleLevel = SetLevelVisible("LV_BattleMC", true);
+	
+	battleMg->BattleStart(m_Enemy, m_Flag);
 }

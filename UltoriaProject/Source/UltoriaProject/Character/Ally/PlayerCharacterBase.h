@@ -42,5 +42,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 	EPlayerType m_PlayerType;
 
+	UPROPERTY(EditAnywhere)
+	int m_JobId;
+
 	UJobDataComponent* m_Job;
 };

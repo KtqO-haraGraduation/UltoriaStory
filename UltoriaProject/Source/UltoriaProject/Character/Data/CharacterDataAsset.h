@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "../../Stage/StageParameter.h"
 #include "CharacterDataAsset.generated.h"
 
 /**
@@ -23,6 +24,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UDataTable> EnemyTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<EStageType, TObjectPtr<UDataTable>> EnemyPartyTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UDataTable> SkillTable;

@@ -14,21 +14,22 @@
 #include "Combat/Components/CombatComponent.h"
 #include "Combat/Components/Status/CombatStatusComponent.h"
 #include "../System/Sound/SoundManager.h"
+#include "Combat/Data/BattleParameter.h"
+#include "Combat/Turn/BattleTurnManager.h"
 
 void UBattleManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
 	m_Lifecycle = NewObject<UBattleLifecycle>(this);
+	m_TurnManager = NewObject<UBattleTurnManager>(this);
 
 }
 
-void UBattleManager::BattleStart(ACharacterBase* player, ACharacterBase* enemy, bool isPreemptive)
+void UBattleManager::BattleStart(ACharacterBase* enemy, bool isPreemptive)
 {
 	if (m_IsBattle) return;
 	m_IsBattle = true;
-	m_Characters.Empty();
-	m_CurrentIndex = 0;
 
 	USoundManager* soundMg = GetWorld()->GetGameInstance()->GetSubsystem<USoundManager>();
 	if (soundMg) soundMg->PlayBGM("BGM_Battle");
@@ -47,7 +48,7 @@ void UBattleManager::BattleStart(ACharacterBase* player, ACharacterBase* enemy, 
 	// 各キャラのバトル開始処理
 	NotifyBattleStart();
 
-	m_OnTurnChanged.Broadcast(m_PrevCharacter, m_CurrentCharacter);
+	m_OnTurnChanged.Broadcast(m_TurnManager->GetCurrentCharacter(), m_TurnManager->GetCurrentCharacter());
 
 	// 先制攻撃（仮実装）
 	if (isPreemptive)
@@ -62,12 +63,12 @@ void UBattleManager::BattleStart(ACharacterBase* player, ACharacterBase* enemy, 
 	}
 
 	// 仮実装（最終的には消す）
-	if (m_CurrentCharacter->GetTeamType() == ETeamType::ENEMY)
+	if (m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::ENEMY)
 	{
 		m_SelectionType = SelectionType::NONE;
 		StartAttack();
 	}
-	if (m_CurrentCharacter->GetTeamType() == ETeamType::PLAYER)
+	if (m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::PLAYER)
 	{
 		m_SelectionType = SelectionType::COMMAND;
 		m_CommandSelection.SetTargets(dataManager->GetCommandDatas());
@@ -76,71 +77,33 @@ void UBattleManager::BattleStart(ACharacterBase* player, ACharacterBase* enemy, 
 
 void UBattleManager::NextTurn()
 {
-	if (m_Characters.IsEmpty()) return;
+	if (m_TurnManager->GetCharacters().IsEmpty()) return;
 	UBattleDataManager* dataManager = GetWorld()->GetSubsystem<UBattleDataManager>();
 
-	if (BattleWin())
+	// 状態異常の更新
+	m_TurnManager->UpdateTurnEnd();
+
+	if (BattleWin() || BattleLose())
 	{
-		// 勝利処理
+		// 決着がついたらバトル終了
 		BattleEnd();
 		return;
 	}
 
-	if (BattleLose())
-	{
-		// 負け処理
-		BattleEnd();
-		return;
-	}
+	m_TurnManager->NextTurn();
 
-	// 前回のキャラの状態をリセット（死んでたら無視）
-	/*UCombatComponent* oldCombat = m_CurrentCharacter->GetComponent<UCombatComponent>();
-	oldCombat->ResetState();*/
-
-	// 状態の更新
-	UCombatStatusComponent* statusComponent = m_CurrentCharacter->GetComponent<UCombatStatusComponent>();
-	if (statusComponent) statusComponent->UpdateTurn();
-
-	m_CurrentIndex++;
-	if (m_CurrentIndex >= m_Characters.Num())
-	{
-		m_CurrentIndex = 0;
-	}
-
-	// 現在行動中のキャラを設定
-	m_CurrentCharacter = m_Characters[m_CurrentIndex];
-
-	UCombatComponent* combat = m_CurrentCharacter->GetComponent<UCombatComponent>();
-	// 死んでたら強制で次のキャラのターンへ
-	if (combat->GetCurrentState() == CombatState::DEAD)
-	{
-		NextTurn();
-		return;
-	}
-
-	//combat->SetCurrentState(CombatState::IDLE);
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("Current : %s"),
-		*m_CurrentCharacter->GetName());
-
-	if (m_CurrentCharacter->GetTeamType() == ETeamType::PLAYER)
+	if (m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::PLAYER)
 	{
 		m_SelectionType = SelectionType::COMMAND;
 		m_CommandSelection.SetTargets(dataManager->GetCommandDatas());
 	}
-	else if(m_CurrentCharacter->GetTeamType() == ETeamType::ENEMY)
+	else if(m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::ENEMY)
 	{
 		m_SelectionType = SelectionType::NONE;
 		StartAttack();
 	}
 
-	m_OnTurnChanged.Broadcast(m_PrevCharacter, m_CurrentCharacter);
-
-	// 前回のキャラを記録
-	m_PrevCharacter = m_CurrentCharacter;
-
-	UE_LOG(LogTemp, Warning, TEXT("UI Turn Changed"));
+	m_OnTurnChanged.Broadcast(m_TurnManager->GetPrevCharacter(), m_TurnManager->GetCurrentCharacter());
 }
 
 void UBattleManager::BattleEnd()
@@ -172,21 +135,14 @@ void UBattleManager::BattleEnd()
 	}
 }
 
-void UBattleManager::AddCharacter(ACharacterBase* character)
+ACharacterBase* UBattleManager::GetCurrentCharacter()
 {
-	if (!character) return;
-	m_Characters.Add(character);
-}
-
-void UBattleManager::AddParty(const TArray<ACharacterBase*>& characters)
-{
-	m_Characters.Append(characters);
+	return m_TurnManager->GetCurrentCharacter();
 }
 
 void UBattleManager::ExecuteCommand(ECommandType type)
 {
-	if (!m_CurrentCharacter) return;
-	UCombatComponent* combat = m_Characters[m_CurrentIndex]->GetComponent<UCombatComponent>();
+	UCombatComponent* combat = m_TurnManager->GetCurrentCharacter()->GetComponent<UCombatComponent>();
 
 	switch (type)
 	{
@@ -201,12 +157,19 @@ void UBattleManager::ExecuteCommand(ECommandType type)
 	case ECommandType::SKILL:
 	{
 		m_SelectionType = SelectionType::SKILL;
+
+		// スキル用のボードを表示
+
+
 		//combat->Skill();
 		break;
 	}
 	case ECommandType::ITEM:
 	{
 		m_SelectionType = SelectionType::ITEM;
+
+		// アイテム用のボードを表示
+
 		//combat->Item();
 		break;
 	}
@@ -313,6 +276,9 @@ void UBattleManager::SelectConfirn()
 
 void UBattleManager::SelectCancel()
 {
+	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
+	if (!uiMg) return;
+
 	switch (m_SelectionType)
 	{
 	case SelectionType::COMMAND:
@@ -324,18 +290,20 @@ void UBattleManager::SelectCancel()
 		// コマンド選択に戻る
 		m_SelectionType = SelectionType::COMMAND;
 
-		UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
-		if (!uiMg) break;
 		uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
 		uiMg->SetUIVisible(EBattleUIType::TARGET, false);
 		break;
 	}
 	case SelectionType::SKILL:
 	{
+		uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
+		uiMg->SetUIVisible(EBattleUIType::SKILL, false);
 		break;
 	}
 	case SelectionType::ITEM:
 	{
+		uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
+		uiMg->SetUIVisible(EBattleUIType::ITEM, false);
 		break;
 	}
 	case SelectionType::RESULT:
@@ -377,7 +345,7 @@ void UBattleManager::OnCommandSelectionChanged(int oldIndex, int newIndex)
 	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
 	if (!uiMg) return;
 
-	uiMg->UpdateCommandSelection(newIndex);
+	uiMg->UpdateSelection(EBattleUIType::COMMAND, newIndex);
 }
 
 void UBattleManager::SetCharacterPos(ABattleAreaManager* area)
@@ -396,22 +364,6 @@ void UBattleManager::SetCharacterPos(ABattleAreaManager* area)
 	for (int i = 0; i < m_EnemyParty.Num(); i++)
 	{
 		m_EnemyParty[i]->SetActorLocationAndRotation(enemy[i].pos, enemy[i].rot);
-	}
-}
-
-void UBattleManager::SortBySpeedDescending()
-{
-	m_Characters.Sort(
-		[](const ACharacterBase& a,
-			const ACharacterBase& b)
-		{
-			return a.GetBaseStatus().m_SPD > b.GetBaseStatus().m_SPD;
-		});
-
-	// 一番最初のキャラクターを保存
-	if (!m_Characters.IsEmpty())
-	{
-		m_CurrentCharacter = m_Characters[0];
 	}
 }
 
@@ -446,7 +398,7 @@ void UBattleManager::InitializeSelection()
 
 void UBattleManager::NotifyBattleStart()
 {
-	for (ACharacterBase* character : m_Characters)
+	for (ACharacterBase* character : m_TurnManager->GetCharacters())
 	{
 		UCombatComponent* combat = character->GetComponent<UCombatComponent>();
 		if (character)combat->BattleStart();
@@ -455,7 +407,7 @@ void UBattleManager::NotifyBattleStart()
 
 void UBattleManager::NotifyBattleEnd()
 {
-	for (ACharacterBase* character : m_Characters)
+	for (ACharacterBase* character : m_TurnManager->GetCharacters())
 	{
 		if (!character) return;
 		UCombatComponent* combat = character->GetComponent<UCombatComponent>();
@@ -476,7 +428,7 @@ void UBattleManager::NotifyBattleEnd()
 
 void UBattleManager::ResetBattleState()
 {
-	for (auto character : m_Characters)
+	for (auto character : m_TurnManager->GetCharacters())
 	{
 		UCombatComponent* combat = character->GetComponent<UCombatComponent>();
 		if (character)combat->ResetState();
@@ -487,9 +439,9 @@ const TArray<ACharacterBase*>& UBattleManager::GetTargets() const
 {
 	static TArray<ACharacterBase*> empty;
 
-	if (!m_CurrentCharacter) return empty;
+	if (!m_TurnManager->GetCurrentCharacter()) return empty;
 
-	bool isPlayerTurn = m_CurrentCharacter->GetTeamType() == ETeamType::PLAYER;
+	bool isPlayerTurn = m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::PLAYER;
 
 	return isPlayerTurn ? m_EnemyParty : m_PlayerParty;
 }
@@ -518,7 +470,7 @@ void UBattleManager::StartAttack()
 	else
 	{
 		// 仮実装、アクティブの先頭のキャラを攻撃する
-		if (m_CurrentCharacter->GetTeamType() == ETeamType::ENEMY)
+		if (m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::ENEMY)
 		{
 			ExecuteAttack(activeTargets[0]);
 		}
@@ -527,10 +479,18 @@ void UBattleManager::StartAttack()
 	}
 }
 
+void UBattleManager::StartSkill()
+{
+}
+
+void UBattleManager::StartItem()
+{
+}
+
 void UBattleManager::ExecuteAttack(ACharacterBase* target)
 {
 	if (!target) return;
-	UCombatComponent* combat = m_CurrentCharacter->GetComponent<UCombatComponent>();
+	UCombatComponent* combat = m_TurnManager->GetCurrentCharacter()->GetComponent<UCombatComponent>();
 
 	combat->Attack(target);
 }
@@ -549,7 +509,7 @@ void UBattleManager::ShowTargetUI(const TArray<ACharacterBase*>& targets)
 bool UBattleManager::BattleWin()
 {
 	// 全ての敵を倒したら
-	for (auto character : m_Characters)
+	for (auto character : m_TurnManager->GetCharacters())
 	{
 		UCombatComponent* combat = character->GetComponent<UCombatComponent>();
 		if (character->GetTeamType() == ETeamType::ENEMY &&
@@ -566,7 +526,7 @@ bool UBattleManager::BattleWin()
 bool UBattleManager::BattleLose()
 {
 	// 全てのプレイヤーが倒れたら
-	for (auto character : m_Characters)
+	for (auto character : m_TurnManager->GetCharacters())
 	{
 		UCombatComponent* combat = character->GetComponent<UCombatComponent>();
 		if (character->GetTeamType() == ETeamType::PLAYER &&
@@ -589,14 +549,14 @@ void UBattleManager::FinishBattle()
 	m_Lifecycle->End();
 	NotifyBattleEnd();
 
+	m_TurnManager->ResetCharacters();
+
 	// 全キャラの状態をリセット
 	ResetBattleState();
 
 	// 初期化
-	m_CurrentCharacter = nullptr;
 	m_PlayerParty.Empty();
 	m_EnemyParty.Empty();
-	m_Characters.Empty();
 	m_IsBattle = false;
 	m_IsVictory = false;
 
@@ -629,8 +589,8 @@ void UBattleManager::CreateParty(AEnemyBase* enemyBase)
 	playerPartyMg->CreatePlayerParty();
 
 	m_PlayerParty = playerPartyMg->GetPlayerParty();
-	AddParty(m_PlayerParty);
+	m_TurnManager->AddParty(m_PlayerParty);
 
 	m_EnemyParty = enemyBase->CreateEnemyParty();
-	AddParty(m_EnemyParty);
+	m_TurnManager->AddParty(m_EnemyParty);
 }

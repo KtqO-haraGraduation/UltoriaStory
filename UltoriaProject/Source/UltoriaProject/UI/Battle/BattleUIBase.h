@@ -6,6 +6,17 @@
 #include "Blueprint/UserWidget.h"
 #include "BattleUIBase.generated.h"
 
+enum class EBattleUIType
+{
+	NONE,
+
+	STATUS,
+	COMMAND,
+	SKILL,
+	ITEM,
+	TARGET,
+};
+
 /**
  * 
  */
@@ -27,8 +38,4 @@ public:
 	virtual void ShowUI();
 	UFUNCTION(BlueprintCallable)
 	virtual void HideUI();
-
-protected:
-
-
 };

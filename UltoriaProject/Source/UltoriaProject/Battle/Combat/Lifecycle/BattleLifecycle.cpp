@@ -2,6 +2,7 @@
 
 
 #include "BattleLifecycle.h"
+#include "../Turn/BattleTurnManager.h"
 #include "../../BattleManager.h"
 #include "../../BattleAreaManager.h"
 #include "../../BattleGaugeManager.h"
@@ -72,7 +73,7 @@ void UBattleLifecycle::CreateParty(AEnemyBase* enemyBase)
 {
 	m_BattleManager->CreateParty(enemyBase);
 	// スピード順にリストを並び変える
-	m_BattleManager->SortBySpeedDescending();
+	m_BattleManager->GetTurnManager()->SortBySpeedDescending();
 }
 
 void UBattleLifecycle::ChangeFieldCamera()
@@ -147,56 +148,34 @@ void UBattleLifecycle::CreateBattleUI()
 void UBattleLifecycle::RemoveBattleUI()
 {
 	UWorld* world = GetWorld();
-
-	if (!world)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("BattleLifecycle World is nullptr"));
-		return;
-	}
+	if (!world) return;
 
 	UBattleUIManager* uiManager = world->GetSubsystem<UBattleUIManager>();
 	
-	UE_LOG(LogTemp, Warning,
-		TEXT("Lifecycle Outer : %s"),
-		*GetNameSafe(GetOuter()));
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("Lifecycle World : %s"),
-		*GetNameSafe(GetWorld()));
-
 	if (uiManager)
 	{
 		uiManager->RemoveBattleUI();
 	}
 }
 
+/// <summary>
+///  バトルLv上に存在するAreaを探して返す
+/// </summary>
+/// <returns>バトルLvに存在するBattleArea</returns>
 ABattleAreaManager* UBattleLifecycle::GetBattleArea()
 {
 	UEncounterManager* encounterMg = GetWorld()->GetSubsystem<UEncounterManager>();
-
-	ULevel * level = encounterMg->GetBattleLevel()->GetLoadedLevel();
-
-	UE_LOG(LogTemp, Warning, TEXT("Level : %s"), *GetNameSafe(level));
+	ULevel* level = encounterMg->GetBattleLevel()->GetLoadedLevel();
 
 	if (level)
 	{
-
-		UE_LOG(LogTemp, Warning, TEXT("Actor Num : %d"), level->Actors.Num());
-
-		for (AActor* Actor : level->Actors)
-		{
-			if (!Actor) continue;
-
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *Actor->GetName());
-		}
-
 		for (AActor* actor : level->Actors)
 		{
+			if (!actor) continue;
 			ABattleAreaManager* area = Cast<ABattleAreaManager>(actor);
-			if (area)
-			{
-				return area;
-			}
+			
+			if (!area) continue;
+			return area;
 		}
 	}
 	return nullptr;

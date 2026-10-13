@@ -47,8 +47,8 @@ FStatus APlayerCharacterBase::GetTotalStatus() const
 
 	if (!m_Job) return result;
 
-	result.m_HP = (int)((m_BaseStatus.m_HP + m_EquipmentBonus.m_HP) * m_Job->GetHP());
-	result.m_MP = (int)((m_BaseStatus.m_MP + m_EquipmentBonus.m_MP) * m_Job->GetMP());
+	result.m_HP  = (int)((m_BaseStatus.m_HP  + m_EquipmentBonus.m_HP)  * m_Job->GetHP());
+	result.m_MP  = (int)((m_BaseStatus.m_MP  + m_EquipmentBonus.m_MP)  * m_Job->GetMP());
 	result.m_ATK = (int)((m_BaseStatus.m_ATK + m_EquipmentBonus.m_ATK) * m_Job->GetATK());
 	result.m_DEF = (int)((m_BaseStatus.m_DEF + m_EquipmentBonus.m_DEF) * m_Job->GetDEF());
 	result.m_MGC = (int)((m_BaseStatus.m_MGC + m_EquipmentBonus.m_MGC) * m_Job->GetMGC());

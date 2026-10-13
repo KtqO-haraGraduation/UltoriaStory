@@ -28,7 +28,7 @@ public:
 	virtual TStatId GetStatId() const override;
 	virtual bool IsTickable() const override;
 
-	void StartEncounter(ACharacterBase* player, ACharacterBase* enemy, bool isPreemptive);
+	void StartEncounter(ACharacterBase* enemy, bool isPreemptive);
 	void Update(float DeltaTime);
 	void ResetFieldCamera();
 

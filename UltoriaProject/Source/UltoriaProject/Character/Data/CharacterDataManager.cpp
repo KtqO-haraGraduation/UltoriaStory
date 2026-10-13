@@ -14,6 +14,7 @@ void UCharacterDataManager::Initialize(FSubsystemCollectionBase& Collection)
 	// 必要なキャラデータをロード
 	LoadAllyMasterData();
 	LoadAllyLevelData();
+
 	LoadEnemyData();
 
 	LoadSkillData();
@@ -101,6 +102,34 @@ void UCharacterDataManager::LoadEnemyData()
 		if (data)
 		{
 			m_EnemyDatas.Add(rowName, *data);
+		}
+	}
+}
+
+/// <summary>
+/// 敵のパーティーデータをロード
+/// </summary>
+void UCharacterDataManager::LoadEnemyPartyData()
+{
+	if (!IsCharacterDataAssetLoaded()) return;
+
+	UDataTable* table = GetEnemyPartyTable();
+	if (!table) return;
+
+	m_EnemyPartyDatas.Empty();
+
+	for (const auto& row : table->GetRowMap())
+	{
+		FName rowName = row.Key;
+		FEnemyPartyData* data = reinterpret_cast<FEnemyPartyData*>(row.Value);
+
+		if (data)
+		{
+			FEnemyPartyData copy = *data;
+
+			copy.Name = rowName;
+
+			m_EnemyPartyDatas.Add(copy);
 		}
 	}
 }
@@ -251,6 +280,50 @@ TSubclassOf<AEnemyBase> UCharacterDataManager::GetEnemyClass(FName enemyId)
 }
 
 /// <summary>
+/// IDを元にランダムで敵のパーティーを取得
+/// </summary>
+/// <param name="enemyId">敵のID</param>
+/// <returns>敵のパーティー</returns>
+FEnemyPartyData UCharacterDataManager::GetRandomEnemyParty(FName enemyId)
+{
+	TArray<FEnemyPartyData> candidates =
+		FindEnemyParty(enemyId);
+
+	if (candidates.Num() == 0)
+	{
+		return FEnemyPartyData();
+	}
+
+	int index = FMath::RandRange(0, candidates.Num() - 1);
+
+	return candidates[index];
+}
+
+/// <summary>
+/// IDが含まれたデータリスト
+/// </summary>
+/// <param name="enemyId">敵のID</param>
+/// <returns>IDが含まれるデータリスト</returns>
+TArray<FEnemyPartyData> UCharacterDataManager::FindEnemyParty(FName enemyId)
+{
+	TArray<FEnemyPartyData> result;
+
+	for (const FEnemyPartyData& data : m_EnemyPartyDatas)
+	{
+		if (data.Enemy1 == enemyId ||
+			data.Enemy2 == enemyId ||
+			data.Enemy3 == enemyId ||
+			data.Enemy4 == enemyId)
+		{
+			result.Add(data);
+		}
+	}
+
+	return result;
+}
+
+
+/// <summary>
 /// 指定したスキルデータを取得
 /// </summary>
 /// <param name="name">スキルの名前</param>
@@ -317,4 +390,20 @@ bool UCharacterDataManager::IsCharacterDataAssetLoaded()
 		return false;
 	}
 	return true;
+}
+
+/// <summary>
+/// 現在のステージを元に、敵のパーティーデータテーブルを取得
+/// </summary>
+/// <returns>敵のデータテーブル</returns>
+UDataTable* UCharacterDataManager::GetEnemyPartyTable()
+{
+	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
+	if (!stageMg) return nullptr;
+
+	TObjectPtr<UDataTable>* table = 
+		m_CharacterDataAsset->EnemyPartyTable.Find(stageMg->GetStageType());
+	if (!table) return nullptr;
+
+	return *table;
 }

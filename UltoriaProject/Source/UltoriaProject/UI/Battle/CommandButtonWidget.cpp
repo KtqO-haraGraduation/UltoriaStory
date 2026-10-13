@@ -5,25 +5,6 @@
 #include "CommandUIWidget.h"
 #include "../../Battle/BattleManager.h"
 
-void UCommandButtonWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	// ボタンが押された処理を登録
-	if (Button)
-	{
-		SetIsFocusable(false);
-
-		Button->OnClicked.AddUniqueDynamic(
-			this,
-			&UCommandButtonWidget::OnClickCommandButton);
-
-		Button->OnHovered.AddUniqueDynamic(
-			this,
-			&UCommandButtonWidget::OnHoverCommandButton);
-	}
-}
-
 void UCommandButtonWidget::SetCommandData(const FBattleCommandData& data)
 {
 	// コマンドデータを設定
@@ -36,23 +17,11 @@ void UCommandButtonWidget::SetCommandData(const FBattleCommandData& data)
 	}
 }
 
-void UCommandButtonWidget::SetOwner(UCommandUIWidget* owner, int index)
-{
-	if (!owner) return;
-
-	m_Owner = owner;
-	m_Index = index;
-}
-
 void UCommandButtonWidget::SetSelected(bool flag)
 {
 	if (!Button || m_IsSelected == flag) return;
 
-	m_IsSelected = flag;
-
-	// 選択時：黄色、通常：白
-	FLinearColor color = flag ? FLinearColor::Yellow : FLinearColor::White;
-	Button->SetBackgroundColor(color);
+	UBattleButtonBase::SetSelected(flag);
 
 	if (flag)
 	{
@@ -64,7 +33,7 @@ void UCommandButtonWidget::SetSelected(bool flag)
 	}
 }
 
-void UCommandButtonWidget::OnClickCommandButton()
+void UCommandButtonWidget::OnClickButton()
 {
 	UBattleManager* battleManager = 
 		GetWorld()->GetSubsystem<UBattleManager>();
@@ -75,7 +44,7 @@ void UCommandButtonWidget::OnClickCommandButton()
 	battleManager->ExecuteCommand(m_CommandData.Type);
 }
 
-void UCommandButtonWidget::OnHoverCommandButton()
+void UCommandButtonWidget::OnHoverButton()
 {
 	UBattleManager* battleManager = GetWorld()->GetSubsystem<UBattleManager>();
 
