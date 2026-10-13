@@ -7,6 +7,7 @@
 #include "MapWidgetTable.generated.h"
 
 class UMapWidget;
+class UMiniMapWidget;
 
 UENUM(BlueprintType)
 enum class EMapID :uint8
@@ -26,10 +27,15 @@ class ULTORIAPROJECT_API UMapWidgetTable : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere)
 	TMap<EMapID, TSubclassOf<UMapWidget>> m_MW;
+	UPROPERTY(EditAnywhere)
+	TMap<EMapID, TSubclassOf<UMiniMapWidget>> m_MMW;
 
-	// 余白ピクセル数
+	// テクスチャの直径の長さ
+	// 縦と横の直径の長さは同じなので、変数はfloat型
 	UPROPERTY(EditAnywhere)
-	TMap<EMapID, float> m_MarginPxX;	// X
+	TMap<EMapID, float> m_MapTexDiameterLength;
+
+	// 余白の半径の長さ
 	UPROPERTY(EditAnywhere)
-	TMap<EMapID, float> m_MarginPxY;	// Y
+	TMap<EMapID, FVector2D> m_MarginHalfLength;
 };

@@ -23,12 +23,9 @@ public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 public:
-	void InitMap();
-
-	void SetStageMosts(TArray<AActor*> stageMosts) { m_StageMosts = stageMosts; }
+	void InitMap(float mapTexDiameterLength, FVector2D marginLength);
 	
 private:
-
 	void UpdateMapPlayer();
 
 	void AddStageMosts(FName tag);
@@ -44,4 +41,10 @@ protected:
 	UCanvasPanelSlot* m_PlayerSlot;
 	FVector2D m_MapImagePos;
 	FVector2D m_MapImageSize;
+
+	// テクスチャの直径の長さ
+	// 縦と横の直径の長さは同じなので、変数はfloat型
+	float m_MapTexDiameterLength;
+	// 余白の長さ
+	FVector2D m_MarginLength;
 };
