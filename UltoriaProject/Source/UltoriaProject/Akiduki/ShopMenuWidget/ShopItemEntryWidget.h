@@ -9,6 +9,7 @@
 
 class UTextBlock;
 class UBorder;
+class UImage;
 
 UCLASS()
 class ULTORIAPROJECT_API UShopItemEntryWidget : public UUserWidget
@@ -29,12 +30,16 @@ public:
 
 protected:
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* Text_ItemName;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* Text_Price;
-
-	UPROPERTY(meta = (BindWidget))
-	UBorder* SelectionBorder;
+    // アイテム名
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* Text_ItemName;
+    // アイテム価格
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* Text_Price;
+    // アイテムアイコン
+    UPROPERTY(meta = (BindWidget))
+    UImage* Image_ItemIcon;
+    // 選択中の枠
+    UPROPERTY(meta = (BindWidget))
+    UBorder* SelectionBorder;
 };

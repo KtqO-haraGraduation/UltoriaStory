@@ -4,26 +4,63 @@
 #include "Engine/DataTable.h"
 #include "ItemData.generated.h"
 
-// ItemTarget
+// アイテムの種類
 UENUM(BlueprintType)
 enum class EItemType : uint8
 {
+    // 消費アイテム
     Consumable,
+    // 素材
     Material,
+    // 武器
     Weapon,
+    // 防具
     Armor,
+    // 重要アイテム
     KeyItem
 };
 
-// UseTarget
+// アイテムを使用する対象
 UENUM(BlueprintType)
 enum class EItemUseTarget : uint8
 {
+    // 対象なし
     None,
+    // 味方単体
     Ally,
+    // 敵単体
     Enemy,
+    // 自分自身
     Self,
+    // 味方全体
     AllAllies
+};
+
+// アイテムに設定できる効果の種類
+UENUM(BlueprintType)
+enum class EItemEffectType : uint8
+{
+    // HPを回復する
+    HealHP,
+    // MPを回復する
+    HealMP,
+    // 毒状態を解除する
+    CurePoison
+};
+
+// アイテムに設定する個々の効果データ
+USTRUCT(BlueprintType)
+struct FItemEffectData
+{
+    GENERATED_BODY()
+
+    // 実行する効果の種類
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Effect")
+    EItemEffectType EffectType = EItemEffectType::HealHP;
+
+    // 効果の強さ
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Effect")
+    int32 Magnitude = 0;
 };
 
 
@@ -34,45 +71,63 @@ struct FItemData : public FTableRowBase
 
 public:
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    // アイテムのカテゴリ
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
     FString Category;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    // アイテムID
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
     FName ID;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    // 日本語名
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
     FString NameJP;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    // アイテムの説明文
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
     FString Description;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    // 既存の効果説明文字列。実際の効果処理にはEffectsを使用する想定
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
     FString Effect;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 Price;
+    // 購入価格
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+    int32 Price = 0;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    // アイテムアイコン
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
     TSoftObjectPtr<UTexture2D> Icon;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    // 最大所持数
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
     int32 MaxStack = 99;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    // 売却可能か
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
     bool bCanSell = true;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    // 売却価格
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
     int32 SellPrice = 0;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    EItemType Type;
+    // アイテムの種類
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+    EItemType Type = EItemType::Consumable;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    EItemUseTarget Target;
+    // 使用対象
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+    EItemUseTarget Target = EItemUseTarget::None;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    bool bUsableInField;
+    // フィールドで使用可能か
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+    bool bUsableInField = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    bool bUsableInBattle;
+    // 戦闘中に使用可能か
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+    bool bUsableInBattle = false;
+
+    // アイテムが持つ効果
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Effects")
+    TArray<FItemEffectData> Effects;
 };
