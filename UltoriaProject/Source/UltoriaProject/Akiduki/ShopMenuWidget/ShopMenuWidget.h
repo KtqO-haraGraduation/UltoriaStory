@@ -12,6 +12,7 @@ class UScrollBox;
 class UDataTable;
 class UShopItemEntryWidget;
 class UBuyConfirmWidget;
+class UImage;
 
 UCLASS()
 class ULTORIAPROJECT_API UShopMenuWidget : public UUserWidget
@@ -54,6 +55,10 @@ public:
 	// アイテム説明文
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DescriptionText;
+
+	// 選択中アイテムのアイコン
+	UPROPERTY(meta = (BindWidget))
+	UImage* ItemImage;
 
 	// アイテム行Widget
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shop")

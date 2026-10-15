@@ -29,11 +29,45 @@ void UShopItemEntryWidget::SetItemData(const FItemData& Data)
 	}
 
 	// アイコンを表示する
-	if (Image_ItemIcon)
-	{
-		// DataTableに設定したアイコンをImageに反映する
-		Image_ItemIcon->SetBrushFromSoftTexture(ItemData.Icon);
-	}
+    // アイテムの種類に対応するカテゴリ画像を設定する
+    if (CategoryIcon)
+    {
+        // 最初に表示する画像を、アイテムの種類に応じて選ぶ
+        TSoftObjectPtr<UTexture2D> SelectedCategoryTexture;
+
+        switch (ItemData.Type)
+        {
+        case EItemType::Consumable:
+            SelectedCategoryTexture = ConsumableIcon;
+            break;
+
+        case EItemType::Material:
+            SelectedCategoryTexture = MaterialIcon;
+            break;
+
+        case EItemType::Weapon:
+            SelectedCategoryTexture = WeaponIcon;
+            break;
+
+        case EItemType::Armor:
+            SelectedCategoryTexture = ArmorIcon;
+            break;
+
+        case EItemType::KeyItem:
+            SelectedCategoryTexture = KeyItemIcon;
+            break;
+
+        default:
+            break;
+        }
+
+        // 選ばれた画像を表示する
+        if (CategoryIcon)
+        {
+            CategoryIcon->SetBrushFromSoftTexture(SelectedCategoryTexture);
+        }
+
+    }
 }
 
 void UShopItemEntryWidget::SetSelected(bool bSelected)
