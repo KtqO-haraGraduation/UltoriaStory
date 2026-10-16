@@ -18,11 +18,7 @@ class ULTORIAPROJECT_API USkillButtonWidget : public UBattleButtonBase
 {
 	GENERATED_BODY()
 	
-public:
-	void SetSkillData(FName skillName);
-
 protected:
 	void OnClickButton() override;
 	void OnHoverButton() override;
-
 };

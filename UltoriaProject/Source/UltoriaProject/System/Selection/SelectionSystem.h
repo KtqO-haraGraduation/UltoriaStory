@@ -66,7 +66,6 @@ public:
 		return m_Targets;
 	}
 
-
 	T GetCurrent() const
 	{
 		if (m_Targets.Num() == 0)

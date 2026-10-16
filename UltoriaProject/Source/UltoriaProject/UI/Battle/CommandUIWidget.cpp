@@ -4,6 +4,7 @@
 #include "CommandButtonWidget.h"
 #include "CommandCursorWidget.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Data/BattleUIDataAsset.h"
 #include "../../Battle/BattleManager.h"
 #include "../../Battle/Combat/Data/BattleDataManager.h"
 
@@ -12,24 +13,24 @@ void UCommandUIWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	// コマンドのボタンを生成
-	UBattleDataManager* dataManager = GetWorld()->GetSubsystem<UBattleDataManager>();
+	CreateButton();
+}
 
-	dataManager->LoadCommandData();
+void UCommandUIWidget::CreateButton()
+{
+	UBattleDataManager* battleDataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
 
 	// コマンドボタンのクラスを取得
-	UClass* buttonClass =
-		LoadClass<UCommandButtonWidget>(
-			nullptr, 
-			TEXT("/Game/MembarFiles/Matsubara/UI_MC/Command/WBP_CommandButton.WBP_CommandButton_C"));
-	
+	TSubclassOf<UCommandButtonWidget> buttonClass = battleDataMg->GetBattleUIDataAsset()->CommandButtonClass;
+
 	// 登録されたリスト分のコマンドButtonを生成
-	for (auto& command : dataManager->GetCommandDatas())
+	for (auto& command : battleDataMg->GetCommandDatas())
 	{
 		UCommandButtonWidget* button =
 			CreateWidget<UCommandButtonWidget>(GetWorld(), buttonClass);
 
-		if(button) button->SetCommandData(command);
-		if(VB_List) VB_List->AddChild(button);
+		if (button) button->SetCommandData(command);
+		if (VB_List) VB_List->AddChild(button);
 
 		// ボタン同士の空いたをあける処理
 		if (VB_List)
@@ -40,7 +41,7 @@ void UCommandUIWidget::NativeConstruct()
 
 			if (slot)
 			{
-				slot->SetPadding(FMargin(0.0f, CharacterPadding, 0.0f, CharacterPadding));
+				slot->SetPadding(FMargin(0.0f, m_Padding, 0.0f, m_Padding));
 			}
 		}
 	}

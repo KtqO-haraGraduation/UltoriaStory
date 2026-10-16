@@ -64,8 +64,6 @@ public:
 	FJobLvRow GetJobLvData(int nexJobLv);
 
 private:
-	bool IsCharacterDataAssetLoaded();
-
 	UDataTable* GetEnemyPartyTable();
 
 private:

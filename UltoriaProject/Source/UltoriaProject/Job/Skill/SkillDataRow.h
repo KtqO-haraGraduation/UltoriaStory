@@ -15,6 +15,21 @@ enum class ESkillType : uint8
 	HEAL,
 };
 
+UENUM(BlueprintType)
+enum class ETargetTeam : uint8
+{
+	SELF,	// プレイヤー
+	ALLY,	// 仲間
+	ENEMY,	// 敵
+};
+
+UENUM(BlueprintType)
+enum class ETargetType : uint8
+{
+	SINGLE,	// 単体
+	ALL,	// 全員
+};
+
 USTRUCT(BlueprintType)
 struct FSkillDataRow : public FTableRowBase
 {
@@ -25,6 +40,12 @@ struct FSkillDataRow : public FTableRowBase
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	FName Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ETargetTeam TargetTeam;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ETargetType TargetType;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	int MpCost;
@@ -46,4 +67,12 @@ struct FSkillDataRow : public FTableRowBase
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	FString Sound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Desc;
+
+	bool operator==(const FSkillDataRow& other) const
+	{
+		return SkillType == other.SkillType;
+	}
 };

@@ -19,15 +19,11 @@ class ULTORIAPROJECT_API UCommandButtonWidget : public UBattleButtonBase
 	
 public:
 	void SetCommandData(const FBattleCommandData& data);
-	void SetSelected(bool flag) override;
 
 protected:
 	void OnClickButton() override;
 	void OnHoverButton() override;
 
 private:
-	UPROPERTY(meta = (BindWidgetAnim), Transient)
-	UWidgetAnimation* SelectAnim;
-
 	FBattleCommandData m_CommandData;
 };

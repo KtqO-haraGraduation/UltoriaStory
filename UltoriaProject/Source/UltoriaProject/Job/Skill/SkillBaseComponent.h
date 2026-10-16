@@ -31,7 +31,10 @@ public:
 	bool CanUse(int index);
 	void UseSkill(int index, const TArray<ACharacterBase*>& targets);
 
+	bool IsUnlocked(int index);
+
 	const FSkillDataRow* GetSkill(int index) const;
+	const TArray<FSkillDataRow>& GetSkills() const { return m_SkillList; }
 	TArray<FSkillDataRow> GetUnlockedSkills();
 
 private:

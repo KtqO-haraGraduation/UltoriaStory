@@ -80,7 +80,7 @@ protected:
 
 protected:
 	UPROPERTY(EditAnywhere)		// 逃走の成功率（0 ～ 99）
-	int m_EscapeRate;
+	int m_EscapeRate = 50;
 	int m_GuardCount = 3; // ガードのターン数
 	bool m_IsGuarding;			// ガード中か
 	bool m_IsPreemptive;		// 先制攻撃か

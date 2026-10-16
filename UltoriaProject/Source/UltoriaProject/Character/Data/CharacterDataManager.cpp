@@ -39,8 +39,6 @@ void UCharacterDataManager::LoadCharacterDataAsset()
 /// </summary>
 void UCharacterDataManager::LoadAllyMasterData()
 {
-	if (!IsCharacterDataAssetLoaded()) return;
-
 	UDataTable* table = m_CharacterDataAsset->AllyTable;
 	if (!table) return;
 
@@ -63,8 +61,6 @@ void UCharacterDataManager::LoadAllyMasterData()
 /// </summary>
 void UCharacterDataManager::LoadAllyLevelData()
 {
-	if (!IsCharacterDataAssetLoaded()) return;
-
 	UDataTable* table = m_CharacterDataAsset->AllyLevelTable;
 	if (!table) return;
 
@@ -87,8 +83,6 @@ void UCharacterDataManager::LoadAllyLevelData()
 /// </summary>
 void UCharacterDataManager::LoadEnemyData()
 {
-	if (!IsCharacterDataAssetLoaded()) return;
-
 	UDataTable* table = m_CharacterDataAsset->EnemyTable;
 	if (!table) return;
 
@@ -111,8 +105,6 @@ void UCharacterDataManager::LoadEnemyData()
 /// </summary>
 void UCharacterDataManager::LoadEnemyPartyData()
 {
-	if (!IsCharacterDataAssetLoaded()) return;
-
 	UDataTable* table = GetEnemyPartyTable();
 	if (!table) return;
 
@@ -139,8 +131,6 @@ void UCharacterDataManager::LoadEnemyPartyData()
 /// </summary>
 void UCharacterDataManager::LoadSkillData()
 {
-	if (!IsCharacterDataAssetLoaded()) return;
-
 	UDataTable* table = m_CharacterDataAsset->SkillTable;
 	if (!table) return;
 
@@ -162,8 +152,6 @@ void UCharacterDataManager::LoadSkillData()
 /// </summary>
 void UCharacterDataManager::LoadJobData()
 {
-	if (!IsCharacterDataAssetLoaded()) return;
-
 	UDataTable* table = m_CharacterDataAsset->JobTable;
 	if (!table) return;
 
@@ -185,8 +173,6 @@ void UCharacterDataManager::LoadJobData()
 /// </summary>
 void UCharacterDataManager::LoadJobLvData()
 {
-	if (!IsCharacterDataAssetLoaded()) return;
-
 	UDataTable* table = m_CharacterDataAsset->JobLvTable;
 	if (!table) return;
 
@@ -381,15 +367,6 @@ FJobLvRow UCharacterDataManager::GetJobLvData(int nexJobLv)
 		return *data;
 	}
 	return FJobLvRow();
-}
-
-bool UCharacterDataManager::IsCharacterDataAssetLoaded()
-{
-	if (!m_CharacterDataAsset)
-	{
-		return false;
-	}
-	return true;
 }
 
 /// <summary>

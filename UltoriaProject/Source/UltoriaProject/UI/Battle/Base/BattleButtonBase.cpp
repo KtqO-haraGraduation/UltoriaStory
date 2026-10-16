@@ -33,6 +33,14 @@ void UBattleButtonBase::SetOwner(UBattleSelectionUIBase* owner, int index)
 	m_Index = index;
 }
 
+void UBattleButtonBase::SetMyName(FName name)
+{
+	if (TB_Name)
+	{
+		TB_Name->SetText(FText::FromName(name));
+	}
+}
+
 void UBattleButtonBase::SetSelected(bool flag)
 {
 	if (!Button || m_IsSelected == flag) return;
@@ -42,4 +50,14 @@ void UBattleButtonBase::SetSelected(bool flag)
 	// ボタンの背景色
 	FLinearColor color = flag ? FLinearColor::Yellow : FLinearColor::White;
 	Button->SetBackgroundColor(color);
+
+	// ボタンのアニメーションを再生
+	if (flag)
+	{
+		PlayAnimation(SelectAnim);
+	}
+	else
+	{
+		PlayAnimationReverse(SelectAnim);
+	}
 }

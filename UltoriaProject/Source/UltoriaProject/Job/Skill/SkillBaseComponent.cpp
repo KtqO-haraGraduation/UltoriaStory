@@ -91,6 +91,15 @@ void USkillBaseComponent::UseSkill(int index, const TArray<ACharacterBase*>& tar
 	m_Owner->SetMP(newMp);
 }
 
+bool USkillBaseComponent::IsUnlocked(int index)
+{
+	if (m_Owner->GetLevel() >= m_SkillList[index].UnLockLv)
+	{
+		return true;
+	}
+	return false;
+}
+
 const FSkillDataRow* USkillBaseComponent::GetSkill(int index) const
 {
 	if (!m_SkillList.IsValidIndex(index))
@@ -105,14 +114,13 @@ TArray<FSkillDataRow> USkillBaseComponent::GetUnlockedSkills()
 {
 	TArray<FSkillDataRow> result;
 
-	for (const FSkillDataRow& skill : m_SkillList)
+	for (int i = 0; i < SKILL_MAX; i++)
 	{
-		if (m_Owner->GetLevel() >= skill.UnLockLv)
+		if (IsUnlocked(i))
 		{
-			result.Add(skill);
+			result.Add(m_SkillList[i]);
 		}
 	}
-
 	return result;
 }
 

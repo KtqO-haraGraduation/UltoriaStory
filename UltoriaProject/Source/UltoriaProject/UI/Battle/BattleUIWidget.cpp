@@ -49,7 +49,7 @@ UBattleSelectionUIBase* UBattleUIWidget::GetSelectionUI(EBattleUIType type) cons
 		return WBP_Command;
 
 	case EBattleUIType::SKILL:
-		return WBP_Command;
+		return WBP_Skill;
 
 	case EBattleUIType::ITEM:
 		return WBP_Command;
