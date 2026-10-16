@@ -12,12 +12,6 @@ void UMiniMapWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
-    /*m_MapSlot = Cast<UCanvasPanelSlot>(MapImage->Slot);
-    if (m_MapSlot)
-    {
-        m_MapImagePos = m_MapSlot->GetPosition();
-        m_MapImageSize = m_MapSlot->GetSize();
-    }*/
     m_RB_Slot = Cast<UCanvasPanelSlot>(RetainerBox->Slot);
     if (m_RB_Slot)
     {

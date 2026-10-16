@@ -11,9 +11,7 @@
 
 #include "MyNetworkPlayerController.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class ULTORIAPROJECT_API AMyNetworkPlayerController : public APlayerController
 {

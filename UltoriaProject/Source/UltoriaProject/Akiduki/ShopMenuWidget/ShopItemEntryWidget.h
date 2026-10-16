@@ -9,6 +9,7 @@
 
 class UTextBlock;
 class UBorder;
+class UImage;
 
 UCLASS()
 class ULTORIAPROJECT_API UShopItemEntryWidget : public UUserWidget
@@ -29,12 +30,32 @@ public:
 
 protected:
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* Text_ItemName;
+    // アイテム名
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* Text_ItemName;
+    // アイテム価格
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* Text_Price;
+    // 選択中の枠
+    UPROPERTY(meta = (BindWidget))
+    UBorder* SelectionBorder;
+    // カテゴリ画像の設定
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Category Icons")
+    TSoftObjectPtr<UTexture2D> ConsumableIcon;// 消費アイテム
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* Text_Price;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Category Icons")
+    TSoftObjectPtr<UTexture2D> MaterialIcon;// 素材
 
-	UPROPERTY(meta = (BindWidget))
-	UBorder* SelectionBorder;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Category Icons")
+    TSoftObjectPtr<UTexture2D> WeaponIcon;// 武器
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Category Icons")
+    TSoftObjectPtr<UTexture2D> ArmorIcon;// 防具
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Category Icons")
+    TSoftObjectPtr<UTexture2D> KeyItemIcon;// キーアイテム
+
+    // カテゴリ画像の表示先
+    UPROPERTY(meta = (BindWidget))
+    UImage* CategoryIcon;
 };

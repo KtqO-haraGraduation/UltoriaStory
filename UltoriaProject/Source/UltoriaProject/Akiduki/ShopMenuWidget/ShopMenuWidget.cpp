@@ -4,6 +4,7 @@
 #include "BuyConfirmWidget.h"
 #include "../../Inventory/InventorySubsystem.h"
 #include "Components/ScrollBox.h"
+#include "Components/Image.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/DataTable.h"
 
@@ -52,15 +53,24 @@ void UShopMenuWidget::UpdateSelection()
 	}
 
 	const FItemData& Item = ItemEntries[CurrentIndex]->ItemData;
-		
+	
+	// アイテムの名
 	if (ItemNameText)
 	{
 		ItemNameText->SetText(FText::FromString(Item.NameJP));
 	}
 
+	// アイテムの説明文
 	if (DescriptionText)
 	{
 		DescriptionText->SetText(FText::FromString(Item.Description));	
+	}
+
+	// 選択中アイテムのアイコンを表示する
+	if (ItemImage)
+	{
+		// DataTableに設定したアイコンをImageに反映する
+		ItemImage->SetBrushFromSoftTexture(Item.Icon);
 	}
 }
 
