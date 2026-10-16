@@ -14,6 +14,7 @@ enum class EMapID :uint8
 {
 	CASRLE,
 	ENTRANCE,
+	TUTORIAL,
 };
 
 /**
