@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "Combat/Data/BattleCommandData.h"
-#include "../System/Selection/SelectionSystem.h"
 #include "BattleManager.generated.h"
 
 class ACharacterBase;
@@ -13,22 +12,10 @@ class AEnemyBase;
 class ABattleAreaManager;
 class UBattleLifecycle;
 class UBattleTurnManager;
+class UBattleSelectioinManager;
 enum class EUIInputType;
-//enum class ESelectionType;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTurnChanged, ACharacterBase*, ACharacterBase*);
-
-// 選択肢の種類
-UENUM(BlueprintType)
-enum class SelectionType : uint8
-{
-	NONE,
-	COMMAND,
-	TARGET,
-	SKILL,
-	ITEM,
-	RESULT,
-};
 
 /**
  * 
@@ -51,19 +38,11 @@ public:
 	// バトル中かのフラグ
 	UFUNCTION(BlueprintCallable)
 	bool IsBattle() const { return m_IsBattle; }
-
 	FOnTurnChanged& OnTurnChanged() { return m_OnTurnChanged; }
 
 	// コマンドごとの実行処理
 	void ExecuteCommand(ECommandType type);
-
-	// カーソル移動
-	void SelectMoveTarget(EUIInputType type);
-	void SelectConfirn();
-	void SelectCancel();
-
-	void OnEnemySelectionChanged(int oldIndex, int newIndex);
-	void OnCommandSelectionChanged(int oldIndex, int newIndex);
+	void ExecuteAttack(ACharacterBase* target);
 
 	// キャラクターを並べる
 	void SetCharacterPos(ABattleAreaManager* area);
@@ -71,16 +50,15 @@ public:
 	void CreateParty(AEnemyBase* enemyBase);
 
 	// 敵を取得
-	AEnemyBase* GetEnemyCurrentSelect();
 	const TArray<ACharacterBase*>& GetEnemyParty() const { return m_EnemyParty; }
 
 	UBattleTurnManager* GetTurnManager() { return m_TurnManager; }
+	UBattleSelectioinManager* GetSelectManager() { return m_SelectManager; }
 
-	// コマンドセレクトのインデックスを設定
-	void SetCommandSelectIndex(int index);
+	void FinishBattle();
 
 private:
-	void InitializeSelection();
+	//void InitializeSelection();
 	void NotifyBattleStart();
 	void NotifyBattleEnd();
 
@@ -94,28 +72,24 @@ private:
 	void StartAttack();
 	void StartSkill();
 	void StartItem();
-
-	void ExecuteAttack(ACharacterBase* target);
+	
 	void ShowTargetUI(const TArray<ACharacterBase*>& targets);
 
 	bool BattleWin();
 	bool BattleLose();
 
-	void FinishBattle();
-
 private:
 	bool m_IsBattle;							 // バトル中か
 	bool m_IsVictory;							 //	プレイヤー側が勝負に勝ったか
-	SelectionType m_SelectionType;
 	FOnTurnChanged m_OnTurnChanged;
 
 	UPROPERTY()
 	UBattleLifecycle* m_Lifecycle;
 	UPROPERTY()
 	UBattleTurnManager* m_TurnManager;
+	UPROPERTY()
+	UBattleSelectioinManager* m_SelectManager;
 
 	TArray<ACharacterBase*> m_PlayerParty; // 戦闘時のプレイヤーリスト
 	TArray<ACharacterBase*> m_EnemyParty;  // 戦闘時の敵リスト
-	TSelectionSystem<ACharacterBase*> m_EnemySelection; // 敵の選択システム
-	TSelectionSystem<FBattleCommandData> m_CommandSelection; // コマンドの選択システム
 };

@@ -2,18 +2,40 @@
 
 
 #include "BattleDataManager.h"
+#include "BattleDataAsset.h"
+#include "../../../UI/Battle/Data/BattleUIDataAsset.h"
 
 void UBattleDataManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
+	// バトルのデータアセットをロード
+	LoadBattleDataAsset();
+	LoadBattleUIDataAsset();
+
+	LoadCommandData();
 	LoadStatusData();
+}
+
+void UBattleDataManager::LoadBattleDataAsset()
+{
+	m_BattleDataAsset = LoadObject<UBattleDataAsset>(
+		nullptr,
+		TEXT("/Game/Data/Battle/DA_Battle.DA_Battle")
+	);
+}
+
+void UBattleDataManager::LoadBattleUIDataAsset()
+{
+	m_BattleUIDataAsset = LoadObject<UBattleUIDataAsset>(
+		nullptr,
+		TEXT("/Game/Data/UI/Battle/DA_BattleUI.DA_BattleUI")
+	);
 }
 
 void UBattleDataManager::LoadCommandData()
 {
-	FSoftObjectPath path = FSoftObjectPath("/Game/Data/Battle/DT_BattleCommand.DT_BattleCommand");
-	UDataTable* table = Cast<UDataTable>(path.TryLoad());
+	UDataTable* table = m_BattleDataAsset->CommandTable;
 	if (!table) return;
 
 	m_CommandDatas.Empty();
@@ -35,8 +57,7 @@ void UBattleDataManager::LoadCommandData()
 
 void UBattleDataManager::LoadStatusData()
 {
-	FSoftObjectPath path = FSoftObjectPath("/Game/Data/Character/Status/DT_CharacterStatus.DT_CharacterStatus");
-	UDataTable* table = Cast<UDataTable>(path.TryLoad());
+	UDataTable* table = m_BattleDataAsset->StatusTable;
 	if (!table) return;
 
 	m_StatusDatas.Empty();

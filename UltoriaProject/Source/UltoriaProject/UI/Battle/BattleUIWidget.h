@@ -38,6 +38,8 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UBattleSelectionUIBase* WBP_Command;
+	UPROPERTY(meta = (BindWidget))
+	UBattleSelectionUIBase* WBP_Skill;
 
 	UPROPERTY(meta = (BindWidget))
 	UUltoriaGaugeWidget* UltoriaGaugeWidget;

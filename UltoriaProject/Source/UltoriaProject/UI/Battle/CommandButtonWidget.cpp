@@ -4,6 +4,7 @@
 #include "CommandButtonWidget.h"
 #include "CommandUIWidget.h"
 #include "../../Battle/BattleManager.h"
+#include "../../Battle/Combat/Selection/BattleSelectioinManager.h"
 
 void UCommandButtonWidget::SetCommandData(const FBattleCommandData& data)
 {
@@ -14,22 +15,6 @@ void UCommandButtonWidget::SetCommandData(const FBattleCommandData& data)
 	if (TB_Name)
 	{
 		TB_Name->SetText(FText::FromName(data.Name));
-	}
-}
-
-void UCommandButtonWidget::SetSelected(bool flag)
-{
-	if (!Button || m_IsSelected == flag) return;
-
-	UBattleButtonBase::SetSelected(flag);
-
-	if (flag)
-	{
-		PlayAnimation(SelectAnim);
-	}
-	else
-	{
-		PlayAnimationReverse(SelectAnim);
 	}
 }
 
@@ -51,6 +36,6 @@ void UCommandButtonWidget::OnHoverButton()
 	if (m_Owner)
 	{
 		m_Owner->UpdateSelection(m_Index);
-		if (battleManager) battleManager->SetCommandSelectIndex(m_Index);
+		if (battleManager) battleManager->GetSelectManager()->SetCommandSelectIndex(m_Index);
 	}
 }

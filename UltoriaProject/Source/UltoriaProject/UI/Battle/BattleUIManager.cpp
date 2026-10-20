@@ -8,9 +8,11 @@
 #include "CommandUIWidget.h"
 #include "CharacterStatusWidget.h"
 #include "DamageWidget.h"
+#include "Skill/SkillUIWidget.h"
 #include "../../Battle/BattleGaugeManager.h"
 #include "../../Battle/BattleManager.h"
 #include "../../Battle/PlayerPartyManager.h"
+#include "../../Battle/Combat/Selection/BattleSelectioinManager.h"
 #include "../../Character/CharacterBase.h"
 #include "../../Character/Enemy/EnemyBase.h"
 
@@ -39,6 +41,10 @@ void UBattleUIManager::CreateBattleUI()
 			this,
 			&UBattleUIManager::OnTurnChanged);
 	}
+
+	// SkillとItemのコマンドUIを非表示にする
+	SetUIVisible(EBattleUIType::SKILL, false);
+	//SetUIVisible(EBattleUIType::ITEM, false);
 }
 
 void UBattleUIManager::CreateResultUI()
@@ -106,6 +112,19 @@ void UBattleUIManager::SetUIVisible(EBattleUIType type, bool flag)
 		{
 			selectionUI->SetVisible(flag);
 		}
+
+		if (type == EBattleUIType::SKILL)
+		{
+			USkillUIWidget* skillWidget = Cast<USkillUIWidget>(selectionUI);
+			if (!skillWidget) break;
+
+			skillWidget->SetSkillButtonData();
+		}
+		if (type == EBattleUIType::ITEM)
+		{
+
+		}
+
 		break;
 	}
 		
@@ -191,7 +210,7 @@ void UBattleUIManager::SetEnemySelectionUI(bool flag)
 	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	if (!battleMg) return;
 
-	AEnemyBase* enemy = battleMg->GetEnemyCurrentSelect();
+	AEnemyBase* enemy = battleMg->GetSelectManager()->GetEnemyCurrentSelect();
 	if (!enemy) return;
 
 	enemy->SetSelectionUIVisibility(flag);

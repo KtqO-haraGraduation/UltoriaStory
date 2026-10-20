@@ -14,8 +14,10 @@
 #include "Combat/Components/CombatComponent.h"
 #include "Combat/Components/Status/CombatStatusComponent.h"
 #include "../System/Sound/SoundManager.h"
+#include "../System/Selection/SelectionSystem.h"
 #include "Combat/Data/BattleParameter.h"
 #include "Combat/Turn/BattleTurnManager.h"
+#include "Combat/Selection/BattleSelectioinManager.h"
 
 void UBattleManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -24,6 +26,8 @@ void UBattleManager::Initialize(FSubsystemCollectionBase& Collection)
 	m_Lifecycle = NewObject<UBattleLifecycle>(this);
 	m_TurnManager = NewObject<UBattleTurnManager>(this);
 
+	m_SelectManager = NewObject<UBattleSelectioinManager>(this);
+	m_SelectManager->Init(this);
 }
 
 void UBattleManager::BattleStart(ACharacterBase* enemy, bool isPreemptive)
@@ -41,9 +45,6 @@ void UBattleManager::BattleStart(ACharacterBase* enemy, bool isPreemptive)
 
 	AEnemyBase* enemyBase = Cast<AEnemyBase>(enemy);
 	m_Lifecycle->Start(this, enemyBase);
-
-	// カーソル移動時のイベント設定
-	InitializeSelection();
 
 	// 各キャラのバトル開始処理
 	NotifyBattleStart();
@@ -65,13 +66,12 @@ void UBattleManager::BattleStart(ACharacterBase* enemy, bool isPreemptive)
 	// 仮実装（最終的には消す）
 	if (m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::ENEMY)
 	{
-		m_SelectionType = SelectionType::NONE;
+		m_SelectManager->SetSelectionType(SelectionType::NONE);
 		StartAttack();
 	}
 	if (m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::PLAYER)
 	{
-		m_SelectionType = SelectionType::COMMAND;
-		m_CommandSelection.SetTargets(dataManager->GetCommandDatas());
+		m_SelectManager->SetSelectionType(SelectionType::COMMAND);
 	}
 }
 
@@ -94,12 +94,11 @@ void UBattleManager::NextTurn()
 
 	if (m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::PLAYER)
 	{
-		m_SelectionType = SelectionType::COMMAND;
-		m_CommandSelection.SetTargets(dataManager->GetCommandDatas());
+		m_SelectManager->SetSelectionType(SelectionType::COMMAND);
 	}
 	else if(m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::ENEMY)
 	{
-		m_SelectionType = SelectionType::NONE;
+		m_SelectManager->SetSelectionType(SelectionType::NONE);
 		StartAttack();
 	}
 
@@ -112,7 +111,7 @@ void UBattleManager::BattleEnd()
 
 	UBattleUIManager* uiManager = GetWorld()->GetSubsystem<UBattleUIManager>();
 
-	m_SelectionType = SelectionType::RESULT;
+	m_SelectManager->SetSelectionType(SelectionType::RESULT);
 
 	UEncounterManager* encounter = GetWorld()->GetSubsystem<UEncounterManager>();
 	if (encounter) encounter->ResetFieldCamera();
@@ -142,7 +141,10 @@ ACharacterBase* UBattleManager::GetCurrentCharacter()
 
 void UBattleManager::ExecuteCommand(ECommandType type)
 {
+	
 	UCombatComponent* combat = m_TurnManager->GetCurrentCharacter()->GetComponent<UCombatComponent>();
+	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
+	if (!combat || !uiMg) return;
 
 	switch (type)
 	{
@@ -156,21 +158,21 @@ void UBattleManager::ExecuteCommand(ECommandType type)
 		break;
 	case ECommandType::SKILL:
 	{
-		m_SelectionType = SelectionType::SKILL;
+		m_SelectManager->SetSelectionType(SelectionType::SKILL);
+		m_SelectManager->SetSkillTarget();
 
 		// スキル用のボードを表示
-
-
-		//combat->Skill();
+		uiMg->SetUIVisible(EBattleUIType::COMMAND, false);
+		uiMg->SetUIVisible(EBattleUIType::SKILL, true);
 		break;
 	}
 	case ECommandType::ITEM:
 	{
-		m_SelectionType = SelectionType::ITEM;
+		m_SelectManager->SetSelectionType(SelectionType::ITEM);
 
 		// アイテム用のボードを表示
-
-		//combat->Item();
+		uiMg->SetUIVisible(EBattleUIType::COMMAND, false);
+		uiMg->SetUIVisible(EBattleUIType::ITEM, true);
 		break;
 	}
 	case ECommandType::ESCAPE:
@@ -184,168 +186,6 @@ void UBattleManager::ExecuteCommand(ECommandType type)
 		break;
 	}
 	}
-}
-
-void UBattleManager::SelectMoveTarget(EUIInputType type)
-{
-	switch (m_SelectionType)
-	{
-	case SelectionType::COMMAND:
-	{
-		switch (type)
-		{
-		case EUIInputType::UP:
-			m_CommandSelection.Move(-1);
-			break;
-		case EUIInputType::DOWN:
-			m_CommandSelection.Move(1);
-			break;
-		}
-		break;
-	}
-	case SelectionType::TARGET:
-	{
-		switch (type)
-		{
-		case EUIInputType::LEFT:
-			m_EnemySelection.Move(-1);
-			break;
-		case EUIInputType::RIGHT:
-			m_EnemySelection.Move(1);
-			break;
-		}
-		break;
-	}
-	case SelectionType::SKILL:
-	{
-		break;
-	}
-	case SelectionType::ITEM:
-	{
-		break;
-	}
-	case SelectionType::RESULT:
-	{
-		break;
-	}
-	case SelectionType::NONE:
-	{
-		break;
-	}
-	}
-}
-
-void UBattleManager::SelectConfirn()
-{
-	switch (m_SelectionType)
-	{
-	case SelectionType::COMMAND:
-	{
-		const FBattleCommandData& command = m_CommandSelection.GetCurrent();
-		ExecuteCommand(command.Type);
-		break;
-	}
-	case SelectionType::TARGET:
-	{
-		// 一旦、選択した敵に攻撃処理
-		ExecuteAttack(m_EnemySelection.GetCurrent());
-		UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
-		if (!uiMg) break;
-		uiMg->SetUIVisible(EBattleUIType::TARGET, false);
-		break;
-	}
-	case SelectionType::SKILL:
-	{
-		break;
-	}
-	case SelectionType::ITEM:
-	{
-		break;
-	}
-	case SelectionType::RESULT:
-	{
-		FinishBattle();
-		break;
-	}
-	case SelectionType::NONE:
-	{
-		break;
-	}
-	}
-}
-
-void UBattleManager::SelectCancel()
-{
-	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
-	if (!uiMg) return;
-
-	switch (m_SelectionType)
-	{
-	case SelectionType::COMMAND:
-	{
-		break;
-	}
-	case SelectionType::TARGET:
-	{
-		// コマンド選択に戻る
-		m_SelectionType = SelectionType::COMMAND;
-
-		uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
-		uiMg->SetUIVisible(EBattleUIType::TARGET, false);
-		break;
-	}
-	case SelectionType::SKILL:
-	{
-		uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
-		uiMg->SetUIVisible(EBattleUIType::SKILL, false);
-		break;
-	}
-	case SelectionType::ITEM:
-	{
-		uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
-		uiMg->SetUIVisible(EBattleUIType::ITEM, false);
-		break;
-	}
-	case SelectionType::RESULT:
-	{
-		break;
-	}
-	case SelectionType::NONE:
-	{
-		break;
-	}
-	}
-}
-
-void UBattleManager::OnEnemySelectionChanged(int oldIndex, int newIndex)
-{
-	const auto& targets = m_EnemySelection.GetTargets();
-
-	if (!targets.IsValidIndex(oldIndex) ||
-		!targets.IsValidIndex(newIndex))
-	{
-		return;
-	}
-
-	AEnemyBase* oldEnemy = Cast<AEnemyBase>(targets[oldIndex]);
-	AEnemyBase* newEnemy = Cast<AEnemyBase>(targets[newIndex]);
-
-	if (oldEnemy)
-	{
-		oldEnemy->SetSelectionUIVisibility(false);
-	}
-	if (newEnemy)
-	{
-		newEnemy->SetSelectionUIVisibility(true);
-	}
-}
-
-void UBattleManager::OnCommandSelectionChanged(int oldIndex, int newIndex)
-{
-	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
-	if (!uiMg) return;
-
-	uiMg->UpdateSelection(EBattleUIType::COMMAND, newIndex);
 }
 
 void UBattleManager::SetCharacterPos(ABattleAreaManager* area)
@@ -365,35 +205,6 @@ void UBattleManager::SetCharacterPos(ABattleAreaManager* area)
 	{
 		m_EnemyParty[i]->SetActorLocationAndRotation(enemy[i].pos, enemy[i].rot);
 	}
-}
-
-AEnemyBase* UBattleManager::GetEnemyCurrentSelect()
-{
-	return Cast<AEnemyBase>(m_EnemySelection.GetCurrent());
-}
-
-void UBattleManager::SetCommandSelectIndex(int index)
-{
-	m_CommandSelection.SetCurrentIndex(index);
-}
-
-void UBattleManager::InitializeSelection()
-{
-	// 登録する前に前回のイベントを削除
-	m_EnemySelection.m_OnSelectionChanged.Unbind();
-	m_CommandSelection.m_OnSelectionChanged.Unbind();
-
-	// 敵のカーソル移動時のイベント
-	m_EnemySelection.m_OnSelectionChanged.BindUObject(
-		this,
-		&UBattleManager::OnEnemySelectionChanged
-	);
-
-	// コマンドのカーソル移動時のイベント
-	m_CommandSelection.m_OnSelectionChanged.BindUObject(
-		this,
-		&UBattleManager::OnCommandSelectionChanged
-	);
 }
 
 void UBattleManager::NotifyBattleStart()
@@ -497,8 +308,11 @@ void UBattleManager::ExecuteAttack(ACharacterBase* target)
 
 void UBattleManager::ShowTargetUI(const TArray<ACharacterBase*>& targets)
 {
-	m_SelectionType = SelectionType::TARGET;
-	m_EnemySelection.SetTargets(targets);
+	m_SelectManager->SetSelectionType(SelectionType::TARGET);
+	m_SelectManager->SetEnemyTarget(targets);
+
+	//m_SelectionType = SelectionType::TARGET;
+	//m_EnemySelection.SetTargets(targets);
 
 	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
 	if (!uiMg) return;
@@ -560,21 +374,8 @@ void UBattleManager::FinishBattle()
 	m_IsBattle = false;
 	m_IsVictory = false;
 
-
 	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
 	if (stageMg) stageMg->ShowFieldLv();
-
-
-	//UEncounterManager* encounterMg = GetWorld()->GetSubsystem<UEncounterManager>();
-	//if (encounterMg)
-	//{
-
-
-	//	// バトルLVを非表示
-	//	encounterMg->SetBattleLevelVisible(false);
-	//	// フィールドLVを表示
-	//	encounterMg->SetFieldLevelVisible(true);
-	//}
 
 	// プレイヤーパーティーを削除
 	UPlayerPartyManager* playerPartyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();

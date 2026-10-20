@@ -22,6 +22,7 @@ public:
 	virtual void NativeConstruct() override;
 
 	void SetOwner(UBattleSelectionUIBase* owner, int index);
+	void SetMyName(FName name);
 	virtual void SetSelected(bool flag);
 
 protected:
@@ -37,6 +38,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* TB_Name;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* SelectAnim;
 
 	UPROPERTY()
 	UBattleSelectionUIBase* m_Owner;

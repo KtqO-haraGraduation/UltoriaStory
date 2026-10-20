@@ -14,4 +14,10 @@ class ULTORIAPROJECT_API USkillUIWidget : public UBattleSelectionUIBase
 {
 	GENERATED_BODY()
 	
+public:
+	// ¶¬‚Ì‰Šú‰»ˆ—
+	virtual void NativeConstruct() override;
+
+	void CreateButton() override;
+	void SetSkillButtonData();
 };

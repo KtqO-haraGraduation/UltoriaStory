@@ -2,33 +2,37 @@
 
 
 #include "SkillButtonWidget.h"
+#include "SkillUIWidget.h"
 #include "../../../Battle/BattleManager.h"
 #include "../../../Battle/Combat/Components/CombatComponent.h"
+#include "../../../Battle/Combat/Selection/BattleSelectioinManager.h"
+#include "../../../Job/Skill/SkillBaseComponent.h"
 #include "../../../Character/CharacterBase.h"
-
-void USkillButtonWidget::SetSkillData(FName skillName)
-{
-	if (TB_Name)
-	{
-		TB_Name->SetText(FText::FromName(skillName));
-	}
-}
 
 void USkillButtonWidget::OnClickButton()
 {
 	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	if (!battleMg) return;
 
-	ACharacterBase* character = battleMg->GetCurrentCharacter();
-	if (!character) return;
+	ACharacterBase* currentCharacter = battleMg->GetCurrentCharacter();
+	if (!currentCharacter) return;
 
-	UCombatComponent* conbat = character->GetComponent<UCombatComponent>();
+	UCombatComponent* conbat = currentCharacter->GetComponent<UCombatComponent>();
 	if (!conbat) return;
 
-	//conbat->Skill();
+	USkillBaseComponent* skill = currentCharacter->GetComponent<USkillBaseComponent>();
+	if (!skill) return;
+
+
 }
 
 void USkillButtonWidget::OnHoverButton()
 {
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 
+	if (m_Owner)
+	{
+		m_Owner->UpdateSelection(m_Index);
+		if (battleMg) battleMg->GetSelectManager()->SetSkillSelectIndex(m_Index);
+	}
 }

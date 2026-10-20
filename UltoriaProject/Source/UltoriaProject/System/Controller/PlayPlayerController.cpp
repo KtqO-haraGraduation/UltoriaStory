@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "../../Battle/BattleManager.h"
+#include "../../Battle/Combat/Selection/BattleSelectioinManager.h"
 #include "../../UI/Menu/MenuStateManager.h"
 #include "../../Character/Ally/MainPlayer.h"
 #include "../../Akiduki/Shop/ShopManager.h"
@@ -248,7 +249,7 @@ void APlayPlayerController::InputConfirm_Battle()
 	UBattleManager* battle = GetWorld()->GetSubsystem<UBattleManager>();
 	if (!battle) return;
 
-	battle->SelectConfirn();
+	battle->GetSelectManager()->SelectConfirm();
 }
 
 void APlayPlayerController::InputCancel_Battle()
@@ -256,7 +257,7 @@ void APlayPlayerController::InputCancel_Battle()
 	UBattleManager* battle = GetWorld()->GetSubsystem<UBattleManager>();
 	if (!battle) return;
 
-	battle->SelectCancel();
+	battle->GetSelectManager()->SelectCancel();
 }
 
 void APlayPlayerController::InputDirectional_Battle(EUIInputType type)
@@ -265,7 +266,7 @@ void APlayPlayerController::InputDirectional_Battle(EUIInputType type)
 
 	if (!battle) return;
 
-	battle->SelectMoveTarget(type);
+	battle->GetSelectManager()->SelectMoveTarget(type);
 }
 
 void APlayPlayerController::InputOpen_Menu()

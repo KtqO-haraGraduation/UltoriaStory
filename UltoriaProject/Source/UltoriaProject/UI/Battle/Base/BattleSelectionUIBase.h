@@ -22,6 +22,7 @@ class ULTORIAPROJECT_API UBattleSelectionUIBase : public UBattleUIBase
 public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override;
 
+	virtual void CreateButton() {}
 	void UpdateSelection(int index);
 
 private:
@@ -46,5 +47,5 @@ protected:
 	int m_InitCount = 0;
 
 	// �Ԃ̊Ԋu
-	static constexpr float CharacterPadding = 1.0f;
+	float m_Padding = 1.0f;
 };
