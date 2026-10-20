@@ -33,7 +33,9 @@ enum class EItemUseTarget : uint8
     // 自分自身
     Self,
     // 味方全体
-    AllAllies
+    AllAllies,
+    // 敵全体
+    AllEnemies
 };
 
 // アイテムに設定できる効果の種類
@@ -117,15 +119,15 @@ public:
 
     // 使用対象
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-    EItemUseTarget Target = EItemUseTarget::None;
+    EItemUseTarget Target = EItemUseTarget::Self;
 
     // フィールドで使用可能か
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-    bool bUsableInField = false;
+    bool bUsableInField = true;
 
     // 戦闘中に使用可能か
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-    bool bUsableInBattle = false;
+    bool bUsableInBattle = true;
 
     // アイテムが持つ効果
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Effects")
