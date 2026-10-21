@@ -4,8 +4,10 @@
 #include "InventoryWidget.h"
 #include "../../Inventory/UI/InventoryItemEntryWidget.h"
 #include "../../Inventory/InventorySubsystem.h"
+#include "../../Akiduki/ItemData/ItemData.h"
 #include "Components/ScrollBox.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
 #include <UltoriaProject/System/GameInstance/UltoriaGameInstance.h>
 #include <UltoriaProject/UI/Menu/MenuStateManager.h>
@@ -32,8 +34,8 @@ void UInventoryWidget::NavigateDown()
 
 void UInventoryWidget::Confirm()
 {
-	// アイテムが1つもなければ処理を終了する
-	if (ItemEntries.Num() == 0)
+	// 現在選択されているIndexが有効か確認する
+	if (!ItemEntries.IsValidIndex(CurrentIndex))
 	{
 		return;
 	}
@@ -41,8 +43,8 @@ void UInventoryWidget::Confirm()
 	// 現在選択されているEntryを取得する
 	UInventoryItemEntryWidget* SelectedEntry = ItemEntries[CurrentIndex];
 
-	// Entryが存在しなければ処理を終了する
-	if (!SelectedEntry)
+	// Entryが有効か確認する
+	if (!IsValid(SelectedEntry))
 	{
 		return;
 	}
@@ -53,7 +55,32 @@ void UInventoryWidget::Confirm()
 	// 選択したアイテムをログに表示する
 	UE_LOG(LogTemp,Log,TEXT("Inventory Confirm : %s"),*ItemData.ID.ToString());
 	
-	
+	// 消耗品以外は使用しない
+	if (ItemData.Type != EItemType::Consumable)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Item cannot be used"));
+		return;
+	}
+
+	// フィールドで使用できないアイテムは処理を終了
+	if (!ItemData.bUsableInField)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Cannot be used in field"));
+		return;
+	}
+
+	// 効果が設定されていないアイテムは処理を終了
+	if (ItemData.Effects.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No item effects configured"));
+		return;
+	}
+
+	// 使用対象の設定をログに出力
+	UE_LOG(LogTemp,Log,TEXT("Item use target: %d"),static_cast<int32>(ItemData.Target));
+
+
+	// 対象選択と効果適用を追加する
 }
 
 void UInventoryWidget::Cancel()
@@ -134,9 +161,9 @@ void UInventoryWidget::UpdateSelection()
 	ItemNameText->SetText(FText::FromString(ItemData.NameJP));
 	// アイテム説明文を表示
 	DescriptionText->SetText(FText::FromString(ItemData.Description));
-		
+	// 選択中アイテムのアイコンを表示する
+	ItemImage->SetBrushFromSoftTexture(ItemData.Icon);
 	
-		
 	// 選択Entryが存在しなければ処理を終了
 	if (!SelectedEntry)
 	{
