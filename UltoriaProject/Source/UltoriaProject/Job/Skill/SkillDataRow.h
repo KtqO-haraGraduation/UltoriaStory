@@ -69,7 +69,7 @@ struct FSkillDataRow : public FTableRowBase
 	FString Sound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Desc;
+	FText Desc;
 
 	bool operator==(const FSkillDataRow& other) const
 	{

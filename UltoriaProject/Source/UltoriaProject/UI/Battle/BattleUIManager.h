@@ -12,7 +12,6 @@ class UBattleUIWidget;
 class UBattleResultWidget;
 class UBattleUIWidget;
 class UBattleResultWidget;
-class UDamageWidget;
 
 enum class EBattleUIType;
 
@@ -24,9 +23,6 @@ class ULTORIAPROJECT_API UBattleUIManager : public UWorldSubsystem
 {
 	GENERATED_BODY()
 	
-public:
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
 public:
 	void CreateBattleUI();
 	void CreateResultUI();
@@ -42,17 +38,13 @@ public:
 	void OnTurnChanged(ACharacterBase* prevCharacter, ACharacterBase* currentCharacter);
 
 private:
-	// バトルに必要なデータをロードする
-	void LoadBattle();
-
 	void SetEnemySelectionUI(bool flag);
+
+	void SetTargetSelectionUI(bool flag);
+	void SetAllTargetSelectionUI(bool flag);
 
 private:
 	UPROPERTY()
 	UBattleUIWidget* m_BattleUIWidget;
 	UBattleResultWidget* m_ResultUIWidget;
-
-	TSubclassOf<UBattleUIWidget> m_BattleWidgetClass;
-	TSubclassOf<UBattleResultWidget> m_ResultWidgetClass;
-	TSubclassOf<UDamageWidget> m_DamageWidgetClass;
 };

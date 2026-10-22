@@ -13,14 +13,6 @@
 #include "../../../Job/Skill/SkillBaseComponent.h"
 #include "../../../Character/CharacterBase.h"
 
-void USkillUIWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	// スキルのボタンを生成
-	CreateButton();
-}
-
 void USkillUIWidget::CreateButton()
 {
 	UBattleDataManager* battleDataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
@@ -54,27 +46,43 @@ void USkillUIWidget::CreateButton()
 	}
 }
 
-void USkillUIWidget::SetSkillButtonData()
+void USkillUIWidget::SetButtonData()
 {
+	if (!GetCurrentSkillComponent()) return;
+
 	// 全てのスキルボタンを現在行動しているキャラクターのモノに差し替える
-	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
-	if (!battleMg) return;
-
-	ACharacterBase* currentCharacter = battleMg->GetCurrentCharacter();
-	if (!currentCharacter) return;
-
-	USkillBaseComponent* skillComponent = currentCharacter->GetComponent<USkillBaseComponent>();
-	if (!skillComponent) return;
-
 	for (int i = 0; i < SKILL_MAX; i++)
 	{
-		const FSkillDataRow* skillData = skillComponent->GetSkill(i);
+		const FSkillDataRow* skillData = GetCurrentSkillComponent()->GetSkill(i);
+		if (!skillData) continue;
+
 		m_Buttons[i]->SetMyName(skillData->Name);
 
 		// 解放Lvに達していなければ非表示
-		if (!skillComponent->IsUnlocked(i))
+		if (!GetCurrentSkillComponent()->IsUnlocked(i))
 		{
 			m_Buttons[i]->SetVisible(false);
 		}
 	}
+}
+
+void USkillUIWidget::UpdateSelection(int index)
+{
+	UBattleSelectionUIBase::UpdateSelection(index);
+
+	const FSkillDataRow* skillData = GetCurrentSkillComponent()->GetSkill(m_CurrentIndex);
+	if (!skillData) return;
+
+	DescText->SetText(skillData->Desc);
+}
+
+USkillBaseComponent* USkillUIWidget::GetCurrentSkillComponent()
+{
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return nullptr;
+
+	ACharacterBase* currentCharacter = battleMg->GetCurrentCharacter();
+	if (!currentCharacter) return nullptr;
+
+	return currentCharacter->GetComponent<USkillBaseComponent>();
 }

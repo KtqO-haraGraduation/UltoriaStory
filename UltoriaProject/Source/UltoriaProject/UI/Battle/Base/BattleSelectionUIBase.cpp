@@ -8,6 +8,14 @@
 constexpr int INIT_COUNT_MAX = 10;					// 初期化の待機カウント
 const FVector2D CURSOR_OFFSET = { -50.0f, -13.0f };	// カーソルの間隔
 
+void UBattleSelectionUIBase::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	// ボタン作成
+	CreateButton();
+}
+
 void UBattleSelectionUIBase::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	// 指定したフレーム分待機

@@ -15,6 +15,7 @@ enum class EBattleUIType
 	SKILL,
 	ITEM,
 	TARGET,
+	ALLTARGET,
 };
 
 /**

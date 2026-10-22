@@ -15,8 +15,5 @@ class ULTORIAPROJECT_API UCommandUIWidget : public UBattleSelectionUIBase
 	GENERATED_BODY()
 	
 public:
-	// ¶¬‚Ì‰Šú‰»ˆ—
-	virtual void NativeConstruct() override;
-
 	void CreateButton() override;
 };

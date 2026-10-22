@@ -20,10 +20,12 @@ class ULTORIAPROJECT_API UBattleSelectionUIBase : public UBattleUIBase
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override;
 
 	virtual void CreateButton() {}
-	void UpdateSelection(int index);
+	virtual void SetButtonData() {}
+	virtual void UpdateSelection(int index);
 
 private:
 	FVector2D GetCursorPos(UBattleButtonBase* button) const;

@@ -18,6 +18,7 @@ enum class CombatState : uint8
 	SKILL,
 	ITEM,
 	ESCAPE,  // “¦‚°‚é
+	HEAL,
 	DAMEGE,
 	DEADING, // Ž€–S’†
 	DEAD,    // Ž€–S
@@ -63,6 +64,7 @@ public:
 	virtual void Item(ACharacterBase* target);
 	virtual bool Escape();
 	virtual void TakeDamage(int damage);
+	virtual void Heal(int healHp);
 	virtual void Deading();
 	virtual void Dead();
 
