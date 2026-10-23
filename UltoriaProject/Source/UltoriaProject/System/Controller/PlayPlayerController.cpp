@@ -85,6 +85,7 @@ void APlayPlayerController::SetupInputComponent()
 	input->BindAction(m_InputR1, ETriggerEvent::Started, this, &APlayPlayerController::InputR1_Menu);
 	input->BindAction(m_InputR2, ETriggerEvent::Started, this, &APlayPlayerController::InputR2_Menu);
 	input->BindAction(m_InputZoomCamera,ETriggerEvent::Triggered, this,&APlayPlayerController::InputZoomCamera);
+	input->BindAction(m_InputZoomReset, ETriggerEvent::Started, this, &APlayPlayerController::InputZoomReset);
 }
 
 bool APlayPlayerController::InputKey(const FInputKeyEventArgs& Params)
@@ -197,6 +198,17 @@ void APlayPlayerController::InputZoomCamera(const FInputActionValue& Value)
 	if (player)
 	{
 		player->ZoomCamera(Value);
+	}
+}
+
+void APlayPlayerController::InputZoomReset(const FInputActionValue& Value)
+{
+	AMainPlayer* player =
+		Cast<AMainPlayer>(GetPawn());
+
+	if (player)
+	{
+		player->ZoomReset(Value);
 	}
 }
 

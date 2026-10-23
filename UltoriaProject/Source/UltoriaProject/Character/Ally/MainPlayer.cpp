@@ -180,6 +180,20 @@ void AMainPlayer::ZoomCamera(const FInputActionValue& Value)
 	}
 }
 
+void AMainPlayer::ZoomReset(const FInputActionValue& Value)
+{
+	if (m_IsAttacking) return;
+
+	// 入力時の値が2未満なら無視
+	if (Value.Get<float>() < 2.0f)
+	{
+		return;
+	}
+
+	// ズーム量を初期化
+	m_CameraBoom->TargetArmLength = 5000.0f;
+}
+
 /// <summary>
 /// オーバーラップ処理（バトル開始）
 /// </summary>

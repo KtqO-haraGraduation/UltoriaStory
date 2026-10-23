@@ -36,6 +36,7 @@ public:
 	void AttackEnd();
 
 	void ZoomCamera(const FInputActionValue& Value);
+	void ZoomReset(const FInputActionValue& Value);
 
 	USpringArmComponent* GetCameraBoom() const { return m_CameraBoom; }
 	UCameraComponent* GetFollowCamera() const { return m_FollowCamera; }
