@@ -8,6 +8,8 @@
 #include "Components/ScrollBox.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "../../Character/CharacterBase.h"
+#include "../../Character/Ally/MainPlayer.h"
 #include "Kismet/GameplayStatics.h"
 #include <UltoriaProject/System/GameInstance/UltoriaGameInstance.h>
 #include <UltoriaProject/UI/Menu/MenuStateManager.h>
@@ -80,7 +82,122 @@ void UInventoryWidget::Confirm()
 	UE_LOG(LogTemp,Log,TEXT("Item use target: %d"),static_cast<int32>(ItemData.Target));
 
 
-	// 対象選択と効果適用を追加する
+	// アイテムの使用対象に応じて処理を分岐する
+	switch (ItemData.Target)
+	{
+		case EItemUseTarget::Self:
+		{
+			UE_LOG(LogTemp, Log, TEXT("Use item on self"));
+
+			// PlayerControllerから主人公を取得
+			APlayerController* PC = GetWorld()->GetFirstPlayerController();
+				
+			if (!PC)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("PlayerController not found"));
+				return;
+			}
+
+			AMainPlayer* Player = Cast<AMainPlayer>(PC->GetPawn());
+
+			if (!IsValid(Player))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("MainPlayer not found"));
+				return;
+			}
+
+			bool bAppliedEffect = false;
+			UE_LOG(
+				LogTemp,
+				Warning,
+				TEXT("Player: %s, CurrentHP: %d, MaxHP: %d, CurrentMP: %d, MaxMP: %d"),
+				*GetNameSafe(Player),
+				Player->GetCurrentHP(),
+				Player->GetMaxHP(),
+				Player->GetCurrentMP(),
+				Player->GetMaxMP()
+			);
+			// 設定されている効果を順番に適用
+			for (const FItemEffectData& Effect : ItemData.Effects)
+			{
+				switch (Effect.EffectType)
+				{
+				case EItemEffectType::HealHP:
+				{
+					const int OldHP = Player->GetCurrentHP();
+
+					Player->SetHP(OldHP + Effect.Magnitude);
+
+					const int NewHP = Player->GetCurrentHP();
+
+					// HPが実際に回復したか確認
+					if (NewHP > OldHP)
+					{
+						bAppliedEffect = true;
+					}
+
+					UE_LOG(LogTemp,Log,TEXT("HP: %d -> %d"),OldHP,NewHP);
+						
+					break;
+				}
+
+				case EItemEffectType::HealMP:
+				{
+					const int OldMP = Player->GetCurrentMP();
+
+					Player->SetMP(OldMP + Effect.Magnitude);
+
+					const int NewMP = Player->GetCurrentMP();
+
+					if (NewMP > OldMP)
+					{
+						bAppliedEffect = true;
+					}
+
+					UE_LOG(LogTemp,Log,TEXT("MP: %d -> %d"),OldMP,NewMP);
+
+					break;
+				}
+
+				case EItemEffectType::CurePoison:
+				{
+					// 毒解除処理は後で実装
+					break;
+				}
+
+				default:
+					break;
+				}
+			}
+		}
+
+		case EItemUseTarget::Ally:
+		{
+			// 味方単体を選択する
+			UE_LOG(LogTemp, Log, TEXT("Open ally selection"));
+
+			// TODO: 味方選択画面を開く
+			break;
+		}
+
+		case EItemUseTarget::AllAllies:
+		{
+			// 味方全体を対象にする
+			UE_LOG(LogTemp, Log, TEXT("Use item on all allies"));
+
+			// TODO: 味方全員にアイテム効果を適用する
+			break;
+		}
+
+		case EItemUseTarget::Enemy:
+		case EItemUseTarget::AllEnemies:
+		{
+			// フィールドでは敵を対象にできない
+			UE_LOG(LogTemp,Warning,TEXT("Enemy targets are not supported in field"));
+	
+			break;
+		}
+	}
 }
 
 void UInventoryWidget::Cancel()
