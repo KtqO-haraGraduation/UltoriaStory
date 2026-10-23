@@ -30,6 +30,14 @@ void AMyNetworkPlayerState::SetIsReady(bool NewValue)
 			PS->OnStateChanged.Broadcast();
 		}
 	}
+
+	for (APlayerState* BasePS : GS->PlayerArray)
+	{
+		if (AMyNetworkPlayerState* PS = Cast<AMyNetworkPlayerState>(BasePS))
+		{
+			PS->OnReadyStateChanged();
+		}
+	}
 }
 
 void AMyNetworkPlayerState::OnRep_SlotIndex()

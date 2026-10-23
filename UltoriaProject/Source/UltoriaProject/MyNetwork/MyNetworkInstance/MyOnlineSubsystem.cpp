@@ -6,6 +6,14 @@
 
 constexpr const int MAX_SEARCHRESULTS_NUM = 100;
 
+void UMyOnlineSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	// ゲーム開始時にEOSログインを開始
+	Login();
+}
+
 void UMyOnlineSubsystem::Login()
 {
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
