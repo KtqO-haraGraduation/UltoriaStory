@@ -111,20 +111,9 @@ void AMyNetworkPlayerController::Server_Input1_Implementation()
 			PC->Client_ShowInput1();
 		}
 	}
-	//Multicast_Input1();
 }
 
 void AMyNetworkPlayerController::Client_ShowInput1_Implementation()
-{
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		5.0f,
-		FColor::Green,
-		FString::Printf(TEXT("Input 1"))
-	);
-}
-
-void AMyNetworkPlayerController::Multicast_Input1_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(
 		-1,

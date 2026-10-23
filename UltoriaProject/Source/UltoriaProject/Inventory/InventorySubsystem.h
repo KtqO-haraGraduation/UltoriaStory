@@ -18,6 +18,11 @@ struct FInventoryItem
     // Š”
     UPROPERTY(BlueprintReadOnly)
     int32 Count = 0;
+
+    bool operator==(const FInventoryItem& other) const
+    {
+        return ItemID == other.ItemID;
+    }
 };
 
 UCLASS()

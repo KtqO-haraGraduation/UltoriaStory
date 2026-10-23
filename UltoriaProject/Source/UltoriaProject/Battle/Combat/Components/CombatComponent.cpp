@@ -223,6 +223,14 @@ void UCombatComponent::TakeDamage(int damage)
 	}
 }
 
+void UCombatComponent::Heal(int healHp)
+{
+	m_CurrentState = CombatState::HEAL;
+
+	int newHp = m_Owner->GetCurrentHP() + healHp;
+	m_Owner->SetHP(newHp);
+}
+
 void UCombatComponent::Deading()
 {
 	m_CurrentState = CombatState::DEADING;

@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "../Base/BattleSelectionUIBase.h"
+#include "Components/TextBlock.h"
 #include "SkillUIWidget.generated.h"
+
+class USkillBaseComponent;
 
 /**
  * 
@@ -15,9 +18,15 @@ class ULTORIAPROJECT_API USkillUIWidget : public UBattleSelectionUIBase
 	GENERATED_BODY()
 	
 public:
-	// ê∂ê¨éûÇÃèâä˙âªèàóù
-	virtual void NativeConstruct() override;
-
 	void CreateButton() override;
-	void SetSkillButtonData();
+	void SetButtonData() override;
+
+	void UpdateSelection(int index) override;
+
+private:
+	USkillBaseComponent* GetCurrentSkillComponent();
+
+private:
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* DescText;
 };

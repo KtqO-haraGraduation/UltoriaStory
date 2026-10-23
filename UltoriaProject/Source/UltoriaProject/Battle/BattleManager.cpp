@@ -246,20 +246,35 @@ void UBattleManager::ResetBattleState()
 	}
 }
 
-const TArray<ACharacterBase*>& UBattleManager::GetTargets() const
+TArray<ACharacterBase*> UBattleManager::GetTargets(ETargetTeam team) const
 {
-	static TArray<ACharacterBase*> empty;
+	TArray<ACharacterBase*> result;
 
-	if (!m_TurnManager->GetCurrentCharacter()) return empty;
+	ACharacterBase* currentCharacter = m_TurnManager->GetCurrentCharacter();
+	if (!currentCharacter) return result;
 
-	bool isPlayerTurn = m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::PLAYER;
-
-	return isPlayerTurn ? m_EnemyParty : m_PlayerParty;
+	if (team == ETargetTeam::SELF)
+	{
+		// 時分自身を取得
+		result.Add(currentCharacter);
+		return result;
+	}
+	else if (team == ETargetTeam::ALLY)
+	{
+		// プレイヤーパーティーを取得
+		return m_PlayerParty;
+	}
+	else if (team == ETargetTeam::ENEMY)
+	{
+		// 敵パーティーを取得
+		return m_EnemyParty;
+	}
+	return result;
 }
 
-void UBattleManager::StartAttack()
+TArray<ACharacterBase*> UBattleManager::GetActiveTargets(ETargetTeam team) const
 {
-	auto targets = GetTargets();
+	auto targets = GetTargets(team);
 	// 生きてる敵を格納するリスト
 	TArray<ACharacterBase*> activeTargets = {};
 
@@ -273,12 +288,25 @@ void UBattleManager::StartAttack()
 			activeTargets.Add(target);
 		}
 	}
+	return activeTargets;
+}
+
+void UBattleManager::StartAttack()
+{
+	ACharacterBase* currentCharacter = m_TurnManager->GetCurrentCharacter();
+	if (!currentCharacter) return;
+
+	ETargetTeam targetTeam = currentCharacter->GetTeamType() == ETeamType::PLAYER ? 
+		ETargetTeam::ENEMY : ETargetTeam::ALLY;
+
+	// 生きてる敵を格納
+	TArray<ACharacterBase*> activeTargets = GetActiveTargets(targetTeam);
 
 	if (activeTargets.Num() == 1)
 	{
 		ExecuteAttack(activeTargets[0]);
 	}
-	else
+	else if(activeTargets.Num() > 1)
 	{
 		// 仮実装、アクティブの先頭のキャラを攻撃する
 		if (m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::ENEMY)
@@ -306,17 +334,38 @@ void UBattleManager::ExecuteAttack(ACharacterBase* target)
 	combat->Attack(target);
 }
 
-void UBattleManager::ShowTargetUI(const TArray<ACharacterBase*>& targets)
+void UBattleManager::ShowAttackTargetUI(const TArray<ACharacterBase*>& targets)
 {
 	m_SelectManager->SetSelectionType(SelectionType::TARGET);
-	m_SelectManager->SetEnemyTarget(targets);
-
-	//m_SelectionType = SelectionType::TARGET;
-	//m_EnemySelection.SetTargets(targets);
+	m_SelectManager->SetCharacterTarget(targets);
 
 	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
 	if (!uiMg) return;
-    uiMg->SetUIVisible(EBattleUIType::COMMAND, false);
+
+	uiMg->SetUIVisible(EBattleUIType::COMMAND, false);
+	uiMg->SetUIVisible(EBattleUIType::TARGET, true);
+}
+
+void UBattleManager::ShowTargetUI(const TArray<ACharacterBase*>& targets)
+{
+	m_SelectManager->SetSelectionType(SelectionType::TARGET);
+	m_SelectManager->SetCharacterTarget(targets);
+
+	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
+	if (!uiMg) return;
+
+    uiMg->SetUIVisible(EBattleUIType::SKILL, false);
+    //uiMg->SetUIVisible(EBattleUIType::ITEM, false);
+	uiMg->SetUIVisible(EBattleUIType::TARGET, true);
+}
+
+void UBattleManager::ShowAllTargetUI(const TArray<ACharacterBase*>& targets)
+{
+	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
+	if (!uiMg) return;
+
+	uiMg->SetUIVisible(EBattleUIType::SKILL, false);
+	//uiMg->SetUIVisible(EBattleUIType::ITEM, false);
 	uiMg->SetUIVisible(EBattleUIType::TARGET, true);
 }
 

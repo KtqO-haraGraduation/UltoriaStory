@@ -11,18 +11,6 @@
 
 void USkillButtonWidget::OnClickButton()
 {
-	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
-	if (!battleMg) return;
-
-	ACharacterBase* currentCharacter = battleMg->GetCurrentCharacter();
-	if (!currentCharacter) return;
-
-	UCombatComponent* conbat = currentCharacter->GetComponent<UCombatComponent>();
-	if (!conbat) return;
-
-	USkillBaseComponent* skill = currentCharacter->GetComponent<USkillBaseComponent>();
-	if (!skill) return;
-
 
 }
 

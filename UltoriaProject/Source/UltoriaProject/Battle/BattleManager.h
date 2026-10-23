@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "Combat/Data/BattleCommandData.h"
+#include "../Job/Skill/SkillDataRow.h"
 #include "BattleManager.generated.h"
 
 class ACharacterBase;
@@ -57,6 +58,14 @@ public:
 
 	void FinishBattle();
 
+	// ターゲットを取得
+	TArray<ACharacterBase*> GetTargets(ETargetTeam team) const;
+	TArray<ACharacterBase*> GetActiveTargets(ETargetTeam team) const; // 生存してるターゲット
+
+	void ShowAttackTargetUI(const TArray<ACharacterBase*>& targets);
+	void ShowTargetUI(const TArray<ACharacterBase*>& targets);
+	void ShowAllTargetUI(const TArray<ACharacterBase*>& targets);
+
 private:
 	//void InitializeSelection();
 	void NotifyBattleStart();
@@ -65,15 +74,10 @@ private:
 	// 各キャラクターの状態をリセット
 	void ResetBattleState();
 
-	// ターゲットを取得
-	const TArray<ACharacterBase*>& GetTargets() const;
-
 	// Attackの処理
 	void StartAttack();
 	void StartSkill();
 	void StartItem();
-	
-	void ShowTargetUI(const TArray<ACharacterBase*>& targets);
 
 	bool BattleWin();
 	bool BattleLose();

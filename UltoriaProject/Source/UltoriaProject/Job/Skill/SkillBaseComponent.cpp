@@ -144,5 +144,13 @@ void USkillBaseComponent::Buff(const TArray<ACharacterBase*>& targets)
 
 void USkillBaseComponent::Heal(const TArray<ACharacterBase*>& targets)
 {
+	for (auto& target : targets)
+	{
+		if (!target) continue;
 
+		UCombatComponent* conbat = target->GetComponent<UCombatComponent>();
+		if (!conbat) continue;
+
+		conbat->Heal(100);
+	}
 }

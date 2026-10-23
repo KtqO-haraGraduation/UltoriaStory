@@ -8,14 +8,6 @@
 #include "../../Battle/BattleManager.h"
 #include "../../Battle/Combat/Data/BattleDataManager.h"
 
-void UCommandUIWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	// コマンドのボタンを生成
-	CreateButton();
-}
-
 void UCommandUIWidget::CreateButton()
 {
 	UBattleDataManager* battleDataMg = GetWorld()->GetSubsystem<UBattleDataManager>();

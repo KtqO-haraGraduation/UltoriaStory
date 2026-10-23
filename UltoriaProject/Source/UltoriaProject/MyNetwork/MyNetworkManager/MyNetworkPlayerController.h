@@ -44,9 +44,6 @@ private:
     UFUNCTION(Server, Reliable)
     void Server_Input1();
 
-    UFUNCTION(NetMulticast, Reliable)
-    void Multicast_Input1();
-
     UFUNCTION(Client, Reliable)
     void Client_ShowInput1();
 

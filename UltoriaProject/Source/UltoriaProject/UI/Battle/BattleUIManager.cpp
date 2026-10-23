@@ -9,28 +9,28 @@
 #include "CharacterStatusWidget.h"
 #include "DamageWidget.h"
 #include "Skill/SkillUIWidget.h"
+#include "Item/ItemUIWidget.h"
 #include "../../Battle/BattleGaugeManager.h"
 #include "../../Battle/BattleManager.h"
 #include "../../Battle/PlayerPartyManager.h"
 #include "../../Battle/Combat/Selection/BattleSelectioinManager.h"
 #include "../../Character/CharacterBase.h"
 #include "../../Character/Enemy/EnemyBase.h"
-
-void UBattleUIManager::Initialize(FSubsystemCollectionBase& Collection)
-{
-	Super::Initialize(Collection);
-
-	// 一旦初期化時に全てのデータをロード
-	LoadBattle();
-}
+#include "../../System/Selection/SelectionSystem.h"
+#include "../../Battle/Combat/Data/BattleDataManager.h"
+#include "Data/BattleUIDataAsset.h"
 
 void UBattleUIManager::CreateBattleUI()
 {
 	if (m_BattleUIWidget) return;
-	if (!m_BattleWidgetClass) return;
 
 	// バトルUIを生成、表示
-	m_BattleUIWidget = CreateWidget<UBattleUIWidget>(GetWorld(), m_BattleWidgetClass);
+	UBattleDataManager* battleDataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
+	if (!battleDataMg) return;
+
+	TSubclassOf<UBattleUIWidget> battleWidgetClass = battleDataMg->GetBattleUIDataAsset()->BattleUIClass;
+
+	m_BattleUIWidget = CreateWidget<UBattleUIWidget>(GetWorld(), battleWidgetClass);
 	if (m_BattleUIWidget) { m_BattleUIWidget->AddToViewport();}
 
 	// 切り替え時に呼ばれる処理を登録
@@ -44,16 +44,20 @@ void UBattleUIManager::CreateBattleUI()
 
 	// SkillとItemのコマンドUIを非表示にする
 	SetUIVisible(EBattleUIType::SKILL, false);
-	//SetUIVisible(EBattleUIType::ITEM, false);
+	SetUIVisible(EBattleUIType::ITEM, false);
 }
 
 void UBattleUIManager::CreateResultUI()
 {
 	if (m_ResultUIWidget) return;
-	if (!m_ResultWidgetClass) return;
 
 	// バトルUIを生成、表示
-	m_ResultUIWidget = CreateWidget<UBattleResultWidget>(GetWorld(), m_ResultWidgetClass);
+	UBattleDataManager* battleDataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
+	if (!battleDataMg) return;
+
+	TSubclassOf<UBattleResultWidget> resultClass = battleDataMg->GetBattleUIDataAsset()->ResultWidgetClass;
+
+	m_ResultUIWidget = CreateWidget<UBattleResultWidget>(GetWorld(), resultClass);
 	if (m_ResultUIWidget) { m_ResultUIWidget->AddToViewport(); }
 }
 
@@ -111,27 +115,17 @@ void UBattleUIManager::SetUIVisible(EBattleUIType type, bool flag)
 		if (selectionUI)
 		{
 			selectionUI->SetVisible(flag);
+			selectionUI->SetButtonData();
 		}
-
-		if (type == EBattleUIType::SKILL)
-		{
-			USkillUIWidget* skillWidget = Cast<USkillUIWidget>(selectionUI);
-			if (!skillWidget) break;
-
-			skillWidget->SetSkillButtonData();
-		}
-		if (type == EBattleUIType::ITEM)
-		{
-
-		}
-
 		break;
 	}
 		
 	case EBattleUIType::TARGET:
 		SetEnemySelectionUI(flag);
 		break;
-
+	case EBattleUIType::ALLTARGET:
+		SetEnemySelectionUI(flag);
+		break;
 	default:
 		break;
 	}
@@ -139,9 +133,12 @@ void UBattleUIManager::SetUIVisible(EBattleUIType type, bool flag)
 
 void UBattleUIManager::CreateDamageWidget(ACharacterBase* target, int damage)
 {
-	if (!m_DamageWidgetClass) return;
+	UBattleDataManager* battleDataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
+	if (!battleDataMg) return;
 
-	UDamageWidget* widget = CreateWidget<UDamageWidget>(GetWorld(), m_DamageWidgetClass);
+	TSubclassOf<UDamageWidget> damageClass = battleDataMg->GetBattleUIDataAsset()->DamageWidgetClass;
+
+	UDamageWidget* widget = CreateWidget<UDamageWidget>(GetWorld(), damageClass);
 
 	widget->Init(target, damage);
 	if (widget) { widget->AddToViewport(); }
@@ -184,25 +181,6 @@ void UBattleUIManager::OnTurnChanged(ACharacterBase* prevCharacter, ACharacterBa
 			}
 		}
 	}
-	
-}
-
-void UBattleUIManager::LoadBattle()
-{
-	// バトル用のUIクラスを取得
-	m_BattleWidgetClass = LoadClass<UBattleUIWidget>(
-		nullptr,
-		TEXT("/Game/MembarFiles/Matsubara/UI_MC/WBP_BattleUI.WBP_BattleUI_C"));
-
-	// バトル用のUIクラスを取得
-	m_ResultWidgetClass = LoadClass<UBattleResultWidget>(
-		nullptr,
-		TEXT("/Game/MembarFiles/Matsubara/UI_MC/Result/WBP_BattleResultWidget.WBP_BattleResultWidget_C"));
-
-	// ダメージ用のUIクラスを取得
-	m_DamageWidgetClass = LoadClass<UDamageWidget>(
-		nullptr,
-		TEXT("/Game/MembarFiles/Matsubara/UI_MC/Character/WBP_Damage.WBP_Damage_C"));
 }
 
 void UBattleUIManager::SetEnemySelectionUI(bool flag)
@@ -210,8 +188,32 @@ void UBattleUIManager::SetEnemySelectionUI(bool flag)
 	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	if (!battleMg) return;
 
-	AEnemyBase* enemy = battleMg->GetSelectManager()->GetEnemyCurrentSelect();
+	AEnemyBase* enemy = battleMg->GetSelectManager()->GetTargetCurrentSelect();
 	if (!enemy) return;
 
 	enemy->SetSelectionUIVisibility(flag);
+}
+
+void UBattleUIManager::SetTargetSelectionUI(bool flag)
+{
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+
+	AEnemyBase* enemy = battleMg->GetSelectManager()->GetTargetCurrentSelect();
+	if (!enemy) return;
+
+	enemy->SetSelectionUIVisibility(flag);
+}
+
+void UBattleUIManager::SetAllTargetSelectionUI(bool flag)
+{
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+
+	TArray<ACharacterBase*> targets= battleMg->GetSelectManager()->GetTargetSelection().GetTargets();
+	for (ACharacterBase* target : targets)
+	{
+		if (!target) continue;
+		//target->SetSelectionUIVisibility(flag);
+	}
 }

@@ -8,6 +8,10 @@
 
 class UCommandButtonWidget;
 class USkillButtonWidget;
+class UItemButtonWidget;
+class UBattleUIWidget;
+class UBattleResultWidget;
+class UDamageWidget;
 
 /**
  * 
@@ -19,9 +23,21 @@ class ULTORIAPROJECT_API UBattleUIDataAsset : public UDataAsset
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UBattleUIWidget> BattleUIClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UCommandButtonWidget> CommandButtonClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<USkillButtonWidget> SkillButtonClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UItemButtonWidget> ItemButtonClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UBattleResultWidget> ResultWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UDamageWidget> DamageWidgetClass;
 
 };
