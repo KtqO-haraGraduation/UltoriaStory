@@ -72,6 +72,11 @@ void AMainPlayer::BeginPlay()
 
 	m_CameraBoom = FindComponentByClass<USpringArmComponent>();
 	m_FollowCamera = FindComponentByClass<UCameraComponent>();
+
+	FRotator initRot = GetActorRotation();
+
+	// スティックを上に入力時、Yawは90.0fになるので、「奥移動 = 0」になるように補正を掛ける
+	m_InitYawOffset = initRot.Yaw - 90.0f;
 }
 
 // Called every frame
@@ -117,6 +122,15 @@ void AMainPlayer::Move(const FInputActionValue& Value)
 		// カメラの前方・右方向を基準に移動
 		AddMovementInput(forward, moveVec2D.Y);
 		AddMovementInput(right, moveVec2D.X);
+
+		// プレイヤーの回転処理
+		// スティックのYaw(ヨー)を取得
+		float stickYaw = FMath::RadiansToDegrees(FMath::Atan2(moveVec2D.Y, -moveVec2D.X));
+
+		float targetYaw = stickYaw - m_InitYawOffset;
+
+		// プレイヤーを回転させる
+		SetActorRotation(FRotator(0.0f, targetYaw, 0.0f));
 	}
 }
 
@@ -142,6 +156,28 @@ void AMainPlayer::AttackEnd()
 		ECollisionEnabled::NoCollision);
 
 	UE_LOG(LogTemp, Warning, TEXT("Attack End"));
+}
+
+void AMainPlayer::ZoomCamera(const FInputActionValue& Value)
+{
+	if (m_IsAttacking) return;
+
+	// 入力をfloatで取得し、ズーム量にする
+	float zoomValue = Value.Get<float>() * 20.0f;
+
+	// ズーム量を加算
+	m_CameraBoom->TargetArmLength += zoomValue;
+
+	// TargetArmLengthがズームの最大値、また最小値に達していないか
+	// 達して入れば各値に変更する
+	if (m_CameraBoom->TargetArmLength > 10000.0f)
+	{
+		m_CameraBoom->TargetArmLength = 10000.0f;
+	}
+	else if(m_CameraBoom->TargetArmLength < 500.0f)
+	{
+		m_CameraBoom->TargetArmLength = 500.0f;
+	}
 }
 
 /// <summary>

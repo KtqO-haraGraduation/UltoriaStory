@@ -31,9 +31,11 @@ public:
 	void SetPrevPos();
 
 	void Move(const FInputActionValue& Value);
-	void Attack(const FInputActionValue& Value);
 
+	void Attack(const FInputActionValue& Value);
 	void AttackEnd();
+
+	void ZoomCamera(const FInputActionValue& Value);
 
 	USpringArmComponent* GetCameraBoom() const { return m_CameraBoom; }
 	UCameraComponent* GetFollowCamera() const { return m_FollowCamera; }
@@ -63,4 +65,6 @@ private:
 	UCameraComponent* m_FollowCamera;
 
 	int m_TestCount = 60;
+
+	float m_InitYawOffset;
 };
