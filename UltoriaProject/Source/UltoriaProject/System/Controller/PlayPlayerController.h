@@ -74,6 +74,11 @@ protected:
 	void InputMove(const FInputActionValue& Value);
 	// 攻撃関数
 	void InputAttack(const FInputActionValue& Value);
+	// カメラの拡大縮小関数
+	void InputZoomCamera(const FInputActionValue& Value);
+	// カメラの拡大縮小の初期化関数
+	void InputZoomReset(const FInputActionValue& Value);
+
 	// インタラクト関数
 	void InputInteract_Field();
 
@@ -132,6 +137,12 @@ private:
 	// インタラクトIA
 	UPROPERTY(EditAnywhere)
 	UInputAction* m_InputInteract;
+	// カメラズームIA
+	UPROPERTY(EditAnywhere)
+	UInputAction* m_InputZoomCamera;
+	// ズームリセットIA
+	UPROPERTY(EditAnywhere)
+	UInputAction* m_InputZoomReset;
 
 // バトル入力関連
 	// バトル用IMC

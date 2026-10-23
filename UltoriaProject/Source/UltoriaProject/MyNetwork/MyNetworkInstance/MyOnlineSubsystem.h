@@ -14,6 +14,9 @@ class ULTORIAPROJECT_API UMyOnlineSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 	friend class AMyNetworkPlayerController;
 
+public:
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
 private:
 	// EOSÉçÉOÉCÉì
 	void Login();
