@@ -11,7 +11,7 @@ void UMyOnlineSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 
 	// ゲーム開始時にEOSログインを開始
-	Login();
+	//Login();
 }
 
 void UMyOnlineSubsystem::Login()
