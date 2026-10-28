@@ -12,6 +12,7 @@ class UItemButtonWidget;
 class UBattleUIWidget;
 class UBattleResultWidget;
 class UDamageWidget;
+class USpeedWidget;
 
 /**
  * 
@@ -39,5 +40,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UDamageWidget> DamageWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<USpeedWidget> SpeedWidgetClass;
 
 };
