@@ -412,7 +412,7 @@ void UBattleManager::FinishBattle()
 	m_Lifecycle->End();
 	NotifyBattleEnd();
 
-	m_TurnManager->ResetCharacters();
+	m_TurnManager->End();
 
 	// 全キャラの状態をリセット
 	ResetBattleState();

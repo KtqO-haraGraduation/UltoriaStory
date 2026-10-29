@@ -2,6 +2,7 @@
 
 
 #include "EnemyBase.h"
+#include "EnemyManager.h"
 #include "../../UI/Battle/CharacterStatusWidget.h"
 #include "../../Battle/Combat/Data/BattleDataManager.h"
 #include "../Data/CharacterDataManager.h"
@@ -55,6 +56,13 @@ void AEnemyBase::BeginPlay()
 		{
 			m_SelectionUIWidget = widget;
 		}
+	}
+
+	UEnemyManager* enemyMg = GetWorld()->GetSubsystem<UEnemyManager>();
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (enemyMg && battleMg && !battleMg->IsBattle())
+	{
+		enemyMg->AddEnemy(this);
 	}
 }
 

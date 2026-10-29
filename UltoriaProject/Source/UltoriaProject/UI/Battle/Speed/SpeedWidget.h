@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "../BattleUIBase.h"
+#include "Components/Image.h"
 #include "SpeedWidget.generated.h"
 
 class ACharacterBase;
@@ -21,4 +22,7 @@ public:
 
 private:
 	ACharacterBase* m_Character;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* CharacterImage;
 };

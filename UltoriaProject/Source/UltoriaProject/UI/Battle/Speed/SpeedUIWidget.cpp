@@ -10,7 +10,7 @@
 #include "SpeedWidget.h"
 #include "Components/CanvasPanelSlot.h"
 
-const float StartX = 100.0f;
+const float StartX = 500.0f;
 const float StartY = 20.0f;
 const float Width = 100.0f;
 const float Spacing = 20.0f;
@@ -64,7 +64,7 @@ void USpeedUIWidget::CreateSpeedWidgets()
 		UCanvasPanelSlot* slot = SpeedPanel->AddChildToCanvas(widget);
 		if (!slot) continue;
 
-		const float X = StartX + i * (Width * Spacing);
+		const float X = StartX + i * (Width + Spacing);
 
 		slot->SetPosition(FVector2D(X, StartY));
 		//slot->SetSize(FVector2D(Width, 100.0f));

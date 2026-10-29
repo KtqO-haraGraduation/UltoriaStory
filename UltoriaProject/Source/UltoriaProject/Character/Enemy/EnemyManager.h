@@ -17,8 +17,11 @@ class ULTORIAPROJECT_API UEnemyManager : public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
+	void AddEnemy(AEnemyBase* enemy);
 
+	const TArray<AEnemyBase*>& GetEnemies() const { return m_Enemies; }
 
 private:
-	TArray<AEnemyBase> m_Enemies;
+	UPROPERTY()
+	TArray<AEnemyBase*> m_Enemies;
 };

@@ -5,6 +5,9 @@
 #include "../Components/CombatComponent.h"
 #include "../Components/Status/CombatStatusComponent.h"
 
+#include "../../../UI/Battle/BattleUIManager.h"
+#include "../../../UI/Battle/Speed/SpeedUIWidget.h"
+
 void UBattleTurnManager::NextTurn()
 {
 	if (m_Characters.IsEmpty()) return;
@@ -18,6 +21,7 @@ void UBattleTurnManager::NextTurn()
 	if (m_CurrentIndex >= m_Characters.Num())
 	{
 		m_CurrentIndex = 0;
+		AddTurn();
 	}
 
 	// 死亡しているキャラクターをスキップ
@@ -28,20 +32,6 @@ void UBattleTurnManager::NextTurn()
 		NextTurn();
 		return;
 	}
-
-	/*if (m_CurrentCharacter->GetTeamType() == ETeamType::PLAYER)
-	{
-		m_SelectionType = ESelectionType::COMMAND;
-		m_CommandSelection.SetTargets(dataManager->GetCommandDatas());
-	}
-	else if (m_CurrentCharacter->GetTeamType() == ETeamType::ENEMY)
-	{
-		m_SelectionType = ESelectionType::NONE;
-		StartAttack();
-	}
-
-	m_OnTurnChanged.Broadcast(m_PrevCharacter, m_CurrentCharacter);*/
-
 }
 
 void UBattleTurnManager::UpdateTurnEnd()
@@ -51,6 +41,16 @@ void UBattleTurnManager::UpdateTurnEnd()
 	if (!status) return;
 
 	status->UpdateTurn();
+}
+
+void UBattleTurnManager::Start()
+{
+}
+
+void UBattleTurnManager::End()
+{
+	ResetCharacters();
+	ResetTurn();
 }
 
 void UBattleTurnManager::AddCharacter(ACharacterBase* character)
@@ -81,3 +81,26 @@ void UBattleTurnManager::ResetCharacters()
 	m_CurrentIndex = 0;
 	m_PrevCharacter = nullptr;
 }
+
+void UBattleTurnManager::AddTurn()
+{
+	m_TurnNum++;
+}
+
+void UBattleTurnManager::ResetTurn()
+{
+	m_TurnNum = 1;
+}
+
+void UBattleTurnManager::CreateSpeedUI()
+{
+
+
+}
+
+void UBattleTurnManager::RemoveSpeedUI()
+{
+
+}
+
+

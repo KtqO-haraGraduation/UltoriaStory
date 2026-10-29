@@ -14,6 +14,7 @@ enum class EBattleUIType
 	COMMAND,
 	SKILL,
 	ITEM,
+	SPEED,
 	TARGET,
 	ALLTARGET,
 };

@@ -3,7 +3,8 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "../Enemy/EnemyBase.h"
-#include "../../Stage/StageManager.h"
+#include "../../Stage/StageParameter.h"
+#include "Engine/Texture2D.h"
 #include "EnemyMasterData.generated.h"
 
 USTRUCT(BlueprintType)
@@ -46,4 +47,7 @@ struct FEnemyMasterData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int BreakGauge;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* Image;
 };
