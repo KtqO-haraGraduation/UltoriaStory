@@ -11,7 +11,7 @@ void UMapManager::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
-    m_MWT = LoadObject<UMapWidgetTable>(nullptr, TEXT("/Script/UltoriaProject.MapWidgetTable'/Game/MembarFiles/Sakumoto/DataAsset/DA_MapWidgetTable.DA_MapWidgetTable'"));
+    m_MWT = LoadObject<UMapWidgetTable>(nullptr, TEXT("/Game/MembarFiles/Sakumoto/DataAsset/DA_MapWidgetTable.DA_MapWidgetTable"));
 
     //レベルのロードが完了したらOnPostLoadMapWithWorld関数を呼ぶ
     //FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMapManager::OnPostLoadMapWithWorld);
@@ -61,6 +61,8 @@ void UMapManager::OnWorldInitializedActors(const UWorld::FActorsInitializedParam
 void UMapManager::DebugInit(UWorld* world)
 {
     UE_LOG(LogTemp, Warning, TEXT("Map Loaded"));
+
+    //if (!m_MWT) return;
 
     // レベルの中に存在する AMapBoundsActor を全部探して actors に入れる
     TArray<AActor*> actors;
