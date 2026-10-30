@@ -28,6 +28,8 @@ public:
 	void RemoveSpeedWidget(USpeedWidget* widget);
 	void ResetSpeedWidget();
 
+	const TArray<USpeedWidget*>& GetSpeedWodgets() const { return m_SpeedWidgets; }
+
 private:
 	TArray<USpeedWidget*> m_SpeedWidgets;
 
