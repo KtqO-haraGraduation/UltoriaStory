@@ -17,6 +17,7 @@ enum class EBattleCameraType : uint8
 {
 	MAIN   = 0,	// バトル全体を移すカメラ
 	ACTION = 1,	// 行動キャラクターを移すカメラ
+	TARGET = 2, // キャラクター選択
 };
 
 UCLASS()

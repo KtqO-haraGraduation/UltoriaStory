@@ -164,7 +164,6 @@ void UEncounterManager::ResetFieldCamera()
 
 void UEncounterManager::SetEncounterFogEnabled(bool bEnable)
 {
-
 	if (!m_Camera)
 	{
 		return;

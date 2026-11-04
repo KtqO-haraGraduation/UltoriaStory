@@ -22,7 +22,7 @@ public:
 	// フィールドカメラへ切り替え
 	void ChangeFieldCamera();
 	// バトルカメラの切り替え
-	void ChangeBattleCamera(EBattleCameraType type);
+	ACameraActor* ChangeBattleCamera(EBattleCameraType type);
 
 
 	// バトルエリアを取得

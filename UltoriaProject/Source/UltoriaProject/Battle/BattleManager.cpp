@@ -80,6 +80,8 @@ void UBattleManager::BattleStart(ACharacterBase* enemy, bool isPreemptive)
 
 		m_SelectManager->SetSelectionType(SelectionType::COMMAND);
 	}
+
+	m_CameraManager->SetActionCameraPos();
 }
 
 void UBattleManager::NextTurn()
@@ -98,15 +100,18 @@ void UBattleManager::NextTurn()
 	}
 
 	m_TurnManager->NextTurn();
+	m_CameraManager->SetActionCameraPos();
 
 	if (m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::PLAYER)
 	{
 		m_SelectManager->SetSelectionType(SelectionType::COMMAND);
+		
 	}
 	else if(m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::ENEMY)
 	{
 		m_SelectManager->SetSelectionType(SelectionType::NONE);
 		StartAttack();
+
 	}
 
 	m_OnTurnChanged.Broadcast(m_TurnManager->GetPrevCharacter(), m_TurnManager->GetCurrentCharacter());
@@ -264,16 +269,19 @@ TArray<ACharacterBase*> UBattleManager::GetTargets(ETargetTeam team) const
 	{
 		// 時分自身を取得
 		result.Add(currentCharacter);
+		m_CameraManager->SetTargetCameraPos(team, result);
 		return result;
 	}
 	else if (team == ETargetTeam::ALLY)
 	{
 		// プレイヤーパーティーを取得
+		m_CameraManager->SetTargetCameraPos(team, m_PlayerParty);
 		return m_PlayerParty;
 	}
 	else if (team == ETargetTeam::ENEMY)
 	{
 		// 敵パーティーを取得
+		m_CameraManager->SetTargetCameraPos(team, m_EnemyParty);
 		return m_EnemyParty;
 	}
 	return result;
@@ -362,7 +370,7 @@ void UBattleManager::ShowTargetUI(const TArray<ACharacterBase*>& targets)
 	if (!uiMg) return;
 
     uiMg->SetUIVisible(EBattleUIType::SKILL, false);
-    //uiMg->SetUIVisible(EBattleUIType::ITEM, false);
+    uiMg->SetUIVisible(EBattleUIType::ITEM, false);
 	uiMg->SetUIVisible(EBattleUIType::TARGET, true);
 }
 
@@ -372,7 +380,7 @@ void UBattleManager::ShowAllTargetUI(const TArray<ACharacterBase*>& targets)
 	if (!uiMg) return;
 
 	uiMg->SetUIVisible(EBattleUIType::SKILL, false);
-	//uiMg->SetUIVisible(EBattleUIType::ITEM, false);
+	uiMg->SetUIVisible(EBattleUIType::ITEM, false);
 	uiMg->SetUIVisible(EBattleUIType::TARGET, true);
 }
 

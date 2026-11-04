@@ -57,6 +57,7 @@ public:
 	UBattleLifecycle* GetLifecycle() { return m_Lifecycle; }
 	UBattleTurnManager* GetTurnManager() { return m_TurnManager; }
 	UBattleSelectioinManager* GetSelectManager() { return m_SelectManager; }
+	UBattleCameraManager* GetCameraManager() { return m_CameraManager; }
 
 	void FinishBattle();
 

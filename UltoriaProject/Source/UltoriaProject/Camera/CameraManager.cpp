@@ -24,20 +24,20 @@ void UCameraManager::ChangeFieldCamera()
 }
 
 // バトルカメラへ切り替え
-void UCameraManager::ChangeBattleCamera(EBattleCameraType type)
+ACameraActor* UCameraManager::ChangeBattleCamera(EBattleCameraType type)
 {
     APlayerController* playerController =
         UGameplayStatics::GetPlayerController(GetWorld(), 0);
-
-    if (!playerController) return;
+    if (!playerController) return nullptr;
 
     ABattleAreaManager* area = GetBattleAreaManager();
-    if (!area) return;
+    if (!area) return nullptr;
 
     ACameraActor* camera = area->GetCamera(type);
-    if (!camera) return;
+    if (!camera) return nullptr;
 
     playerController->SetViewTargetWithBlend(camera, 1.0f);
+    return camera;
 }
 
 // バトルエリアを取得
