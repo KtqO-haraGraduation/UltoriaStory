@@ -59,3 +59,17 @@ TArray<FBattleTransform> ABattleAreaManager::GetBattleTransform(int count, bool 
 	return result;
 }
 
+ACameraActor* ABattleAreaManager::GetCamera(EBattleCameraType type) const
+{
+	ACameraActor* result = nullptr;
+
+	int index = static_cast<int>(type);
+
+	if (!m_BattleCameras.IsValidIndex(index))
+	{
+		return nullptr;
+	}
+
+	return m_BattleCameras[index];
+}
+

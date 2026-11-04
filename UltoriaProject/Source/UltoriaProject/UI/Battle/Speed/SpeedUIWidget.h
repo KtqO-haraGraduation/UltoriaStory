@@ -21,10 +21,16 @@ class ULTORIAPROJECT_API USpeedUIWidget : public UBattleUIBase
 public:
 	virtual void NativeConstruct() override;
 
+	// UIを新しく生成
 	void CreateSpeedWidget(ACharacterBase* character);
 	void CreateSpeedWidgets();
-	void SetSpeedWidgetData();
 
+	// スピードUIのデータを設定
+	void SetSpeedWidgetData();
+	// 指定したIndexのUIを非表示にする
+	void SetHideSpeedUI(int index);
+
+	// UIを削除
 	void RemoveSpeedWidget(USpeedWidget* widget);
 	void ResetSpeedWidget();
 

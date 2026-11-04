@@ -7,6 +7,7 @@
 
 #include "../../../UI/Battle/BattleUIManager.h"
 #include "../../../UI/Battle/Speed/SpeedUIWidget.h"
+#include "../../../UI/Battle/BattleUIWidget.h"
 
 void UBattleTurnManager::NextTurn()
 {
@@ -14,14 +15,16 @@ void UBattleTurnManager::NextTurn()
 	
 	// 前回のキャラクター
 	m_PrevCharacter = m_Characters[m_CurrentIndex];
+	// ターンが終了したキャラクターのSpeedUIを非表示にする
+	RemoveSpeedUI();
 
 	// 次のキャラクターへ
 	m_CurrentIndex++;
 
+	// 全員のターンが終了した場合の処理
 	if (m_CurrentIndex >= m_Characters.Num())
 	{
-		m_CurrentIndex = 0;
-		AddTurn();
+		OnAllCharactersTurnEnd();
 	}
 
 	// 死亡しているキャラクターをスキップ
@@ -92,15 +95,22 @@ void UBattleTurnManager::ResetTurn()
 	m_TurnNum = 1;
 }
 
-void UBattleTurnManager::CreateSpeedUI()
+void UBattleTurnManager::OnAllCharactersTurnEnd()
 {
+	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
+	if (!uiMg) return;
 
-
+	m_CurrentIndex = 0;
+	AddTurn();
+	uiMg->GetBattleUI()->GetSpeedWidget()->SetSpeedWidgetData();
 }
 
 void UBattleTurnManager::RemoveSpeedUI()
 {
+	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
+	if (!uiMg) return;
 
+	uiMg->GetBattleUI()->GetSpeedWidget()->SetHideSpeedUI(m_CurrentIndex);
 }
 
 

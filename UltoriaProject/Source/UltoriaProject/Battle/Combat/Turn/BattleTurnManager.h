@@ -41,8 +41,8 @@ private:
 
 	void AddTurn();   // ターン数を加算
 	void ResetTurn(); // ターン数をリセット
+	void OnAllCharactersTurnEnd(); // 全キャラのターンが終了した時の処理
 
-	void CreateSpeedUI(); // スピードUIを作り直す
 	void RemoveSpeedUI(); // 行動が終わったキャラクターのスピードUIを非表示
 
 private:

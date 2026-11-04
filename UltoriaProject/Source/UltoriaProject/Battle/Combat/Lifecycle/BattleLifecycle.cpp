@@ -11,7 +11,7 @@
 #include "../../../Character/Enemy/EnemyBase.h"
 #include "../../../System/Controller/PlayPlayerController.h"
 #include "../../../UI/Battle/BattleUIManager.h"
-
+#include "../../../Camera/CameraManager.h"
 #include "../../../Stage/StageManager.h"
 #include "Camera/CameraActor.h"
 #include "Kismet/GameplayStatics.h"
@@ -31,17 +31,17 @@ void UBattleLifecycle::Start(UBattleManager* mg, AEnemyBase* enemyBase)
 		CreateParty(enemyBase);
 		
 		// BattleAreaManagerを取得
-		ABattleAreaManager* area = GetBattleArea();
+		m_AreaManager = GetBattleArea();
 
-		if (!area)
+		if (!m_AreaManager)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("nullpttr"));
 		}
 
 		// カメラを切り替える
-		ChangeBattleCamera(area);
+		GetCameraManager()->ChangeBattleCamera(EBattleCameraType::MAIN);
 		// 座標を設定
-		SetBattleCharacterPos(area);
+		SetBattleCharacterPos(m_AreaManager);
 	}
 
 	// UIを生成
@@ -63,10 +63,11 @@ void UBattleLifecycle::End()
 	// 入力モード切り替え
 	ChangeInputMode(PlayInputMode::FIELD);
 
-	ChangeFieldCamera();
+	GetCameraManager()->ChangeFieldCamera();
 	SetFieldCharacterPos();
 
 	if (m_BattleManager) m_BattleManager = nullptr;
+	if (m_AreaManager) m_AreaManager = nullptr;
 }
 
 void UBattleLifecycle::ChangeInputMode(PlayInputMode mode)
@@ -82,35 +83,6 @@ void UBattleLifecycle::CreateParty(AEnemyBase* enemyBase)
 	m_BattleManager->CreateParty(enemyBase);
 	// スピード順にリストを並び変える
 	m_BattleManager->GetTurnManager()->SortBySpeedDescending();
-}
-
-void UBattleLifecycle::ChangeFieldCamera()
-{
-	APlayerController* playerController = UGameplayStatics::GetPlayerController(m_BattleManager->GetWorld(), 0);
-
-	if (playerController)
-	{
-		ACharacter* player = Cast<ACharacter>(playerController->GetPawn());
-
-		if (player)
-		{
-			// カメラ切り替え
-			playerController->SetViewTargetWithBlend(player, 0.0f);
-		}
-	}
-}
-
-void UBattleLifecycle::ChangeBattleCamera(ABattleAreaManager* area)
-{
-	if (!area) return;
-
-	APlayerController* playerController = UGameplayStatics::GetPlayerController(m_BattleManager->GetWorld(), 0);
-
-	if (playerController)
-	{
-		// カメラ切り替え
-		playerController->SetViewTargetWithBlend(area->GetBattleCamera(), 1.0f);
-	}
 }
 
 void UBattleLifecycle::SetFieldCharacterPos()
@@ -195,4 +167,13 @@ ABattleAreaManager* UBattleLifecycle::GetBattleArea()
 		}
 	}
 	return nullptr;
+}
+
+UCameraManager* UBattleLifecycle::GetCameraManager()
+{
+	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
+	if (!gameInstance) return nullptr;
+
+	UCameraManager* cameraMg = gameInstance->GetSubsystem<UCameraManager>();
+	return cameraMg;
 }

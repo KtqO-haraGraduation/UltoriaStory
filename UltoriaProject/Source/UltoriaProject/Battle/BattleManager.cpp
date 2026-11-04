@@ -18,6 +18,7 @@
 #include "Combat/Data/BattleParameter.h"
 #include "Combat/Turn/BattleTurnManager.h"
 #include "Combat/Selection/BattleSelectioinManager.h"
+#include "Combat/Camera/BattleCameraManager.h"
 
 void UBattleManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -28,6 +29,9 @@ void UBattleManager::Initialize(FSubsystemCollectionBase& Collection)
 
 	m_SelectManager = NewObject<UBattleSelectioinManager>(this);
 	m_SelectManager->Init(this);
+
+	m_CameraManager = NewObject<UBattleCameraManager>(this);
+	m_CameraManager->Init(this);
 }
 
 void UBattleManager::BattleStart(ACharacterBase* enemy, bool isPreemptive)
@@ -71,6 +75,9 @@ void UBattleManager::BattleStart(ACharacterBase* enemy, bool isPreemptive)
 	}
 	if (m_TurnManager->GetCurrentCharacter()->GetTeamType() == ETeamType::PLAYER)
 	{
+		// ƒJƒƒ‰‚ðÝ’è
+
+
 		m_SelectManager->SetSelectionType(SelectionType::COMMAND);
 	}
 }

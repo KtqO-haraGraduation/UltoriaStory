@@ -99,6 +99,15 @@ void USpeedUIWidget::SetSpeedWidgetData()
 		if (!widget || !character) continue;
 
 		widget->SetCharacter(character);
+		widget->ShowUI();
+	}
+}
+
+void USpeedUIWidget::SetHideSpeedUI(int index)
+{
+	if (m_SpeedWidgets.IsValidIndex(index))
+	{
+		m_SpeedWidgets[index]->HideUI();
 	}
 }
 
