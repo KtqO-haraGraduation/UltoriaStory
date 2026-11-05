@@ -69,6 +69,9 @@ private:
 	// シーケンス終了関数
 	void FinishedSequence();
 
+	// バトル終了時関数
+	void OnBattleFinished();
+
 	// 全コマンドの呼び出し用関数ポインタ
 	typedef void (UEventScriptEngine::* CommandFunc)(FEventScriptRow*);
 
@@ -118,6 +121,10 @@ private:
 	UPROPERTY()
 	UAudioComponent* m_AudioComponent;
 
+// バトル関連
+	UPROPERTY(EditAnywhere)
+	FName m_TargetEnemyID;
+
 
 // フラグ
 	UPROPERTY(EditAnywhere, Category = "Event")
@@ -129,4 +136,8 @@ private:
 	bool m_IsSepuencePlaying;
 	// 会話自動再生フラグ
 	bool m_CanAutoTalk;
+	// バトル終了フラグ
+	bool m_BattleEndsScript;
+	// バトル終了待機フラグ
+	bool m_WaitingBattleEnd;
 };
