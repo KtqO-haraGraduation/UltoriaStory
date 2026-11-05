@@ -12,6 +12,7 @@ class UTextBlock;
 class UScrollBox;
 class UDataTable;
 class UInventoryItemEntryWidget;
+class UItemUseConfirmWidget;
 class UImage;
 
 UCLASS()
@@ -72,4 +73,25 @@ public:
 
 	// 現在選択
 	int32 CurrentIndex = 0;
+protected:
+
+	// 確認ウィジェットのクラス
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	TSubclassOf<UItemUseConfirmWidget> ItemUseConfirmWidgetClass;
+
+	// 現在表示している確認ウィジェット
+	UPROPERTY()
+	TObjectPtr<UItemUseConfirmWidget> ItemUseConfirmWidget;
+
+	// アイテム使用確認中かどうか
+	bool bIsConfirmingItemUse = false;
+
+	// 使用確認中のアイテムデータを保持
+	FItemData PendingItemData;
+
+	// 確認画面を開く
+	void OpenItemUseConfirm(const FItemData& ItemData);
+
+	// アイテムを実際に使用する
+	void ExecutePendingItemUse();
 };

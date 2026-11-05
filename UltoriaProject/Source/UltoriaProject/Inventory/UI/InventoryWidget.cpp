@@ -3,6 +3,7 @@
 
 #include "InventoryWidget.h"
 #include "../../Inventory/UI/InventoryItemEntryWidget.h"
+#include "../../Inventory/UI/ItemUseConfirmWidget.h"
 #include "../../Inventory/InventorySubsystem.h"
 #include "../../Akiduki/ItemData/ItemData.h"
 #include "Components/ScrollBox.h"
@@ -36,6 +37,13 @@ void UInventoryWidget::NavigateDown()
 
 void UInventoryWidget::Confirm()
 {
+	// 確認画面がすでに開いているなら、2回目の決定
+	if (bIsConfirmingItemUse)
+	{
+		ExecutePendingItemUse();
+		return;
+	}
+
 	// 現在選択されているIndexが有効か確認する
 	if (!ItemEntries.IsValidIndex(CurrentIndex))
 	{
@@ -44,12 +52,6 @@ void UInventoryWidget::Confirm()
 
 	// 現在選択されているEntryを取得する
 	UInventoryItemEntryWidget* SelectedEntry = ItemEntries[CurrentIndex];
-
-	// Entryが有効か確認する
-	if (!IsValid(SelectedEntry))
-	{
-		return;
-	}
 
 	// 選択中のアイテムデータを取得する
 	const FItemData& ItemData = SelectedEntry->GetItemData();
@@ -80,128 +82,37 @@ void UInventoryWidget::Confirm()
 
 	// 使用対象の設定をログに出力
 	UE_LOG(LogTemp,Log,TEXT("Item use target: %d"),static_cast<int32>(ItemData.Target));
-
-
-	// アイテムの使用対象に応じて処理を分岐する
-	switch (ItemData.Target)
+	// インベントリを取得
+	UGameInstance* GI = GetGameInstance();
+	// InventorySubsystemを取得
+	UInventorySubsystem* Inventory = GI->GetSubsystem<UInventorySubsystem>();
+	// アイテムを所持しているか確認
+	if (!Inventory->HasItem(ItemData.ID, 1))
 	{
-		case EItemUseTarget::Self:
-		{
-			UE_LOG(LogTemp, Log, TEXT("Use item on self"));
-
-			// PlayerControllerから主人公を取得
-			APlayerController* PC = GetWorld()->GetFirstPlayerController();
-				
-			if (!PC)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("PlayerController not found"));
-				return;
-			}
-
-			AMainPlayer* Player = Cast<AMainPlayer>(PC->GetPawn());
-
-			if (!IsValid(Player))
-			{
-				UE_LOG(LogTemp, Warning, TEXT("MainPlayer not found"));
-				return;
-			}
-
-			bool bAppliedEffect = false;
-			UE_LOG(
-				LogTemp,
-				Warning,
-				TEXT("Player: %s, CurrentHP: %d, MaxHP: %d, CurrentMP: %d, MaxMP: %d"),
-				*GetNameSafe(Player),
-				Player->GetCurrentHP(),
-				Player->GetMaxHP(),
-				Player->GetCurrentMP(),
-				Player->GetMaxMP()
-			);
-			// 設定されている効果を順番に適用
-			for (const FItemEffectData& Effect : ItemData.Effects)
-			{
-				switch (Effect.EffectType)
-				{
-				case EItemEffectType::HealHP:
-				{
-					const int OldHP = Player->GetCurrentHP();
-
-					Player->SetHP(OldHP + Effect.Magnitude);
-
-					const int NewHP = Player->GetCurrentHP();
-
-					// HPが実際に回復したか確認
-					if (NewHP > OldHP)
-					{
-						bAppliedEffect = true;
-					}
-
-					UE_LOG(LogTemp,Log,TEXT("HP: %d -> %d"),OldHP,NewHP);
-						
-					break;
-				}
-
-				case EItemEffectType::HealMP:
-				{
-					const int OldMP = Player->GetCurrentMP();
-
-					Player->SetMP(OldMP + Effect.Magnitude);
-
-					const int NewMP = Player->GetCurrentMP();
-
-					if (NewMP > OldMP)
-					{
-						bAppliedEffect = true;
-					}
-
-					UE_LOG(LogTemp,Log,TEXT("MP: %d -> %d"),OldMP,NewMP);
-
-					break;
-				}
-
-				case EItemEffectType::CurePoison:
-				{
-					// 毒解除処理は後で実装
-					break;
-				}
-
-				default:
-					break;
-				}
-			}
-		}
-
-		case EItemUseTarget::Ally:
-		{
-			// 味方単体を選択する
-			UE_LOG(LogTemp, Log, TEXT("Open ally selection"));
-
-			// TODO: 味方選択画面を開く
-			break;
-		}
-
-		case EItemUseTarget::AllAllies:
-		{
-			// 味方全体を対象にする
-			UE_LOG(LogTemp, Log, TEXT("Use item on all allies"));
-
-			// TODO: 味方全員にアイテム効果を適用する
-			break;
-		}
-
-		case EItemUseTarget::Enemy:
-		case EItemUseTarget::AllEnemies:
-		{
-			// フィールドでは敵を対象にできない
-			UE_LOG(LogTemp,Warning,TEXT("Enemy targets are not supported in field"));
-	
-			break;
-		}
+		UE_LOG(LogTemp, Warning, TEXT("Item not found in inventory"));
+		SetupItems();// 所持アイテム一覧を更新
+		return;
 	}
+
+	// 選択したアイテムを保存して確認画面を開く
+	OpenItemUseConfirm(ItemData);
 }
 
 void UInventoryWidget::Cancel()
 {
+	// アイテム使用の確認中なら、確認画面だけ閉じる
+	if (bIsConfirmingItemUse)
+	{
+		if (IsValid(ItemUseConfirmWidget))
+		{
+			ItemUseConfirmWidget->RemoveFromParent();
+			ItemUseConfirmWidget = nullptr;
+		}
+
+		bIsConfirmingItemUse = false;
+		return;
+	}
+
 	// メニューを管理しているMenuStateManagerを取得する
 	UMenuStateManager* MenuManager =
 		GetGameInstance()->GetSubsystem<UMenuStateManager>();
@@ -294,10 +205,13 @@ void UInventoryWidget::UpdateSelection()
 
 void UInventoryWidget::SetupItems()
 {
+	// 以前の表示をクリア
+	ItemEntries.Empty();
+
 	// ScrollBoxが存在しなければ処理を終了
-	if (!ItemList)
+	if (IsValid(ItemList))
 	{
-		return;
+		ItemList->ClearChildren();
 	}
 
 	// 前回の表示をクリア
@@ -384,4 +298,221 @@ void UInventoryWidget::SetupItems()
 		CurrentIndex = 0;
 		UpdateSelection();
 	}
+}
+
+void UInventoryWidget::OpenItemUseConfirm(const FItemData& ItemData)
+{
+	// アイテムデータをセット
+	PendingItemData = ItemData;
+	// 使用確認ウィジェット作成
+	ItemUseConfirmWidget = CreateWidget<UItemUseConfirmWidget>(GetWorld(), ItemUseConfirmWidgetClass);
+	// アイテム名を設定
+	ItemUseConfirmWidget->SetItemName(FText::FromString(ItemData.NameJP));
+
+	ItemUseConfirmWidget->AddToViewport(100);
+
+	bIsConfirmingItemUse = true;
+			
+}
+
+void UInventoryWidget::ExecutePendingItemUse()
+{
+	// 確認画面を閉じる
+	if (IsValid(ItemUseConfirmWidget))
+	{
+		ItemUseConfirmWidget->RemoveFromParent();
+		ItemUseConfirmWidget = nullptr;
+	}
+
+	bIsConfirmingItemUse = false;
+
+	// インベントリの取得
+	UInventorySubsystem* Inventory = GetGameInstance()->GetSubsystem<UInventorySubsystem>();
+		
+	if (!IsValid(Inventory) || !Inventory->HasItem(PendingItemData.ID, 1))
+	{		
+		SetupItems();// アイテム更新
+		return;
+	}
+
+	// 現段階ではSelfのみ対応
+	if (PendingItemData.Target != EItemUseTarget::Self)
+	{
+		UE_LOG(
+			LogTemp,
+			Log,
+			TEXT("This item target is not implemented yet")
+		);
+		return;
+	}
+
+	APlayerController* PC =
+		GetWorld()->GetFirstPlayerController();
+
+	if (!IsValid(PC))
+	{
+		return;
+	}
+
+	AMainPlayer* Player = Cast<AMainPlayer>(PC->GetPawn());
+
+	if (!IsValid(Player))
+	{
+		return;
+	}
+
+	// 効果を適用
+	for (const FItemEffectData& Effect : PendingItemData.Effects)
+	{
+		switch (Effect.EffectType)
+		{
+		case EItemEffectType::HealHP:
+		{
+			const int32 OldHP = Player->GetCurrentHP();
+			Player->SetHP(OldHP + Effect.Magnitude);
+
+			UE_LOG(LogTemp,Log,TEXT("HP: %d -> %d"),
+				OldHP,Player->GetCurrentHP());
+
+			break;
+		}
+
+		case EItemEffectType::HealMP:
+		{
+			const int32 OldMP = Player->GetCurrentMP();
+			Player->SetMP(OldMP + Effect.Magnitude);
+
+			UE_LOG(LogTemp,Log,TEXT("MP: %d -> %d"),OldMP,Player->GetCurrentMP());	
+			
+			break;
+		}
+
+		case EItemEffectType::CurePoison:
+		{
+			// 毒解除処理は後で実装
+			break;
+		}
+
+		default:
+			break;
+		}
+	}
+
+	// 効果処理後に1個消費
+	if (Inventory->RemoveItem(PendingItemData.ID, 1))
+	{
+		UE_LOG(LogTemp,Log,TEXT("Item consumed: %s"),
+			*PendingItemData.ID.ToString());
+
+		SetupItems();// アイテム更新
+	}
+	//// アイテムの使用対象に応じて処理を分岐する
+	//switch (ItemData.Target)
+	//{
+	//	case EItemUseTarget::Self:
+	//	{
+	//		UE_LOG(LogTemp, Log, TEXT("Use item on self"));
+
+	//		// PlayerControllerから主人公を取得
+	//		APlayerController* PC = GetWorld()->GetFirstPlayerController();				
+	//		AMainPlayer* Player = Cast<AMainPlayer>(PC->GetPawn());
+
+	//		UE_LOG(LogTemp,Warning,TEXT("Player: %s, CurrentHP: %d, MaxHP: %d, CurrentMP: %d, MaxMP: %d"),	
+	//			*GetNameSafe(Player),Player->GetCurrentHP(),Player->GetMaxHP(),Player->GetCurrentMP(),Player->GetMaxMP());
+	//		// 自分自身への使用を受け付ける。
+	//		// ステータスが未完成でもアイテム消費を確認できるようにする。
+	//		bCanConsumeItem = true;
+	//		// 設定されている効果を順番に適用
+	//		for (const FItemEffectData& Effect : ItemData.Effects)
+	//		{
+	//			switch (Effect.EffectType)
+	//			{
+	//				case EItemEffectType::HealHP:
+	//				{
+	//					const int OldHP = Player->GetCurrentHP();
+
+	//					Player->SetHP(OldHP + Effect.Magnitude);
+
+	//					const int NewHP = Player->GetCurrentHP();
+
+	//					UE_LOG(LogTemp, Log, TEXT("HP: %d -> %d"), OldHP, NewHP);
+
+	//					break;
+	//				}
+
+	//				case EItemEffectType::HealMP:
+	//				{
+	//					const int OldMP = Player->GetCurrentMP();
+
+	//					Player->SetMP(OldMP + Effect.Magnitude);
+
+	//					const int NewMP = Player->GetCurrentMP();
+
+
+	//					UE_LOG(LogTemp, Log, TEXT("MP: %d -> %d"), OldMP, NewMP);
+
+	//					break;
+	//				}
+
+	//				case EItemEffectType::CurePoison:
+	//				{
+	//					// 毒解除処理は後で実装
+	//					break;
+	//				}
+
+	//				default:
+	//				{
+	//					break;
+	//				}
+	//			}
+	//		}
+	//		break;
+	//	}
+
+	//	case EItemUseTarget::Ally:
+	//	{
+	//		// 味方単体を選択する
+	//		UE_LOG(LogTemp, Log, TEXT("Open ally selection"));
+
+	//		// TODO: 味方選択画面を開く
+	//		break;
+	//	}
+
+	//	case EItemUseTarget::AllAllies:
+	//	{
+	//		// 味方全体を対象にする
+	//		UE_LOG(LogTemp, Log, TEXT("Use item on all allies"));
+
+	//		// TODO: 味方全員にアイテム効果を適用する
+	//		break;
+	//	}
+
+	//	case EItemUseTarget::Enemy:
+	//	case EItemUseTarget::AllEnemies:
+	//	{
+	//		// フィールドでは敵を対象にできない
+	//		UE_LOG(LogTemp,Warning,TEXT("Enemy targets are not supported in field"));
+
+	//		break;
+	//	}
+	//}
+
+	//// 使用が受け付けられなかった場合は消費しない
+	//if (!bCanConsumeItem)
+	//{
+	//	return;
+	//}
+
+	//// アイテムを1個消費
+	//if (Inventory->RemoveItem(ItemData.ID, 1))
+	//{
+	//	UE_LOG(LogTemp,Log,TEXT("Consumed item: %s, Remaining: %d"),*ItemData.ID.ToString(),Inventory->GetItemCount(ItemData.ID));
+
+	//	// 所持数と一覧表示を更新
+	//	SetupItems();
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp,Warning,TEXT("Failed to consume item"));	
+	//}
 }
