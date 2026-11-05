@@ -8,6 +8,10 @@
 #include "LevelSequencePlayer.h"
 #include "Kismet/GameplayStatics.h"
 #include "../Battle/BattleManager.h"
+#include "../Character/CharacterBase.h"
+#include "../Character/Enemy/EnemyBase.h"
+#include "../Battle/Encounter/EncounterManager.h"
+#include "../Character/Data/CharacterDataManager.h"
 
 // Sets default values for this component's properties
 UEventScriptEngine::UEventScriptEngine()
@@ -177,6 +181,13 @@ void UEventScriptEngine::FinishedSequence()
 
 }
 
+void UEventScriptEngine::OnBattleFinished()
+{
+	if (!m_WaitingBattleEnd)return;
+	m_WaitingBattleEnd = false;
+	NextCommand();
+}
+
 void UEventScriptEngine::Command_Talk(FEventScriptRow* Row)
 {
 	UE_LOG(LogTemp, Log, TEXT("[Talk] %s: %s"), *Row->Param1, *Row->Param2);
@@ -221,6 +232,9 @@ void UEventScriptEngine::SkipTyping()
 
 void UEventScriptEngine::AdvanceSubtitle()
 {
+	UE_LOG(LogTemp, Log, TEXT("[Subtitle] Advance index=%d / queue=%d"),
+		m_SubtitleQueueIndex, m_SubtitleQueue.Num());
+
 	if (!m_SubtitleQueue.IsValidIndex(m_SubtitleQueueIndex))
 	{
 		return;
@@ -377,6 +391,38 @@ void UEventScriptEngine::Command_Sequence(FEventScriptRow* Row)
 
 	if (m_SequencePlayer)
 	{
+		if (m_SequenceActor && !Row->Param2.IsEmpty())
+		{
+			TArray<FString> tags;
+			Row->Param2.ParseIntoArray(tags, TEXT(","));
+
+			for (FString& tag : tags)
+			{
+				tag.TrimStartAndEndInline();
+
+				TArray<AActor*>found;
+
+				UE_LOG(LogTemp, Log, TEXT("[Sequence] Owner=%s"),
+					GetOwner() ? *GetOwner()->GetName() : TEXT("null"));
+
+				if (tag == TEXT("Self"))
+				{
+					found.Add(GetOwner());
+				}
+				else
+				{
+					UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(*tag), found);
+				}
+
+				UE_LOG(LogTemp, Log, TEXT("[Sequence] Tag '%s': %d actors"), *tag, found.Num());
+
+				if (found.Num() > 0)
+				{
+					m_SequenceActor->SetBindingByTag(FName(*tag), found, false);
+				}
+			}
+		}
+
 		m_IsSepuencePlaying = true;
 		m_SequencePlayer->OnFinished.AddDynamic(this, &UEventScriptEngine::FinishedSequence);
 		m_SequencePlayer->Play();
@@ -420,13 +466,47 @@ void UEventScriptEngine::Command_BattleStart(FEventScriptRow* Row)
 {
 	UE_LOG(LogTemp, Log, TEXT("[BattleStart]"));
 
-	/*UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
-	if (!battleMg) return;
+	// 敵スポーン時の状態を設定
+	FActorSpawnParameters spawnParam;
+	spawnParam.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	ACharacterBase* player = nullptr;
+	// キャラデータマネージャー、エンカウントマネージャーを参照
+	UCharacterDataManager* charaDataMager = GetWorld()->GetSubsystem<UCharacterDataManager>();
+	UEncounterManager* encounterManager = GetWorld()->GetSubsystem<UEncounterManager>();
 
-	ACharacterBase* enemy = nullptr;
+	// イベントで戦闘する敵クラスを取得
+	TSubclassOf<AEnemyBase> target = charaDataMager->GetEnemyClass(m_TargetEnemyID);
 
-	battleMg->BattaleStart(player, enemy, false);*/
+	// 敵を生成
+	AEnemyBase* enemy = GetWorld()->SpawnActor<AEnemyBase>
+		(target,
+	     FVector::ZeroVector,
+		 FRotator::ZeroRotator,
+		 spawnParam
+		);
+
+	// 敵が生成できていれば
+	if (enemy)
+	{
+		enemy->SpawnDefaultController();
+		// 戦闘を開始
+		encounterManager->StartEncounter(enemy,false);
+	}
+
+	m_BattleEndsScript = Row->Param2 != TEXT("Continue");
+
+	if (m_BattleEndsScript)
+	{
+		// バトルで終わる場合は、開始と同時にスクリプトを閉じる
+		FinishedScript();
+	}
+	else
+	{
+		// 続く場合は、バトル終了を待って再開
+		m_WaitingBattleEnd = true;
+	}
 }
+
+
 

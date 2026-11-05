@@ -84,8 +84,10 @@ private:
 	EMenuState m_CurrentMenuState;
 
 	// 各メニューのインスタンス
+	UPROPERTY()
 	TMap<EMenuState, UMenuBase*> m_MenuMap;
 
 	// 各メニューと対応するクラス
+	UPROPERTY()
 	TMap<EMenuState, TSubclassOf<UMenuBase>> m_MenuClassMap;
 };
