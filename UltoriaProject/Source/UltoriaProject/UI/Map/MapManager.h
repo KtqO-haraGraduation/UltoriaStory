@@ -28,5 +28,6 @@ protected:
 
 	void DebugInit(UWorld* world);
 private:
-	UMapWidgetTable* m_MWT;
+	UPROPERTY()
+	TObjectPtr<UMapWidgetTable> m_MWT = nullptr;
 };
