@@ -12,6 +12,8 @@
 class UCommandUIWidget;
 class UBattleSelectionUIBase;
 class UUltoriaGaugeWidget;
+class USpeedUIWidget;
+class UBattleTextWidget;
 enum class EBattleUIType;
 
 /**
@@ -29,6 +31,7 @@ public:
 	UHorizontalBox* GetHBCharacterStatus() const { return HB_CharacterStatus; }
 	UBattleSelectionUIBase* GetCommandWidget() const { return WBP_Command; }
 	UUltoriaGaugeWidget* GetUltoriaGauge() const { return UltoriaGaugeWidget; }
+	USpeedUIWidget* GetSpeedWidget() const { return WBP_Speed; }
 
 	UBattleSelectionUIBase* GetSelectionUI(EBattleUIType type) const;
 
@@ -42,6 +45,12 @@ private:
 	UBattleSelectionUIBase* WBP_Skill;
 	UPROPERTY(meta = (BindWidget))
 	UBattleSelectionUIBase* WBP_Item;
+
+	UPROPERTY(meta = (BindWidget))
+	USpeedUIWidget* WBP_Speed;
+
+	/*UPROPERTY(meta = (BindWidget))
+	UBattleTextWidget* WBP_Item;*/
 
 	UPROPERTY(meta = (BindWidget))
 	UUltoriaGaugeWidget* UltoriaGaugeWidget;

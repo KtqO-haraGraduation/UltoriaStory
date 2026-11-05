@@ -43,6 +43,9 @@ public:
     UFUNCTION(BlueprintCallable)
     void MyStateChanged();
 
+    UFUNCTION(BlueprintImplementableEvent, Category = "Ready")
+    void OnReadyStateChanged();
+
     UFUNCTION()
     void OnRep_IsReady();
 

@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "../BattleUIBase.h"
+#include "Components/Image.h"
 #include "SpeedWidget.generated.h"
+
+class ACharacterBase;
 
 /**
  * 
@@ -15,9 +18,11 @@ class ULTORIAPROJECT_API USpeedWidget : public UBattleUIBase
 	GENERATED_BODY()
 	
 public:
-
+	void SetCharacter(ACharacterBase* character);
 
 private:
+	ACharacterBase* m_Character;
 
-
+	UPROPERTY(meta = (BindWidget))
+	UImage* CharacterImage;
 };

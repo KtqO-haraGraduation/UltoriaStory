@@ -115,7 +115,7 @@ void UMyOnlineCoreSubsystem::OnCreateComplete(FName SessionName, bool bSuccess)
 	if (!bSuccess)return;
 
 	// Žw’è‚µ‚½ƒŒƒxƒ‹‚ÉˆÚ“®
-	GetWorld()->ServerTravel(TEXT("/Game/Level/net?listen"));
+	GetWorld()->ServerTravel(TEXT("/Game/Lv/Lv_Room?listen"));
 }
 
 void UMyOnlineCoreSubsystem::JoinSession(const FOnlineSessionSearchResult& Result)

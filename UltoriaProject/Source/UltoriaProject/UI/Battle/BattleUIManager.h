@@ -37,6 +37,9 @@ public:
 	// UIÇÃçXêV
 	void OnTurnChanged(ACharacterBase* prevCharacter, ACharacterBase* currentCharacter);
 
+	UBattleUIWidget* GetBattleUI() const { return m_BattleUIWidget; }
+	UBattleResultWidget* GetResultUI() const { return m_ResultUIWidget; }
+
 private:
 	void SetEnemySelectionUI(bool flag);
 

@@ -13,12 +13,6 @@ void AMyNetworkPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UMyOnlineSubsystem* online = GetGameInstance()->GetSubsystem<UMyOnlineSubsystem>();
-	if (online)
-	{
-		online->Login();
-	}
-
 	CreateWidgetsOnce();
 	UpdateUI();
 }

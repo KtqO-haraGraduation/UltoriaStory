@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "../../Battle/Combat/Data/BattleParameter.h"
 #include "SkillDataRow.generated.h"
 
 UENUM(BlueprintType)
@@ -13,21 +14,6 @@ enum class ESkillType : uint8
 	ATTACK,
 	BUFF,
 	HEAL,
-};
-
-UENUM(BlueprintType)
-enum class ETargetTeam : uint8
-{
-	SELF,	// プレイヤー
-	ALLY,	// 仲間
-	ENEMY,	// 敵
-};
-
-UENUM(BlueprintType)
-enum class ETargetType : uint8
-{
-	SINGLE,	// 単体
-	ALL,	// 全員
 };
 
 USTRUCT(BlueprintType)

@@ -14,6 +14,7 @@ class ABattleAreaManager;
 class UBattleLifecycle;
 class UBattleTurnManager;
 class UBattleSelectioinManager;
+class UBattleCameraManager;
 enum class EUIInputType;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTurnChanged, ACharacterBase*, ACharacterBase*);
@@ -53,8 +54,10 @@ public:
 	// 敵を取得
 	const TArray<ACharacterBase*>& GetEnemyParty() const { return m_EnemyParty; }
 
+	UBattleLifecycle* GetLifecycle() { return m_Lifecycle; }
 	UBattleTurnManager* GetTurnManager() { return m_TurnManager; }
 	UBattleSelectioinManager* GetSelectManager() { return m_SelectManager; }
+	UBattleCameraManager* GetCameraManager() { return m_CameraManager; }
 
 	void FinishBattle();
 
@@ -93,6 +96,8 @@ private:
 	UBattleTurnManager* m_TurnManager;
 	UPROPERTY()
 	UBattleSelectioinManager* m_SelectManager;
+	UPROPERTY()
+	UBattleCameraManager* m_CameraManager;
 
 	TArray<ACharacterBase*> m_PlayerParty; // 戦闘時のプレイヤーリスト
 	TArray<ACharacterBase*> m_EnemyParty;  // 戦闘時の敵リスト

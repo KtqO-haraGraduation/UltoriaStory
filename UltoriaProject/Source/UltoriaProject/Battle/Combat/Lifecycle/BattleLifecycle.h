@@ -10,6 +10,7 @@
 class UBattleManager;
 class ABattleAreaManager;
 class AEnemyBase;
+class UCameraManager;
 
 /**
  * 
@@ -23,11 +24,11 @@ public:
 	void Start(UBattleManager* mg, AEnemyBase* enemyBase);
 	void End();
 
+	ABattleAreaManager* GetAreaManager() const { return m_AreaManager; }
+
 private:
 	void ChangeInputMode(PlayInputMode mode);
 	void CreateParty(AEnemyBase* enemyBase);
-	void ChangeFieldCamera();
-	void ChangeBattleCamera(ABattleAreaManager* area);
 	void SetFieldCharacterPos();
 	void SetBattleCharacterPos(ABattleAreaManager* area);
 	void CreateBattleUI();
@@ -36,6 +37,10 @@ private:
 	ABattleAreaManager* GetBattleArea();
 
 private:
+	UCameraManager* GetCameraManager();
+
+private:
 	UPROPERTY()
 	UBattleManager* m_BattleManager;
+	ABattleAreaManager* m_AreaManager;
 };

@@ -10,6 +10,8 @@
 #include "DamageWidget.h"
 #include "Skill/SkillUIWidget.h"
 #include "Item/ItemUIWidget.h"
+#include "Speed/SpeedUIWidget.h"
+#include "BattleText/BattleTextWidget.h"
 #include "../../Battle/BattleGaugeManager.h"
 #include "../../Battle/BattleManager.h"
 #include "../../Battle/PlayerPartyManager.h"
@@ -117,6 +119,17 @@ void UBattleUIManager::SetUIVisible(EBattleUIType type, bool flag)
 			selectionUI->SetVisible(flag);
 			selectionUI->SetButtonData();
 		}
+		break;
+	}
+
+	case EBattleUIType::SPEED:
+	{
+		m_BattleUIWidget->GetSpeedWidget()->SetVisible(flag);
+		break;
+	}
+	case EBattleUIType::TEXT:
+	{
+
 		break;
 	}
 		
