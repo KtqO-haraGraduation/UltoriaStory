@@ -51,8 +51,24 @@ public:
     // インベントリをクリア
     void ClearInventory();
 
+    // 所持金取得
+    int32 GetMoney() const { return Money; }
+
+    // 所持金を追加
+    void AddMoney(int32 Amount);
+
+    // 所持金を消費
+    bool RemoveMoney(int32 Amount);
+
+    // 所持金を設定
+    void SetMoney(int32 Amount);
 private:
 
+	// インベントリ
     UPROPERTY()
     TArray<FInventoryItem> Inventory;
+
+    // 所持金
+    UPROPERTY()
+    int32 Money;
 };

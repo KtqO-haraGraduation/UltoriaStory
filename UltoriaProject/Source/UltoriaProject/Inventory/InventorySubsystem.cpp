@@ -8,6 +8,10 @@ void UInventorySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 
 	Inventory.Empty();
+
+	Money = 1000;
+
+    
 }
 
 void UInventorySubsystem::AddItem(FName ItemID, int32 Count)
@@ -87,4 +91,40 @@ bool UInventorySubsystem::HasItem(FName ItemID, int32 Count) const
 void UInventorySubsystem::ClearInventory()
 {
     Inventory.Empty();
+}
+
+void UInventorySubsystem::AddMoney(int32 Amount)
+{
+    Money += Amount;
+
+    UE_LOG(LogTemp, Warning,
+        TEXT("AddMoney : +%d / Total : %d"),
+        Amount,
+        Money);
+}
+
+bool UInventorySubsystem::RemoveMoney(int32 Amount)
+{
+    if (Money < Amount)
+    {
+        return false;
+    }
+
+    Money -= Amount;
+
+    UE_LOG(LogTemp, Warning,
+        TEXT("RemoveMoney : -%d / Total : %d"),
+        Amount,
+        Money);
+
+    return true;
+}
+
+void UInventorySubsystem::SetMoney(int32 Amount)
+{
+    Money = Amount;
+
+    UE_LOG(LogTemp, Warning,
+        TEXT("SetMoney : %d"),
+        Money);
 }

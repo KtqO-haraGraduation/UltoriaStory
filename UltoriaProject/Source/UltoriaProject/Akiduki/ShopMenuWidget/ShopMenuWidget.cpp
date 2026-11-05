@@ -79,13 +79,11 @@ bool UShopMenuWidget::ConfirmSelection()
 	if (!ItemEntries.IsValidIndex(CurrentIndex)) return false;
 	FItemData Item = ItemEntries[CurrentIndex]->ItemData;
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (!PC) return false;
-	UShopManager* Shop = GetWorld()->GetSubsystem<UShopManager>();
-	if (!Shop) return false;
-
+	// インベントリサブシステムを取得
+	UInventorySubsystem* Inventory = GetWorld()->GetGameInstance()->GetSubsystem<UInventorySubsystem>();
 
 	 //所持金不足
-	if (Shop->GetMoney() < Item.Price)
+	if (Inventory->GetMoney() < Item.Price)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("okanenaiyo"));
 		return false;
@@ -95,38 +93,26 @@ bool UShopMenuWidget::ConfirmSelection()
 	BuyConfirmWidget = CreateWidget<UBuyConfirmWidget>(GetWorld(), BuyConfirmClass);
 	if (!BuyConfirmWidget)return false;
 	BuyConfirmWidget->AddToViewport();
-	BuyConfirmWidget->SetupItem(Item, Shop->GetMoney());
+	BuyConfirmWidget->SetupItem(Item, Inventory->GetMoney());
 
 	return true;
 }
 
 void UShopMenuWidget::BuyCurrentItem()
 {
-	if (!BuyConfirmWidget)
-	{
-		return;
-	}
-
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();		
-	if (!PC) return;
-
-	UShopManager* Shop = GetWorld()->GetSubsystem<UShopManager>();
-	if (!Shop) return;
-
 	UInventorySubsystem* Inventory = GetGameInstance()->GetSubsystem<UInventorySubsystem>();
-	if (!Inventory) return;
 
 	FItemData Item = BuyConfirmWidget->GetItemData();		
 	int32 Count = BuyConfirmWidget->GetBuyCount();		
 	int32 TotalPrice = Item.Price * Count;
 	
 	// アイテム購入処理
-	if (Shop->GetMoney() >= TotalPrice)
+	if (Inventory->GetMoney() >= TotalPrice)
 	{
 		// 所持金減算
-		int nowMoney = Shop->GetMoney();
+		int nowMoney = Inventory->GetMoney();
 		nowMoney -= TotalPrice;
-		Shop->SetMoney(nowMoney);
+		Inventory->SetMoney(nowMoney);
 
 		// インベントリに追加
 		Inventory->AddItem(Item.ID, Count);
@@ -134,7 +120,7 @@ void UShopMenuWidget::BuyCurrentItem()
 		UpdateMoney();// 所持金更新
 
 		UE_LOG(LogTemp,Warning,TEXT("%s x%d Buy nokorinoOkane:%d G"),
-			*Item.NameJP,Count, Shop->GetMoney());
+			*Item.NameJP,Count, Inventory->GetMoney());
 	}
 	else
 	{
@@ -147,17 +133,10 @@ void UShopMenuWidget::BuyCurrentItem()
 
 void UShopMenuWidget::UpdateMoney()
 {
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-		
-	if (!PC) return;
-
-	UShopManager* Shop = GetWorld()->GetSubsystem<UShopManager>();
-		
-	if (!Shop) return;
-
+	UInventorySubsystem* Inventory = GetGameInstance()->GetSubsystem<UInventorySubsystem>();
 	if (MoneyText)
 	{
-		MoneyText->SetText(FText::FromString(FString::Printf(TEXT("%d G"), Shop->GetMoney())));	
+		MoneyText->SetText(FText::FromString(FString::Printf(TEXT("%d G"), Inventory->GetMoney())));
 	}
 }
 
@@ -169,12 +148,8 @@ void UShopMenuWidget::SetupItems(const TArray<FItemData>& Items)
 
 	for (const FItemData& Item : Items)
 	{
-		UShopItemEntryWidget* Entry =
-			CreateWidget<UShopItemEntryWidget>(GetWorld(),ShopItemEntryClass);
-
-		if (!Entry)
-			continue;
-
+		UShopItemEntryWidget* Entry = CreateWidget<UShopItemEntryWidget>(GetWorld(),ShopItemEntryClass);
+			
 		Entry->SetItemData(Item);
 
 		ItemList->AddChild(Entry);

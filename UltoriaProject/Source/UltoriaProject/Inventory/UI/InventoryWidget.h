@@ -46,6 +46,9 @@ public:
 	// アイテムセットアップ
 	void SetupItems();
 
+	// 所持金更新
+	void UpdateMoney();
+
 public:
 
 	// ScrollBox
@@ -63,6 +66,10 @@ public:
 	// 選択中アイテムのアイコン
 	UPROPERTY(meta = (BindWidget))
 	UImage* ItemImage;
+
+	// プレイヤーの所持金
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MoneyText;
 
 	// アイテム行Widget
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (AllowPrivateAccess = "true"))

@@ -21,6 +21,9 @@ void UInventoryWidget::NativeConstruct()
 
 	// Inventoryのアイテム一覧を作成する
 	SetupItems();
+
+	// 所持金更新
+	UpdateMoney();
 }
 
 void UInventoryWidget::NavigateUp()
@@ -200,7 +203,17 @@ void UInventoryWidget::UpdateSelection()
 
 	// 選択されているEntryをScrollBox内に表示する
 	ItemList->ScrollWidgetIntoView(SelectedEntry,true,EDescendantScrollDestination::IntoView);
-	
+	// 所持金更新
+	UpdateMoney();
+}
+
+void UInventoryWidget::UpdateMoney()
+{
+	UInventorySubsystem* Inventory = GetGameInstance()->GetSubsystem<UInventorySubsystem>();
+	if (MoneyText)
+	{
+		MoneyText->SetText(FText::FromString(FString::Printf(TEXT("%d G"), Inventory->GetMoney())));
+	}
 }
 
 void UInventoryWidget::SetupItems()

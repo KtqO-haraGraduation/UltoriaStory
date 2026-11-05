@@ -24,5 +24,22 @@ public:
     // ショップデータ
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
     UDataTable* ShopDataTable;
+
+    // ストーリー進行度を取得
+    int32 GetStoryProgress() const
+    {
+        return m_StoryProgress;
+    }
+
+    // ストーリー進行度を設定
+    void SetStoryProgress(int32 Progress)
+    {
+        m_StoryProgress = FMath::Max(1, Progress);
+    }
+
+    
+private:
+    // ストーリー進行度
+    int32 m_StoryProgress = 2;
 	
 };

@@ -40,10 +40,6 @@ public:
 	// 十字キー入力関数呼び出し用関数ポインタ
 	typedef void (UShopManager::* DirectionalInputFunc)();
 
-	// 所持金取得関数
-	int GetMoney() { return m_Money; }
-	int SetMoney(int money) { return m_Money = money; }
-
 	// ショップのアイテムリストを構築する
 	void BuildShopItemList();
 	// 現在のショップのアイテムリストを取得する
@@ -62,13 +58,6 @@ private:
 	float m_UIOpenInputLockTime;
 	// スティック入力のクールタイム
 	float m_UIInputCooldown;
-
-	// 所持金
-	int m_Money;
-
-	// ストーリー進行度(仮)
-	int m_StoryProgress;
-
 	// ショップ使用中フラグ
 	bool m_IsOpenedShop;
 	// 購入確認フラグ

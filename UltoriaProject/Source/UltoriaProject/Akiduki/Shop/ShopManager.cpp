@@ -7,6 +7,7 @@
 #include "../ShopMenuWidget/BuyConfirmWidget.h"
 #include "../ShopData/ShopData.h"
 #include "../ItemData/ItemData.h"
+#include "../../Inventory/InventorySubsystem.h"
 #include "../../System/GameInstance/UltoriaGameInstance.h"
 #include "../../System/Controller/PlayPlayerController.h"
 
@@ -18,12 +19,8 @@ void UShopManager::Initialize(FSubsystemCollectionBase& Collection)
 	m_CurrentShop = nullptr;
 	m_IsOpenedShop = false;
 	m_IsBuyConfirmOpen = false;
-	m_Money = 900;
 	m_UIInputCooldown = 0.0f;
 	m_UIOpenInputLockTime = 0.0f;
-
-	// ストーリー進行度(仮)
-	m_StoryProgress = 1;
 
 	// 十字キー入力関数を追加
     m_InputDirectionalMap.Add(EUIInputType::UP, &UShopManager::ShopDirectionalUp);
@@ -263,6 +260,9 @@ void UShopManager::BuildShopItemList()
 	// ShopDataを全取得
 	TArray<FShopData*> ShopRows;
 	ShopDataTable->GetAllRows(Context, ShopRows);
+	// GameInstanceからストーリー進行度を取得
+	UUltoriaGameInstance* GI = GetWorld()->GetGameInstance<UUltoriaGameInstance>();
+		
 
 	for (FShopData* ShopRow : ShopRows)
 	{
@@ -277,7 +277,7 @@ void UShopManager::BuildShopItemList()
 			continue;
 		}
 		// ストーリー進行度が足りない
-		if (ShopRow->ShopLevel > m_StoryProgress)
+		if (ShopRow->ShopLevel > GI->GetStoryProgress())
 		{
 			continue;
 		}
