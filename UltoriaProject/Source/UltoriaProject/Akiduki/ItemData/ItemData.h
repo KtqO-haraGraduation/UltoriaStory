@@ -46,6 +46,12 @@ enum class EItemEffectType : uint8
     HealHP,
     // MP‚ğ‰ñ•œ‚·‚é
     HealMP,
+
+    // HP‚ÌŠ„‡‰ñ•œ
+	HealHPPercent,
+	// MP‚ÌŠ„‡‰ñ•œ
+	HealMPPercent,
+
     // “Åó‘Ô‚ğ‰ğœ‚·‚é
     CurePoison
 };
