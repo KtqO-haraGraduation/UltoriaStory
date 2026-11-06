@@ -7,6 +7,7 @@
 #include "MapManager.generated.h"
 
 class UMapWidgetTable;
+class UMiniMapWidget;
 
 /**
  * 
@@ -27,7 +28,17 @@ protected:
 	void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& Params);
 
 	void DebugInit(UWorld* world);
+public:
+
+	void SetMapVisible(bool isVisible);
 private:
 	UPROPERTY()
 	TObjectPtr<UMapWidgetTable> m_MWT = nullptr;
+
+	UPROPERTY()
+	// ミニマップ
+	UMiniMapWidget* m_MiniMap;
+
+	// マップ表示フラグ
+	bool m_IsMapVisible;
 };
