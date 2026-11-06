@@ -13,6 +13,8 @@ void UMapManager::Initialize(FSubsystemCollectionBase& Collection)
 
     m_MWT = LoadObject<UMapWidgetTable>(nullptr, TEXT("/Game/MembarFiles/Sakumoto/DataAsset/DA_MapWidgetTable.DA_MapWidgetTable"));
 
+    m_IsMapVisible = true;
+
     //レベルのロードが完了したらOnPostLoadMapWithWorld関数を呼ぶ
     //FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMapManager::OnPostLoadMapWithWorld);
 
@@ -86,10 +88,37 @@ void UMapManager::DebugInit(UWorld* world)
         mapWidget->AddToViewport();*/
     }
 
-    if (miniWidgetClass)
+    if (miniWidgetClass && *miniWidgetClass)
     {
-        UMiniMapWidget* miniMapWidget = CreateWidget<UMiniMapWidget>(world, *miniWidgetClass);
-        miniMapWidget->InitMap(m_MWT->m_MapTexDiameterLength[mapId], m_MWT->m_MarginHalfLength[mapId]);
-        miniMapWidget->AddToViewport();
+        // 古いものは消す
+        if (m_MiniMap)
+        {
+            m_MiniMap->RemoveFromParent();
+            m_MiniMap = nullptr;
+        }
+       
+        m_MiniMap = CreateWidget<UMiniMapWidget>(world, *miniWidgetClass);
+        if (m_MiniMap)
+        {
+            m_MiniMap->InitMap(m_MWT->m_MapTexDiameterLength[mapId], m_MWT->m_MarginHalfLength[mapId]);
+            m_MiniMap->AddToViewport();
+
+            // 作り直されても、保存した表示状態を反映
+            SetMapVisible(m_IsMapVisible);
+        }
+    }
+}
+
+void UMapManager::SetMapVisible(bool isVisible)
+{
+    // マップの表示フラグを適用
+    m_IsMapVisible = isVisible;
+
+    // マップウィジェットの表示/非表示
+    if (m_MiniMap)
+    {
+        m_MiniMap->SetVisibility(
+            isVisible ? ESlateVisibility::SelfHitTestInvisible
+                      : ESlateVisibility::Collapsed);
     }
 }

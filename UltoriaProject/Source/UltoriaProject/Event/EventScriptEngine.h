@@ -72,6 +72,9 @@ private:
 	// バトル終了時関数
 	void OnBattleFinished();
 
+	// イベント時プレイヤー非表示関数
+    void ShowPlayerPawn();
+
 	// 全コマンドの呼び出し用関数ポインタ
 	typedef void (UEventScriptEngine::* CommandFunc)(FEventScriptRow*);
 
@@ -140,4 +143,7 @@ private:
 	bool m_BattleEndsScript;
 	// バトル終了待機フラグ
 	bool m_WaitingBattleEnd;
+
+// プレイヤー
+	TWeakObjectPtr<APawn> m_HiddenPawn;
 };

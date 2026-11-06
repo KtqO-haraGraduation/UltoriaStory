@@ -12,6 +12,7 @@
 #include "../Character/Enemy/EnemyBase.h"
 #include "../Battle/Encounter/EncounterManager.h"
 #include "../Character/Data/CharacterDataManager.h"
+#include "../UI/Map/MapManager.h"
 
 // Sets default values for this component's properties
 UEventScriptEngine::UEventScriptEngine()
@@ -59,6 +60,12 @@ void UEventScriptEngine::StartScript(UDataTable* ScriptTable)
 
 	// 全コマンドを取得
 	m_ScriptTable->GetAllRows<FEventScriptRow>(TEXT(""), m_Rows);
+
+	// ミニマップを非表示
+	if (UMapManager* map = GetWorld()->GetGameInstance()->GetSubsystem<UMapManager>())
+	{
+		map->SetMapVisible(false);
+	}
 
 	// 行にデータが無ければ終了
 	if (m_Rows.IsEmpty())return;
@@ -118,6 +125,11 @@ void UEventScriptEngine::FinishedScript()
 {
 	UE_LOG(LogTemp, Log, TEXT("スクリプト終了"));
 
+	if (UMapManager* map = GetWorld()->GetGameInstance()->GetSubsystem<UMapManager>())
+	{
+		map->SetMapVisible(true);
+	}
+
 	// widgetがあれば消す
 	if (m_DialogueWidgetInstance)
 	{
@@ -162,7 +174,11 @@ void UEventScriptEngine::FinishedScript()
 
 void UEventScriptEngine::FinishedSequence()
 {
+	// シーケンサー再生中フラグをオフ
 	m_IsSepuencePlaying = false;
+
+	// プレイヤーを表示
+	ShowPlayerPawn();
 
 	// 字幕キューの分だけインデックスを進める
 	if (m_SubtitleQueue.Num() > 0)
@@ -186,6 +202,16 @@ void UEventScriptEngine::OnBattleFinished()
 	if (!m_WaitingBattleEnd)return;
 	m_WaitingBattleEnd = false;
 	NextCommand();
+}
+
+void UEventScriptEngine::ShowPlayerPawn()
+{
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC && PC->GetPawn())
+	{
+		PC->GetPawn()->SetActorHiddenInGame(false);
+	}
+	m_HiddenPawn = nullptr;
 }
 
 void UEventScriptEngine::Command_Talk(FEventScriptRow* Row)
@@ -388,6 +414,14 @@ void UEventScriptEngine::Command_Sequence(FEventScriptRow* Row)
 	m_SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(
 		GetWorld(), sequence, settings, m_SequenceActor
 	);
+
+	// 再生前にプレイヤーのモデルを非表示
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC && PC->GetPawn())
+	{
+		m_HiddenPawn = PC->GetPawn();
+		m_HiddenPawn->SetActorHiddenInGame(true);
+	}
 
 	if (m_SequencePlayer)
 	{
