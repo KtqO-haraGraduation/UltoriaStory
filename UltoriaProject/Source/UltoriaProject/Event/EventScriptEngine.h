@@ -50,11 +50,6 @@ private:
 	// コマンド実行関数
 	void ExcCommand(FEventScriptRow* Row);
 
-	// コマンド登録関数
-	void RegisterCommands();
-	// 状態初期化関数
-	void ResetState();
-
 	// 各コマンド処理
 	void Command_Talk(FEventScriptRow* Row);
 	void Command_AutoTalk(FEventScriptRow* Row);
@@ -145,10 +140,9 @@ private:
 	// 会話自動再生フラグ
 	bool m_CanAutoTalk;
 	// バトル終了フラグ
-	bool m_IsBattleEndsScript;
+	bool m_BattleEndsScript;
 	// バトル終了待機フラグ
-	bool m_IsWaitingBattleEnd;
-	// 
+	bool m_WaitingBattleEnd;
 
 // プレイヤー
 	TWeakObjectPtr<APawn> m_HiddenPawn;
