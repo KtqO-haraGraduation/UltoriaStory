@@ -29,6 +29,12 @@ UEventScriptEngine::UEventScriptEngine()
 void UEventScriptEngine::BeginPlay()
 {
 	Super::BeginPlay();
+	RegisterCommands();
+}
+
+void UEventScriptEngine::RegisterCommands()
+{
+	if (!m_CommandMap.IsEmpty()) return;
 
 	// 全コマンド関数の追加
 	m_CommandMap.Add(TEXT("Talk"), &UEventScriptEngine::Command_Talk);
@@ -44,31 +50,47 @@ void UEventScriptEngine::BeginPlay()
 	m_CommandMap.Add(TEXT("BattleStart"), &UEventScriptEngine::Command_BattleStart);
 }
 
+void UEventScriptEngine::ResetState()
+{
+	m_CurrentIndex = 0;
+	m_IsSepuencePlaying = false;
+	m_IsWaitingBattleEnd = false;
+	m_SubtitleQueue.Empty();
+	m_SubtitleQueueIndex = 0;
+	m_Rows.Empty();
+}
+
 
 void UEventScriptEngine::StartScript(UDataTable* ScriptTable)
 {
 	// スクリプトデータが無ければ終了
 	if (!ScriptTable)return;
+	// 再生中の二重起動を防ぐ
+	if (m_IsEventPlaying) return;
 
-	// イベントシーン再生中フラグ
-	m_IsEventPlaying = true;
+	// コマンドを追加
+	RegisterCommands();
 
 	// スクリプトを初期化
 	m_ScriptTable = ScriptTable;
 	m_CurrentIndex = 0;
 	m_Rows.Empty();
 
+	ResetState();
+
 	// 全コマンドを取得
 	m_ScriptTable->GetAllRows<FEventScriptRow>(TEXT(""), m_Rows);
+	// 行にデータが無ければ終了
+	if (m_Rows.IsEmpty())return;
+
+	// イベントシーン再生中フラグ
+	m_IsEventPlaying = true;
 
 	// ミニマップを非表示
 	if (UMapManager* map = GetWorld()->GetGameInstance()->GetSubsystem<UMapManager>())
 	{
-		map->SetMapVisible(false);
+		map->SetMiniMapVisible(false);
 	}
-
-	// 行にデータが無ければ終了
-	if (m_Rows.IsEmpty())return;
 
 	// 最初のコマンドを実行
 	ExcCommand(m_Rows[m_CurrentIndex]);
@@ -123,11 +145,14 @@ void UEventScriptEngine::ExcCommand(FEventScriptRow* Row)
 
 void UEventScriptEngine::FinishedScript()
 {
+	// イベントシーン再生中フラグ
+	m_IsEventPlaying = false;
+
 	UE_LOG(LogTemp, Log, TEXT("スクリプト終了"));
 
 	if (UMapManager* map = GetWorld()->GetGameInstance()->GetSubsystem<UMapManager>())
 	{
-		map->SetMapVisible(true);
+	    map->SetMiniMapVisible(true);
 	}
 
 	// widgetがあれば消す
@@ -167,9 +192,6 @@ void UEventScriptEngine::FinishedScript()
 		PC->PlayerCameraManager->StartCameraFade(1.0f, 0.0f, 0.5f, FLinearColor::Black, false, false);
 
 	}, 0.5f, false);
-
-	// イベントシーン再生中フラグ
-	m_IsEventPlaying = false;
 }
 
 void UEventScriptEngine::FinishedSequence()
@@ -199,8 +221,8 @@ void UEventScriptEngine::FinishedSequence()
 
 void UEventScriptEngine::OnBattleFinished()
 {
-	if (!m_WaitingBattleEnd)return;
-	m_WaitingBattleEnd = false;
+	if (!m_IsWaitingBattleEnd)return;
+	m_IsWaitingBattleEnd = false;
 	NextCommand();
 }
 
@@ -266,7 +288,7 @@ void UEventScriptEngine::AdvanceSubtitle()
 		return;
 	}
 
-	if (!m_SubtitleWidgetInstance && m_DialogueWidgetClass)
+	if (!m_SubtitleWidgetInstance && m_SubtitleWidgetClass)
 	{
 		m_SubtitleWidgetInstance = CreateWidget<USubtitleWidget>(
 			GetWorld()->GetFirstPlayerController(),
@@ -331,31 +353,55 @@ void UEventScriptEngine::Command_BGM(FEventScriptRow* Row)
 
 void UEventScriptEngine::Command_Fade(FEventScriptRow* Row)
 {
-	float fadeTime = Row->Param2.IsEmpty() ? 1.0f : FCString::Atof(*Row->Param2);
+	// フェード時間
+	float fadeTime = 1.0f;
+	// 処理を待つか
+	bool isNoWait = false;
+
+	// パラメータがあれば
+	if (!Row->Param2.IsEmpty())
+	{
+
+		TArray<FString> parts;
+		Row->Param2.ParseIntoArray(parts, TEXT(","));
+
+		if (parts.IsValidIndex(0))
+		{
+			fadeTime = FCString::Atof(*parts[0].TrimStartAndEnd());
+		}
+		if (parts.IsValidIndex(1))
+		{
+			isNoWait = parts[1].TrimStartAndEnd().Equals(TEXT("NoWait"), ESearchCase::IgnoreCase);
+		}
+	}
 
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (!PC)return;
-
-	APlayerCameraManager* cameraManager = PC->PlayerCameraManager;
-	if (!cameraManager)return;
+	APlayerCameraManager* cameraManager = PC ? PC->PlayerCameraManager : nullptr;
+	if (!cameraManager)
+	{
+		NextCommand();
+		return;
+	}
 
 	if (Row->Param1 == TEXT("Out"))
 	{
-		// フェードアウト
 		cameraManager->StartCameraFade(0.0f, 1.0f, fadeTime, FLinearColor::Black, false, true);
 	}
-	else if(Row->Param1 == TEXT("In"))
+	else if (Row->Param1 == TEXT("In"))
 	{
-		// フェードイン
 		cameraManager->StartCameraFade(1.0f, 0.0f, fadeTime, FLinearColor::Black, false, true);
 	}
 
-	// フェード時間後に次のコマンドへ
-	FTimerHandle timerHandle;
-	GetWorld()->GetTimerManager().SetTimer(timerHandle, this,
-		&UEventScriptEngine::NextCommand, fadeTime, false);
+	UE_LOG(LogTemp, Log, TEXT("[Fade] %s time=%.2f noWait=%d"), *Row->Param1, fadeTime, isNoWait);
 
-	UE_LOG(LogTemp, Log, TEXT("[Fade] %s %s"), *Row->Param1, *Row->Param2);
+	if (isNoWait)
+	{
+		NextCommand();
+		return;
+	}
+
+	FTimerHandle timerHandle;
+	GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &UEventScriptEngine::NextCommand, fadeTime, false);
 }
 
 void UEventScriptEngine::Command_Wait(FEventScriptRow* Row)
@@ -528,9 +574,9 @@ void UEventScriptEngine::Command_BattleStart(FEventScriptRow* Row)
 		encounterManager->StartEncounter(enemy,false);
 	}
 
-	m_BattleEndsScript = Row->Param2 != TEXT("Continue");
+	m_IsBattleEndsScript = Row->Param2 != TEXT("Continue");
 
-	if (m_BattleEndsScript)
+	if (m_IsBattleEndsScript)
 	{
 		// バトルで終わる場合は、開始と同時にスクリプトを閉じる
 		FinishedScript();
@@ -538,7 +584,7 @@ void UEventScriptEngine::Command_BattleStart(FEventScriptRow* Row)
 	else
 	{
 		// 続く場合は、バトル終了を待って再開
-		m_WaitingBattleEnd = true;
+		m_IsWaitingBattleEnd = true;
 	}
 }
 

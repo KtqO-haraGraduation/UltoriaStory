@@ -20,11 +20,20 @@ void UMiniMapWidget::NativeConstruct()
     }
     // 
     m_MID = RetainerBox->GetEffectMaterial();
+
+    UE_LOG(LogTemp, Warning, TEXT("[MiniMapWidget] NaitiveConstruct"));
 }
 
 void UMiniMapWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
+
+    static bool once = false;
+    if (!once)
+    {
+        once = true;
+        UE_LOG(LogTemp, Warning, TEXT("[MiniMap] NativeTick"));
+    }
 
     UpdateMapPlayer();
 }

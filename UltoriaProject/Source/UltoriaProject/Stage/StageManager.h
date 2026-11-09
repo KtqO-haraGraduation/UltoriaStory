@@ -37,6 +37,10 @@ public:
 	FStageLvData GetNowStageLvData();      // 現在開いているLvのデータを取得
 	FStageLvData GetStageLvData(FName id); // 指定したIDのLvのデータを取得
 
+	UFUNCTION()
+	void OnFieldLevelShown();
+
+
 	ULevelStreaming* GetFieldLv() const { return m_CurrentFieldLv; }
 	ULevelStreaming* GetBattleLv() const { return m_CurrentBattleLv; }
 

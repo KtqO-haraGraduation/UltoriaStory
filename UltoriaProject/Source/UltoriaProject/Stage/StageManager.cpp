@@ -4,6 +4,7 @@
 #include "Data/StageDataAsset.h"
 #include "Data/StageLvData.h"
 #include "Engine/LevelStreamingDynamic.h"
+#include "../UI/Map/MapManager.h"
 
 void UStageManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -77,6 +78,12 @@ void UStageManager::ChangeStage(EStageType type, FName id)
 	m_CurrentFieldLv = LoadLevel(data->FieldLv);
 	m_CurrentBattleLv = LoadLevel(data->BattleLv);
 
+	// フィールドLvの表示完了後にミニマップを作る
+	if (m_CurrentFieldLv)
+	{
+		m_CurrentFieldLv->OnLevelShown.AddDynamic(this, &UStageManager::OnFieldLevelShown);
+	}
+
 	// バトルLvは非表示
 	m_CurrentBattleLv->SetShouldBeVisible(false);
 }
@@ -115,6 +122,22 @@ FStageLvData UStageManager::GetStageLvData(FName id)
 		return *data;
 	}
 	return FStageLvData();
+}
+
+void UStageManager::OnFieldLevelShown()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[Stage] OnFieldLevelShown"));
+
+	UWorld* world = GetWorld();
+	if (!world)return;
+
+	if (UGameInstance* gameInstance = world->GetGameInstance())
+	{
+		if (UMapManager* map = gameInstance->GetSubsystem<UMapManager>())
+		{
+			map->CreateMiniMap(world);
+		}
+	}
 }
 
 bool UStageManager::IsStageDataAssetLoaded()

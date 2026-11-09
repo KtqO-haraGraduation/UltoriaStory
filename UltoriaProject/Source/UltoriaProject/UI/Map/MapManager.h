@@ -8,6 +8,7 @@
 
 class UMapWidgetTable;
 class UMiniMapWidget;
+class UMapWidget;
 
 /**
  * 
@@ -23,17 +24,24 @@ protected:
 
 	virtual void Deinitialize() {};
 
-	void OnPostLoadMapWithWorld(UWorld* world);
-
-	void OnWorldInitializedActors(const UWorld::FActorsInitializedParams& Params);
-
-	void DebugInit(UWorld* world);
+	
 public:
+	// マップ作成関数
+	void CreateMap(UWorld*);
+	// ミニマップ作成関数
+	void CreateMiniMap(UWorld*);
 
+	// マップ表示/非表示関数
 	void SetMapVisible(bool isVisible);
+	// ミニマップ表示/非表示関数
+	void SetMiniMapVisible(bool isVisible);
 private:
 	UPROPERTY()
 	TObjectPtr<UMapWidgetTable> m_MWT = nullptr;
+
+	// マップ
+	UPROPERTY()
+	UMapWidget* m_Map;
 
 	UPROPERTY()
 	// ミニマップ
@@ -41,4 +49,7 @@ private:
 
 	// マップ表示フラグ
 	bool m_IsMapVisible;
+
+	// ミニマップ表示フラグ
+	bool m_IsMiniMapVisible;
 };
