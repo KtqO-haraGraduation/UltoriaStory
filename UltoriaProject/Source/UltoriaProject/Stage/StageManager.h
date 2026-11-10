@@ -37,6 +37,14 @@ public:
 	FStageLvData GetNowStageLvData();      // 現在開いているLvのデータを取得
 	FStageLvData GetStageLvData(FName id); // 指定したIDのLvのデータを取得
 
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+
+	void SetScreenBlack();
+
+	UFUNCTION()
+	void OnFieldLevelShown();
+
+
 	ULevelStreaming* GetFieldLv() const { return m_CurrentFieldLv; }
 	ULevelStreaming* GetBattleLv() const { return m_CurrentBattleLv; }
 
@@ -52,6 +60,9 @@ private:
 	bool IsStageDataAssetLoaded();
 	ULevelStreamingDynamic* LoadLevel(TSoftObjectPtr<UWorld> level);
 
+	// イベントスタート関数
+	void StartEnterEvent();
+
 private:
 	EStageType m_StageType = EStageType::FOREST;  // 現在のステージタイプ
 	FName m_StageName = "Test";					  // 現在のステージの名前（ID）
@@ -65,4 +76,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<UStageDataAsset> m_StageDataAsset; // ステージのデータアセット
 	TMap<FName, FStageLvData> m_StageLvDatas;	  // 各ステージのFieldとBattleLvのデータ
+
+	// イベント待機フラグ
+	bool m_IsEnterEventPending = false;
 };

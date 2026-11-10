@@ -4,6 +4,9 @@
 #include "Data/StageDataAsset.h"
 #include "Data/StageLvData.h"
 #include "Engine/LevelStreamingDynamic.h"
+#include "Kismet/GameplayStatics.h"
+#include "../Event/EventScriptEngine.h"
+#include "../UI/Map/MapManager.h"
 
 void UStageManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -55,8 +58,12 @@ void UStageManager::ChangeStage(EStageType type, FName id)
 	const FStageLvData* data = m_StageLvDatas.Find(id);
 	if (!data) return;
 
+	SetScreenBlack();
+
 	m_StageType = type;
 	m_StageName = id;
+
+	m_IsEnterEventPending = true;
 
 	// 現在のLvをUnload
 	if (m_CurrentFieldLv)
@@ -76,6 +83,12 @@ void UStageManager::ChangeStage(EStageType type, FName id)
 	// 新しいLvを作成
 	m_CurrentFieldLv = LoadLevel(data->FieldLv);
 	m_CurrentBattleLv = LoadLevel(data->BattleLv);
+
+	// フィールドLvの表示完了後にミニマップを作る
+	if (m_CurrentFieldLv)
+	{
+		m_CurrentFieldLv->OnLevelShown.AddDynamic(this, &UStageManager::OnFieldLevelShown);
+	}
 
 	// バトルLvは非表示
 	m_CurrentBattleLv->SetShouldBeVisible(false);
@@ -117,6 +130,52 @@ FStageLvData UStageManager::GetStageLvData(FName id)
 	return FStageLvData();
 }
 
+bool UStageManager::ShouldCreateSubsystem(UObject* Outer) const
+{
+	if(!Super::ShouldCreateSubsystem(Outer)) return false;
+
+	UWorld* world = Cast<UWorld>(Outer);
+	return world && world->IsGameWorld();
+}
+
+void UStageManager::SetScreenBlack()
+{
+	UWorld* world = GetWorld();
+	if (!world)return;
+
+	APlayerController* pc = world->GetFirstPlayerController();
+	if (!pc || !pc->PlayerCameraManager) return;
+
+	// 時間0で即座に黒、そのまま保持
+	pc->PlayerCameraManager->StartCameraFade(1.0f, 1.0f, 0.0f, FLinearColor::Black, false, true);
+}
+
+void UStageManager::OnFieldLevelShown()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[Stage] OnFieldLevelShown"));
+
+	UWorld* world = GetWorld();
+	if (!world)return;
+
+	if (UGameInstance* gameInstance = world->GetGameInstance())
+	{
+		if (UMapManager* map = gameInstance->GetSubsystem<UMapManager>())
+		{
+			map->CreateMiniMap(world);
+		}
+	}
+
+	if (m_IsEnterEventPending)
+	{
+		m_IsEnterEventPending = false;
+
+		//SetScreenBlack();
+		// Pawnのスポーンを待つため、次のティックで開始
+		world->GetTimerManager().SetTimerForNextTick(
+			FTimerDelegate::CreateUObject(this, &UStageManager::StartEnterEvent));
+	}
+}
+
 bool UStageManager::IsStageDataAssetLoaded()
 {
 	if (!m_StageDataAsset) return false;
@@ -145,5 +204,27 @@ ULevelStreamingDynamic* UStageManager::LoadLevel(TSoftObjectPtr<UWorld> level)
 	streamingLevel->SetShouldBeVisible(true);
 
 	return streamingLevel;
+}
+
+void UStageManager::StartEnterEvent()
+{
+	// ステージ開始時イベントのデータを取得
+	UDataTable* table = GetNowStageLvData().EnterEventTable.LoadSynchronous();
+	if (!table)return;
+
+	// イベントを走らせるアクターを取得
+	TArray<AActor*> runners;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("StageEventRunner"), runners);
+
+	if (runners.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Stage] StageEventRunner not found"));
+		return;
+	}
+
+	if (UEventScriptEngine* engine = runners[0]->FindComponentByClass<UEventScriptEngine>())
+	{
+		engine->StartScript(table);
+	}
 }
 

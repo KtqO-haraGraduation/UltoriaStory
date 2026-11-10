@@ -11,84 +11,80 @@ void UMapManager::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
+    // 対応するマップウィジェットの情報が入ったテーブルを取得
     m_MWT = LoadObject<UMapWidgetTable>(nullptr, TEXT("/Game/MembarFiles/Sakumoto/DataAsset/DA_MapWidgetTable.DA_MapWidgetTable"));
-
-    m_IsMapVisible = true;
-
-    //レベルのロードが完了したらOnPostLoadMapWithWorld関数を呼ぶ
-    //FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMapManager::OnPostLoadMapWithWorld);
-
-    FWorldDelegates::OnWorldInitializedActors.AddUObject(this, &UMapManager::OnWorldInitializedActors);
+    // 
+    m_IsMiniMapVisible = true;
 }
 
-void UMapManager::OnPostLoadMapWithWorld(UWorld* world)
+void UMapManager::CreateMap(UWorld* world)
 {
-    UE_LOG(LogTemp, Warning, TEXT("Map Loaded"));
+    if (!m_MWT)return;
 
-    // レベルの中に存在する AMapBoundsActor を全部探して actors に入れる
+    // マップIDの情報を持ったアクターを探して取得
     TArray<AActor*> actors;
     UGameplayStatics::GetAllActorsOfClass(world, AMapBoundsActor::StaticClass(), actors);
 
-    EMapID mapId;
+    // マップID
+    EMapID mapID;
 
+    // マップIDを取得
     for (auto actor : actors)
     {
-        AMapBoundsActor* mapBoundsActor = Cast<AMapBoundsActor>(actor);
-        mapId = mapBoundsActor->GetMapID();
+        AMapBoundsActor* mapBoundActor = Cast<AMapBoundsActor>(actor);
+        mapID = mapBoundActor->GetMapID();
     }
 
-    TSubclassOf<UMapWidget>* widgetClass = m_MWT->m_MW.Find(mapId);
-    if (widgetClass)
-    {
-        UMapWidget* mapWidget = CreateWidget<UMapWidget>(world, *widgetClass);
-        mapWidget->InitMap(m_MWT->m_MapTexDiameterLength[mapId], m_MWT->m_MarginHalfLength[mapId]);
-        mapWidget->AddToViewport();
+    // マップクラスを取得
+    TSubclassOf<UMapWidget>* mapWidgetClass = m_MWT->m_MW.Find(mapID);
 
-        UE_LOG(LogTemp, Warning, TEXT("Map Created"));
+    if (mapWidgetClass && *mapWidgetClass)
+    {
+        // 古いものは消す
+        if (m_Map)
+        {
+            m_Map->RemoveFromParent();
+            m_Map = nullptr;
+        }
+
+        // マップを作成
+        m_Map = CreateWidget<UMapWidget>(world, *mapWidgetClass);
+        // マップが作成されていれば
+        if (m_Map)
+        {
+            // マップの初期設定をしてViewPointに追加
+            m_Map->InitMap(m_MWT->m_MapTexDiameterLength[mapID], m_MWT->m_MarginHalfLength[mapID]);
+            m_Map->AddToViewport();
+
+            // 作り直されても、保存した表示状態を反映
+            SetMapVisible(m_IsMapVisible);
+        }
+
     }
 }
 
-void UMapManager::OnWorldInitializedActors(const UWorld::FActorsInitializedParams& Params)
+void UMapManager::CreateMiniMap(UWorld* world)
 {
-    UWorld* world = Params.World;
+    if (!m_MWT)return;
 
-    if (!world)
-    {
-        return;
-    }
-
-    DebugInit(world);
-}
-
-void UMapManager::DebugInit(UWorld* world)
-{
-    UE_LOG(LogTemp, Warning, TEXT("Map Loaded"));
-
-    //if (!m_MWT) return;
-
-    // レベルの中に存在する AMapBoundsActor を全部探して actors に入れる
+    // マップIDの情報を持ったアクターを探して取得
     TArray<AActor*> actors;
     UGameplayStatics::GetAllActorsOfClass(world, AMapBoundsActor::StaticClass(), actors);
 
-    EMapID mapId;
+    // マップID
+    EMapID mapID;
 
+    // マップIDを取得
     for (auto actor : actors)
     {
         AMapBoundsActor* mapBoundsActor = Cast<AMapBoundsActor>(actor);
-        mapId = mapBoundsActor->GetMapID();
+        mapID = mapBoundsActor->GetMapID();
     }
 
-    TSubclassOf<UMapWidget>* widgetClass = m_MWT->m_MW.Find(mapId);
-    TSubclassOf<UMiniMapWidget>* miniWidgetClass = m_MWT->m_MMW.Find(mapId);
+    // ミニマップクラスを取得
+    TSubclassOf<UMiniMapWidget>* miniMapWidgetClass = m_MWT->m_MMW.Find(mapID);
 
-    if (widgetClass)
-    {
-        /*UMapWidget* mapWidget = CreateWidget<UMapWidget>(world, *widgetClass);
-        mapWidget->InitMap(m_MWT->m_MapTexDiameterLength[mapId], m_MWT->m_MarginHalfLength[mapId]);
-        mapWidget->AddToViewport();*/
-    }
-
-    if (miniWidgetClass && *miniWidgetClass)
+    if (miniMapWidgetClass && *miniMapWidgetClass)
     {
         // 古いものは消す
         if (m_MiniMap)
@@ -96,17 +92,22 @@ void UMapManager::DebugInit(UWorld* world)
             m_MiniMap->RemoveFromParent();
             m_MiniMap = nullptr;
         }
-       
-        m_MiniMap = CreateWidget<UMiniMapWidget>(world, *miniWidgetClass);
+
+        // ミニマップを作成
+        m_MiniMap = CreateWidget<UMiniMapWidget>(world, *miniMapWidgetClass);
+        // ミニマップが作成されていれば
         if (m_MiniMap)
         {
-            m_MiniMap->InitMap(m_MWT->m_MapTexDiameterLength[mapId], m_MWT->m_MarginHalfLength[mapId]);
+            // マップの初期設定をしてViewPointに追加
+            m_MiniMap->InitMap(m_MWT->m_MapTexDiameterLength[mapID], m_MWT->m_MarginHalfLength[mapID]);
             m_MiniMap->AddToViewport();
 
             // 作り直されても、保存した表示状態を反映
-            SetMapVisible(m_IsMapVisible);
+            //SetMiniMapVisible(m_IsMiniMapVisible);
         }
     }
+
+    UE_LOG(LogTemp, Warning, TEXT("[Map] MiniMap created inViewport=%d"), m_MiniMap->IsInViewport());
 }
 
 void UMapManager::SetMapVisible(bool isVisible)
@@ -115,6 +116,20 @@ void UMapManager::SetMapVisible(bool isVisible)
     m_IsMapVisible = isVisible;
 
     // マップウィジェットの表示/非表示
+    if (m_Map)
+    {
+        m_Map->SetVisibility(
+            isVisible ? ESlateVisibility::SelfHitTestInvisible
+                      : ESlateVisibility::Collapsed);
+    }
+}
+
+void UMapManager::SetMiniMapVisible(bool isVisible)
+{
+    // ミニマップの表示フラグを適用
+    m_IsMiniMapVisible = isVisible;
+
+    // ミニマップウィジェットの表示/非表示
     if (m_MiniMap)
     {
         m_MiniMap->SetVisibility(

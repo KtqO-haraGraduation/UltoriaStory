@@ -29,4 +29,7 @@ struct FStageLvData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UWorld> BattleLv;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSoftObjectPtr<UDataTable> EnterEventTable;
 };
