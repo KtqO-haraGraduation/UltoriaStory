@@ -31,6 +31,8 @@ private:
 	void SetNextLvText();
 	void UpdateLvBar();
 
+	bool IsUpdateBar();
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	UImage* CharacterImage;

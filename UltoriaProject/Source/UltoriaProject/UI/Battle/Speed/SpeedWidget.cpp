@@ -14,16 +14,17 @@ void USpeedWidget::SetCharacter(ACharacterBase* character)
 	if (!characterDataMg) return;
 
 	UTexture2D* texture = nullptr;
+	FName characterID = m_Character->GetID();
 
 	// CharacterBase‚ÉGetID‚ðì‚é
 	if (character->GetTeamType() == ETeamType::PLAYER)
 	{
-		FAllyMasterData allyData = characterDataMg->GetAllyMasterData("Ally001");
+		FAllyMasterData allyData = characterDataMg->GetAllyMasterData(characterID);
 		texture = allyData.Image;
 	}
 	else if (character->GetTeamType() == ETeamType::ENEMY)
 	{
-		FEnemyMasterData enemyData = characterDataMg->GetEnemyData("Slime");
+		FEnemyMasterData enemyData = characterDataMg->GetEnemyData(characterID);
 		texture = enemyData.Image;
 	}
 

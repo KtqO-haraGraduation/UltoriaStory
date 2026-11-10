@@ -165,12 +165,6 @@ void AEnemyBase::SetStatusUIVisibility(bool flag)
 	m_StatusUIWidget->SetVisibility(flag);
 }
 
-void AEnemyBase::SetSelectionUIVisibility(bool flag)
-{
-	if (!m_SelectionUIWidget) return;
-	m_SelectionUIWidget->SetVisibility(flag);
-}
-
 void AEnemyBase::SetBaseStatus()
 {
 	UCharacterDataManager* characterDataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();

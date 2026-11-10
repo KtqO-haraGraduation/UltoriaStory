@@ -11,6 +11,8 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHPChanged);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMPChanged);
 
+class UWidgetComponent;
+
 #define LEVEL_MAX 20
 
 // プレイヤータイプ
@@ -74,6 +76,7 @@ public:
 	// 最終ステータス
 	virtual FStatus GetTotalStatus() const { return FStatus(); }
 
+	FName GetID() const { return m_ID; }
 	FString GetCharacterName() const { return m_Name; }
 	int GetLevel() const { return m_Level; }
 	virtual int GetExp() const { return m_Exp; }
@@ -94,6 +97,8 @@ public:
 
 	virtual void SetHP(int newHP);
 	virtual void SetMP(int newMP);
+
+	void SetSelectionUIVisibility(bool flag); // 選択時のUIの表示 / 非表示
 
 	// コンポーネント取得
 	template<typename T>
@@ -156,6 +161,9 @@ protected:
 
 	// コンポーネントリスト
 	TArray<UComponentBase*> m_Components;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UWidgetComponent* m_SelectionUIWidget;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnHPChanged m_OnHPChanged;

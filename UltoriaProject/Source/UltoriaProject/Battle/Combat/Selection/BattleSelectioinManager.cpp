@@ -23,6 +23,8 @@ void UBattleSelectioinManager::Init(UBattleManager* battleMg)
 
 	// コマンドの選択データを入れる
 	SetCommandTarget();
+	// アイテムの選択データを入れる
+	SetItemTarget();
 
 	m_MoveFunc.Add(SelectionType::COMMAND, &UBattleSelectioinManager::MoveCommand);
 	m_MoveFunc.Add(SelectionType::TARGET, &UBattleSelectioinManager::MoveTarget);
@@ -41,20 +43,6 @@ void UBattleSelectioinManager::Init(UBattleManager* battleMg)
 	m_CancelFunc.Add(SelectionType::SKILL, &UBattleSelectioinManager::CancelSkill);
 	m_CancelFunc.Add(SelectionType::ITEM, &UBattleSelectioinManager::CancelItem);
 	m_CancelFunc.Add(SelectionType::RESULT, &UBattleSelectioinManager::CancelResult);
-
-
-	// インベントリにアイテム（仮）を追加
-	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
-	if (!gameInstance) return;
-
-	UInventorySubsystem* inventory = gameInstance->GetSubsystem<UInventorySubsystem>();
-	if (!inventory) return;
-
-	inventory->AddItem("Item1", 2);
-	inventory->AddItem("Item2", 1);
-	inventory->AddItem("Item3", 5);
-
-	SetItemTarget();
 }
 
 void UBattleSelectioinManager::SelectMoveTarget(EUIInputType type)
@@ -144,16 +132,16 @@ void UBattleSelectioinManager::OnTargetSelectionChanged(int oldIndex, int newInd
 		return;
 	}
 
-	AEnemyBase* oldEnemy = Cast<AEnemyBase>(targets[oldIndex]);
-	AEnemyBase* newEnemy = Cast<AEnemyBase>(targets[newIndex]);
+	ACharacterBase* oldCharacter = targets[oldIndex];
+	ACharacterBase* newCharacter = targets[newIndex];
 
-	if (oldEnemy)
+	if (oldCharacter)
 	{
-		oldEnemy->SetSelectionUIVisibility(false);
+		oldCharacter->SetSelectionUIVisibility(false);
 	}
-	if (newEnemy)
+	if (newCharacter)
 	{
-		newEnemy->SetSelectionUIVisibility(true);
+		newCharacter->SetSelectionUIVisibility(true);
 	}
 }
 
@@ -183,10 +171,7 @@ void UBattleSelectioinManager::OnItemSelectionChanged(int oldIndex, int newIndex
 
 TArray<ACharacterBase*> UBattleSelectioinManager::BeginTargetSelection(ETargetTeam team)
 {
-	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
-	if (!battleMg) return TArray<ACharacterBase*>();
-
-	return battleMg->GetActiveTargets(team);
+	return m_BattleManager->GetActiveTargets(team);
 }
 
 // --------- Move関数 --------- //
@@ -269,28 +254,25 @@ void UBattleSelectioinManager::ConfirmSkill()
 	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
 	if (!uiMg) return;
 
-	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
-	if (!battleMg) return;
-
-	USkillBaseComponent* skillComponent = battleMg->GetCurrentCharacter()->GetComponent<USkillBaseComponent>();
+	USkillBaseComponent* skillComponent = m_BattleManager->GetCurrentCharacter()->GetComponent<USkillBaseComponent>();
 	if (!skillComponent) return;
 
 	FSkillDataRow skillData = m_SkillSelection.GetCurrent();
 	TArray<ACharacterBase*> targets = BeginTargetSelection(skillData.TargetTeam);
 
-	skillComponent->UseSkill(m_SkillSelection.GetCurrentIndex(), targets);
+	//skillComponent->UseSkill(m_SkillSelection.GetCurrentIndex(), targets);
 
-	//if (skillData.TargetType == ETargetType::SINGLE)
-	//{
-	//	// 選択画面へ
-	//	battleMg->ShowTargetUI(targets);
-	//}
-	//else if(skillData.TargetType == ETargetType::ALL)
-	//{
-	//	battleMg->ShowTargetUI(targets);
+	if (skillData.TargetType == ETargetType::SINGLE)
+	{
+		// 選択画面へ
+		m_BattleManager->ShowTargetUI(targets);
+	}
+	else if(skillData.TargetType == ETargetType::ALL)
+	{
+		m_BattleManager->ShowTargetUI(targets);
 
-	//	skillComponent->UseSkill(m_SkillSelection.GetCurrentIndex(), targets);
-	//}
+		//skillComponent->UseSkill(m_SkillSelection.GetCurrentIndex(), targets);
+	}
 
 	uiMg->SetUIVisible(EBattleUIType::SKILL, false);
 	uiMg->SetUIVisible(EBattleUIType::TARGET, true);
@@ -306,6 +288,10 @@ void UBattleSelectioinManager::ConfirmItem()
 
 void UBattleSelectioinManager::ConfirmResult()
 {
+	// リゼルのと現在の進行度によって処理を分ける
+
+
+
 	m_BattleManager->FinishBattle();
 }
 
