@@ -75,6 +75,9 @@ private:
 	// イベント時プレイヤー非表示関数
     void ShowPlayerPawn();
 
+	// コマンド登録用関数
+	void RegisterCommands();
+
 	// 全コマンドの呼び出し用関数ポインタ
 	typedef void (UEventScriptEngine::* CommandFunc)(FEventScriptRow*);
 

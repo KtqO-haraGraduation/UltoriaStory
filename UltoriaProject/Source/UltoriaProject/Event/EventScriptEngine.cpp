@@ -21,14 +21,16 @@ UEventScriptEngine::UEventScriptEngine()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	m_CurrentIndex = 0;
+	m_IsEventPlaying = false;
 	m_IsSepuencePlaying = false;
-	//m_SequenceActor = nullptr;
-	//m_SequencePlayer = nullptr;
+	m_WaitingBattleEnd = false;
+	m_BattleEndsScript = false;
 }
 
-void UEventScriptEngine::BeginPlay()
+void UEventScriptEngine::RegisterCommands()
 {
-	Super::BeginPlay();
+	// すでに登録ずみなら何もしない
+	if (!m_CommandMap.IsEmpty())return;
 
 	// 全コマンド関数の追加
 	m_CommandMap.Add(TEXT("Talk"), &UEventScriptEngine::Command_Talk);
@@ -44,27 +46,46 @@ void UEventScriptEngine::BeginPlay()
 	m_CommandMap.Add(TEXT("BattleStart"), &UEventScriptEngine::Command_BattleStart);
 }
 
+void UEventScriptEngine::BeginPlay()
+{
+	Super::BeginPlay();
+	// コマンド追加関数
+	RegisterCommands();
+}
+
 
 void UEventScriptEngine::StartScript(UDataTable* ScriptTable)
 {
 	// スクリプトデータが無ければ終了
 	if (!ScriptTable)return;
+	if (m_IsEventPlaying)return;
 
-	// イベントシーン再生中フラグ
-	m_IsEventPlaying = true;
+	// コマンド追加
+	RegisterCommands();
 
-	// スクリプトを初期化
+	// 行の取得に成功してからフラグを立てる
+	TArray<FEventScriptRow*> rows;
+	ScriptTable->GetAllRows<FEventScriptRow>(TEXT(""), rows);
+	if (rows.IsEmpty())return;
+
+	// スクリプトテーブルとデータを設定
 	m_ScriptTable = ScriptTable;
-	m_CurrentIndex = 0;
-	m_Rows.Empty();
+	m_Rows = rows;
 
-	// 全コマンドを取得
-	m_ScriptTable->GetAllRows<FEventScriptRow>(TEXT(""), m_Rows);
+	// フラグをリセット
+	m_CurrentIndex = 0;
+	m_IsSepuencePlaying = false;
+	m_WaitingBattleEnd = false;
+	m_SubtitleQueue.Empty();
+	m_SubtitleQueueIndex = 0;
+
+	// イベントシーン再生中フラグオン
+	m_IsEventPlaying = true;
 
 	// ミニマップを非表示
 	if (UMapManager* map = GetWorld()->GetGameInstance()->GetSubsystem<UMapManager>())
 	{
-		map->SetMapVisible(false);
+		map->SetMiniMapVisible(false);
 	}
 
 	// 行にデータが無ければ終了
@@ -125,9 +146,13 @@ void UEventScriptEngine::FinishedScript()
 {
 	UE_LOG(LogTemp, Log, TEXT("スクリプト終了"));
 
+	// フラグを折る
+	m_IsEventPlaying = false;
+	m_IsSepuencePlaying = false;
+
 	if (UMapManager* map = GetWorld()->GetGameInstance()->GetSubsystem<UMapManager>())
 	{
-		map->SetMapVisible(true);
+		map->SetMiniMapVisible(true);
 	}
 
 	// widgetがあれば消す
@@ -167,9 +192,6 @@ void UEventScriptEngine::FinishedScript()
 		PC->PlayerCameraManager->StartCameraFade(1.0f, 0.0f, 0.5f, FLinearColor::Black, false, false);
 
 	}, 0.5f, false);
-
-	// イベントシーン再生中フラグ
-	m_IsEventPlaying = false;
 }
 
 void UEventScriptEngine::FinishedSequence()
@@ -477,12 +499,6 @@ void UEventScriptEngine::Command_Sequence(FEventScriptRow* Row)
 		}
 		m_SubtitleQueue.Add(*nextRow);
 		lookAheadIndex++;
-	}
-
-	// 字幕キューが1件以上あれば、最初の1件を即表示
-	if (m_SubtitleQueue.Num() > 0)
-	{
-		AdvanceSubtitle();
 	}
 }
 
