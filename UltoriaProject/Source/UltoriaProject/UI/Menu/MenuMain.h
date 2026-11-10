@@ -26,6 +26,8 @@ public:
 	virtual void NavigateDown() override;
 	// 選択決定処理
 	virtual void Confirm() override;
+	// キャンセル処理
+	virtual void Cancel() override;
 
 private:
 	// 選択更新関数

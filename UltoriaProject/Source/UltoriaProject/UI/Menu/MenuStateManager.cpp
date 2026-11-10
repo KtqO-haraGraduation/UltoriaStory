@@ -37,6 +37,12 @@ void UMenuStateManager::OpenMenu(EMenuState State)
 {
 	if (m_CurrentMenuState == State)return;
 
+	// 通常の画面遷移なら、現在のメニューを履歴に保存
+	// 戻る処理中は履歴に追加しない
+	if (m_CurrentMenuState != EMenuState::MENU_NONE && !m_IsReturning)
+	{
+		m_MenuHistory.Add(m_CurrentMenuState);
+	}
 	// 今のメニューを閉じる
 	if (m_CurrentMenuState != EMenuState::MENU_NONE)
 	{
@@ -97,13 +103,54 @@ void UMenuStateManager::CloseMenu()
 
 	m_CurrentMenuState = EMenuState::MENU_NONE;
 
-	// プレイヤーの入力を戻す
-	APlayerController* PC = GetGameInstance()->GetFirstLocalPlayerController();
+	// メニュー履歴をクリア
+	m_MenuHistory.Empty();
+
+	// プレイヤーコントローラーを取得
+	APlayPlayerController* PC =
+		Cast<APlayPlayerController>(GetGameInstance()->GetFirstLocalPlayerController());
+
 	if (PC)
 	{
-		PC->SetInputMode(FInputModeGameOnly());
-		PC->SetShowMouseCursor(false);
+		// マウスカーソルを非表示にする
+		PC->ChangeCursorMode(false);
+
+		// フィールド用の入力モードに戻す
+		PC->ChangeInputMode(PlayInputMode::FIELD);
 	}
+
+	//// プレイヤーの入力を戻す
+	//APlayerController* PC = GetGameInstance()->GetFirstLocalPlayerController();
+	//if (PC)
+	//{
+	//	PC->SetInputMode(FInputModeGameOnly());
+	//	PC->SetShowMouseCursor(false);
+	//}
+}
+
+void UMenuStateManager::BackMenu()
+{
+	// 戻れるメニューがなければ終了
+	if (m_MenuHistory.Num() <= 0)
+	{
+		CloseMenu();
+		return;
+	}
+
+	// 履歴の最後から戻り先を取得
+	EMenuState PreviousState = m_MenuHistory.Pop();
+
+	// 戻る処理中フラグを有効化
+	m_IsReturning = true;
+
+	// ひとつ前のメニューを開く
+	OpenMenu(PreviousState);
+
+	// 戻る処理終了
+	m_IsReturning = false;
+
+	// メニュー履歴をクリア
+	m_MenuHistory.Empty();
 }
 
 void UMenuStateManager::ChangeInputMode(PlayInputMode mode)

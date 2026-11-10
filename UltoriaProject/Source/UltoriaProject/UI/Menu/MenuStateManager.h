@@ -39,6 +39,9 @@ public:
 	// メニューを閉じる
 	UFUNCTION(BlueprintCallable)
 	void CloseMenu();
+	// ひとつ前のメニューに戻る
+	UFUNCTION(BlueprintCallable)
+	void BackMenu();
 
 	void ChangeInputMode(PlayInputMode mode);
 
@@ -90,4 +93,10 @@ private:
 	// 各メニューと対応するクラス
 	UPROPERTY()
 	TMap<EMenuState, TSubclassOf<UMenuBase>> m_MenuClassMap;
+
+	// メニューの遷移履歴
+	TArray<EMenuState> m_MenuHistory;
+
+	// 戻る処理中かどうか
+	bool m_IsReturning = false;
 };
