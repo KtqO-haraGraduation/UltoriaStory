@@ -54,6 +54,7 @@ public:
 	// 敵を取得
 	const TArray<ACharacterBase*>& GetEnemyParty() const { return m_EnemyParty; }
 
+	// ObjectのGet関数
 	UBattleLifecycle* GetLifecycle() { return m_Lifecycle; }
 	UBattleTurnManager* GetTurnManager() { return m_TurnManager; }
 	UBattleSelectioinManager* GetSelectManager() { return m_SelectManager; }
@@ -90,6 +91,7 @@ private:
 	bool m_IsVictory;							 //	プレイヤー側が勝負に勝ったか
 	FOnTurnChanged m_OnTurnChanged;
 
+	// Object関連
 	UPROPERTY()
 	UBattleLifecycle* m_Lifecycle;
 	UPROPERTY()

@@ -38,10 +38,8 @@ public:
 	// SetŠÖ”
 	// UI‚Ì•\¦A”ñ•\¦‚ğØ‚è‘Ö‚¦‚é
 	void SetStatusUIVisibility(bool flag);
-	void SetSelectionUIVisibility(bool flag);
 
 	void SetStop(bool bStop) { m_IsStop = bStop; }
-
 	void SetBaseStatus() override;
 
 protected:
@@ -49,7 +47,4 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UWidgetComponent* m_StatusUIWidget;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UWidgetComponent* m_SelectionUIWidget;
 };

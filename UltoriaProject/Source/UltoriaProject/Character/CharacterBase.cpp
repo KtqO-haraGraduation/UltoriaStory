@@ -8,6 +8,7 @@
 #include "../Battle/Combat/Components/CombatComponent.h"
 #include "../Battle/Combat/Components/Status/CombatStatusComponent.h"
 #include "Data/CharacterDataManager.h"
+#include "Components/WidgetComponent.h"
 
 using namespace std;
 
@@ -154,6 +155,12 @@ void ACharacterBase::SetMP(int newMP)
 {
 	m_CurrentMP = FMath::Clamp(newMP, 0, m_MaxMP);
 	m_OnMPChanged.Broadcast();
+}
+
+void ACharacterBase::SetSelectionUIVisibility(bool flag)
+{
+	if (!m_SelectionUIWidget) return;
+	m_SelectionUIWidget->SetVisibility(flag);
 }
 
 void ACharacterBase::AddEquipItem(EEquipSlot Slot, FName id)

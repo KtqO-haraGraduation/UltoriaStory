@@ -151,6 +151,6 @@ void USkillBaseComponent::Heal(const TArray<ACharacterBase*>& targets)
 		UCombatComponent* conbat = target->GetComponent<UCombatComponent>();
 		if (!conbat) continue;
 
-		conbat->Heal(100);
+		conbat->HPHeal(100);
 	}
 }
