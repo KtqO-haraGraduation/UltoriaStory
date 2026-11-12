@@ -6,6 +6,7 @@
 #include "../../Battle/Combat/Data/BattleDataManager.h"
 #include "../../Battle/PlayerPartyManager.h"
 #include "../../Battle/Encounter/EncounterManager.h"
+#include "../../Battle/BattleManager.h"
 #include "../../Stage/StageManager.h"
 #include "../Data/CharacterDataManager.h"
 
@@ -30,6 +31,10 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+	if (battleMg->IsBattle()) return;
+
 	// 仮実装（Playerをパーティーに追加）
 	UPlayerPartyManager* partyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
 	if (partyMg)
@@ -51,6 +56,8 @@ void AMainPlayer::BeginPlay()
 		partyMg->AddPlayerParty(data_3);
 		partyMg->AddPlayerParty(data_4);
 	}
+
+	partyMg->SetFieldPlayer(this);
 
 	// 仮実装（ステージに合わせた敵のパーティーデータをロード）
 	UCharacterDataManager* characterDataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
@@ -210,7 +217,11 @@ void AMainPlayer::StartBattle(ACharacterBase* otherActor, bool isPreemptive)
 	UEncounterManager* encounter = GetWorld()->GetSubsystem<UEncounterManager>();
 	if (encounter)
 	{
-		encounter->StartEncounter(otherActor, isPreemptive);
+		
+		encounter->SetEnemy(otherActor);
+		encounter->EnterBattle();
+
+		//encounter->StartEncounter(otherActor, isPreemptive);
 	}
 }
 

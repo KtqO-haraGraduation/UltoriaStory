@@ -14,6 +14,7 @@ void UBattleSelectioinManager::Init(UBattleManager* battleMg)
 	if (!battleMg) return;
 	m_BattleManager = battleMg;
 	m_SelectionType = SelectionType::NONE;
+	m_PrevSelectionType = SelectionType::NONE;
 
 	// 登録する前に前回のイベントを削除
 	ResetSelection();
@@ -237,6 +238,8 @@ void UBattleSelectioinManager::ConfirmCommand()
 {
 	const FBattleCommandData& command = m_CommandSelection.GetCurrent();
 	m_BattleManager->ExecuteCommand(command.Type);
+
+	m_PrevSelectionType = SelectionType::COMMAND;
 }
 
 void UBattleSelectioinManager::ConfirmTarget()
@@ -244,8 +247,22 @@ void UBattleSelectioinManager::ConfirmTarget()
 	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
 	if (!uiMg) return;
 
-	// 一旦、選択した敵に攻撃処理
-	m_BattleManager->ExecuteAttack(m_TargetSelection.GetCurrent());
+	// 前回の選択肢によって分岐
+	if (m_PrevSelectionType == SelectionType::COMMAND)
+	{
+		m_BattleManager->ExecuteAttack(m_TargetSelection.GetCurrent());
+	}
+	else if (m_PrevSelectionType == SelectionType::SKILL)
+	{
+		// スキル使用
+
+	}
+	else if (m_PrevSelectionType == SelectionType::ITEM)
+	{
+		// アイテム使用
+
+	}
+
 	uiMg->SetUIVisible(EBattleUIType::TARGET, false);
 }
 
@@ -274,6 +291,8 @@ void UBattleSelectioinManager::ConfirmSkill()
 		//skillComponent->UseSkill(m_SkillSelection.GetCurrentIndex(), targets);
 	}
 
+	m_PrevSelectionType = SelectionType::SKILL;
+
 	uiMg->SetUIVisible(EBattleUIType::SKILL, false);
 	uiMg->SetUIVisible(EBattleUIType::TARGET, true);
 }
@@ -282,6 +301,8 @@ void UBattleSelectioinManager::ConfirmItem()
 {
 	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
 	if (!uiMg) return;
+
+	m_PrevSelectionType = SelectionType::ITEM;
 
 	uiMg->SetUIVisible(EBattleUIType::ITEM, false);
 }
@@ -308,6 +329,7 @@ void UBattleSelectioinManager::CancelTarget()
 
 	// コマンド選択に戻る
 	m_SelectionType = SelectionType::COMMAND;
+	m_PrevSelectionType = SelectionType::NONE;
 
 	uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
 	uiMg->SetUIVisible(EBattleUIType::TARGET, false);
@@ -319,6 +341,7 @@ void UBattleSelectioinManager::CancelSkill()
 	if (!uiMg) return;
 
 	m_SelectionType = SelectionType::COMMAND;
+	m_PrevSelectionType = SelectionType::NONE;
 
 	uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
 	uiMg->SetUIVisible(EBattleUIType::SKILL, false);
@@ -330,6 +353,7 @@ void UBattleSelectioinManager::CancelItem()
 	if (!uiMg) return;
 
 	m_SelectionType = SelectionType::COMMAND;
+	m_PrevSelectionType = SelectionType::NONE;
 
 	uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
 	uiMg->SetUIVisible(EBattleUIType::ITEM, false);

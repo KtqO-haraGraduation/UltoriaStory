@@ -81,32 +81,27 @@ void UStageManager::ChangeStage(EStageType type, FName id)
 	}
 
 	// 新しいLvを作成
-	m_CurrentFieldLv = LoadLevel(data->FieldLv);
-	m_CurrentBattleLv = LoadLevel(data->BattleLv);
+	m_CurrentFieldLv = LoadLevel(data->FieldLv, true);
+	m_CurrentBattleLv = LoadLevel(data->BattleLv, false);
 
 	// フィールドLvの表示完了後にミニマップを作る
 	if (m_CurrentFieldLv)
 	{
 		m_CurrentFieldLv->OnLevelShown.AddDynamic(this, &UStageManager::OnFieldLevelShown);
 	}
-
-	// バトルLvは非表示
-	m_CurrentBattleLv->SetShouldBeVisible(false);
 }
 
 void UStageManager::ShowFieldLv()
 {
-	if (!m_CurrentFieldLv || m_CurrentBattleLv) return;
+	if (!m_CurrentFieldLv || !m_CurrentBattleLv) return;
 
 	m_CurrentBattleLv->SetShouldBeVisible(false);
-	m_CurrentFieldLv->SetShouldBeVisible(true);
 }
 
 void UStageManager::ShowBattleLv()
 {
 	if (!m_CurrentFieldLv || !m_CurrentBattleLv) return;
 
-	m_CurrentFieldLv->SetShouldBeVisible(false);
 	m_CurrentBattleLv->SetShouldBeVisible(true);
 }
 
@@ -182,7 +177,7 @@ bool UStageManager::IsStageDataAssetLoaded()
 	return true;
 }
 
-ULevelStreamingDynamic* UStageManager::LoadLevel(TSoftObjectPtr<UWorld> level)
+ULevelStreamingDynamic* UStageManager::LoadLevel(TSoftObjectPtr<UWorld> level, bool isVisible)
 {
 	if (level.IsNull()) return nullptr;
 
@@ -201,7 +196,7 @@ ULevelStreamingDynamic* UStageManager::LoadLevel(TSoftObjectPtr<UWorld> level)
 		);
 
 	streamingLevel->SetShouldBeLoaded(true);
-	streamingLevel->SetShouldBeVisible(true);
+	streamingLevel->SetShouldBeVisible(isVisible);
 
 	return streamingLevel;
 }

@@ -7,6 +7,7 @@
 #include "PlayerPartyManager.generated.h"
 
 class ACharacterBase;
+class AMainPlayer;
 
 USTRUCT(BlueprintType)
 struct FPartyData
@@ -31,6 +32,9 @@ class ULTORIAPROJECT_API UPlayerPartyManager : public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
+	void SetFieldPlayer(AMainPlayer* player);
+	AMainPlayer* GetFieldPlayer() const { return m_FieldPlayer; }
+
 	void AddPlayerParty(const FPartyData& character);
 	void RemovePlayerParty(const FPartyData& character);
 
@@ -42,6 +46,8 @@ public:
 	TArray<ACharacterBase*> GetPlayerParty() const { return m_PlayerParty; }
 
 private:
+	AMainPlayer* m_FieldPlayer;
+
 	TArray<FPartyData> m_PartyData;
 	TArray<ACharacterBase*> m_PlayerParty;
 };

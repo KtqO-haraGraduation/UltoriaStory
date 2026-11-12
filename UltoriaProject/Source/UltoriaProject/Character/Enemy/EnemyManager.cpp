@@ -10,3 +10,10 @@ void UEnemyManager::AddEnemy(AEnemyBase* enemy)
 	if (m_Enemies.Contains(enemy)) return;
 	m_Enemies.Add(enemy);
 }
+
+void UEnemyManager::RemoveEnemy(AEnemyBase* enemy)
+{
+	if (!IsValid(enemy)) return;
+	if (!m_Enemies.Contains(enemy)) return;
+	m_Enemies.Remove(enemy);
+}

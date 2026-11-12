@@ -18,6 +18,7 @@ class ULTORIAPROJECT_API UEnemyManager : public UWorldSubsystem
 	
 public:
 	void AddEnemy(AEnemyBase* enemy);
+	void RemoveEnemy(AEnemyBase* enemy);
 
 	const TArray<AEnemyBase*>& GetEnemies() const { return m_Enemies; }
 
