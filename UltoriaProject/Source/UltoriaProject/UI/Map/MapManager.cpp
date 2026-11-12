@@ -13,7 +13,7 @@ void UMapManager::Initialize(FSubsystemCollectionBase& Collection)
 
     // 対応するマップウィジェットの情報が入ったテーブルを取得
     m_MWT = LoadObject<UMapWidgetTable>(nullptr, TEXT("/Game/MembarFiles/Sakumoto/DataAsset/DA_MapWidgetTable.DA_MapWidgetTable"));
-    // 
+
     m_IsMiniMapVisible = true;
 }
 
