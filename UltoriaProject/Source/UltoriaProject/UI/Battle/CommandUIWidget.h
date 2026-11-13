@@ -6,6 +6,8 @@
 #include "Base/BattleSelectionUIBase.h"
 #include "CommandUIWidget.generated.h"
 
+class UTextBlock;
+
 /**
  * 
  */
@@ -16,4 +18,9 @@ class ULTORIAPROJECT_API UCommandUIWidget : public UBattleSelectionUIBase
 	
 public:
 	void CreateButton() override;
+	void UpdateSelection(int index) override;
+
+private:
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* DescText;
 };

@@ -63,7 +63,7 @@ public:
 
 private:
 	bool IsStageDataAssetLoaded();
-	ULevelStreamingDynamic* LoadLevel(TSoftObjectPtr<UWorld> level);
+	ULevelStreamingDynamic* LoadLevel(TSoftObjectPtr<UWorld> level, bool isVisible);
 
 	// イベントスタート関数
 	void StartEnterEvent();

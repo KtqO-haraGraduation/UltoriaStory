@@ -58,6 +58,15 @@ void UMenuMain::Confirm()
 	}
 }
 
+void UMenuMain::Cancel()
+{
+	// メニュー全体を閉じて元のゲーム画面に戻る
+	UMenuStateManager* MenuManager = GetGameInstance()->GetSubsystem<UMenuStateManager>();
+
+	// メニューを閉じる
+	MenuManager->CloseMenu();
+}
+
 void UMenuMain::UpdateSelection_Menu()
 {
 	for (int32 i = 0; i < m_Borders.Num(); i++)

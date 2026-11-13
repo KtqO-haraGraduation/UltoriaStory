@@ -2,6 +2,7 @@
 
 
 #include "MenuStates.h"
+#include "MenuStateManager.h"
 
 
 void UMenuStates::NativeConstruct()
@@ -105,9 +106,13 @@ void UMenuStates::Confirm()
 
 void UMenuStates::Cancel()
 {
-	if (m_CurrentTabWidget)
+	// ƒƒCƒ“ƒƒjƒ…[‚É–ß‚é
+	UMenuStateManager* MenuManager =
+		GetGameInstance()->GetSubsystem<UMenuStateManager>();
+
+	if (IsValid(MenuManager))
 	{
-		m_CurrentTabWidget->Cancel();
+		MenuManager->BackMenu();
 	}
 }
 

@@ -223,12 +223,32 @@ void UCombatComponent::TakeDamage(int damage)
 	}
 }
 
-void UCombatComponent::Heal(int healHp)
+void UCombatComponent::HPHeal(int healHp)
 {
 	m_CurrentState = CombatState::HEAL;
 
 	int newHp = m_Owner->GetCurrentHP() + healHp;
 	m_Owner->SetHP(newHp);
+
+	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
+	if (uiMg)
+	{
+		uiMg->CreateDamageWidget(m_Owner, newHp);
+	}
+}
+
+void UCombatComponent::MPHeal(int healMp)
+{
+	m_CurrentState = CombatState::HEAL;
+
+	int newMp = m_Owner->GetCurrentMP() + healMp;
+	m_Owner->SetMP(newMp);
+
+	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
+	if (uiMg)
+	{
+		uiMg->CreateDamageWidget(m_Owner, newMp);
+	}
 }
 
 void UCombatComponent::Deading()

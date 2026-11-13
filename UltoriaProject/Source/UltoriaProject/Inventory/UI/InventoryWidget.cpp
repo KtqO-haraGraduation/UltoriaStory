@@ -10,8 +10,6 @@
 #include "Components/ScrollBox.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
-//#include "../../Character/CharacterBase.h"
-//#include "../../Character/Ally/MainPlayer.h"
 #include "Kismet/GameplayStatics.h"
 #include <UltoriaProject/System/GameInstance/UltoriaGameInstance.h>
 #include <UltoriaProject/UI/Menu/MenuStateManager.h>
@@ -121,8 +119,11 @@ void UInventoryWidget::Cancel()
 	UMenuStateManager* MenuManager =
 		GetGameInstance()->GetSubsystem<UMenuStateManager>();
 
-	// 現在開いているメニューを閉じる
-	MenuManager->CloseMenu();
+	// ひとつ前のメニューに戻る
+	if (IsValid(MenuManager))
+	{
+		MenuManager->BackMenu();
+	}
 }
 
 void UInventoryWidget::MoveSelection(int32 Direction)

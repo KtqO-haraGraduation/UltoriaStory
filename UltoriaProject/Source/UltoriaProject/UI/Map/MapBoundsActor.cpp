@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "MapBoundsActor.h"
-#include "MapWidget.h"
+#include "MapManager.h"
 
 // Sets default values
 AMapBoundsActor::AMapBoundsActor()
@@ -13,8 +13,17 @@ AMapBoundsActor::AMapBoundsActor()
 // Called when the game starts or when spawned
 void AMapBoundsActor::BeginPlay()
 {
-	Super::BeginPlay();
+	Super::BeginPlay(); 
 
+	UMapManager* mapManager =GetGameInstance()->GetSubsystem<UMapManager>();
+
+	if (mapManager)
+	{
+		mapManager->CreateMap(GetWorld());
+		mapManager->SetMapVisible(false);
+		mapManager->CreateMiniMap(GetWorld());
+		mapManager->SetMiniMapVisible(true);
+	}
 }
 
 // Called every frame

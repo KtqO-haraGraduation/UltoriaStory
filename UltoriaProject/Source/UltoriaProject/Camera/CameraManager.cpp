@@ -5,6 +5,8 @@
 #include "../Battle/BattleAreaManager.h"
 #include "../Battle/BattleManager.h"
 #include "../Battle/Combat/Lifecycle/BattleLifecycle.h"
+#include "../Battle/PlayerPartyManager.h"
+#include "../Character/Ally/MainPlayer.h"
 #include "Camera/CameraActor.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -17,10 +19,17 @@ void UCameraManager::ChangeFieldCamera()
 
     if (!playerController) return;
 
-    APawn* player = playerController->GetPawn();
-    if (!player) return;
+    UPlayerPartyManager* playerPartyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
+    if (!playerPartyMg) return;
 
-    playerController->SetViewTargetWithBlend(player, 0.0f);
+    AMainPlayer* fieldPlayer = playerPartyMg->GetFieldPlayer();
+    if (!IsValid(fieldPlayer)) return;
+
+    // 操作対象をフィールPlayerに変更
+    playerController->Possess(fieldPlayer);
+
+    // カメラをフィールドPlayerに変更
+    playerController->SetViewTargetWithBlend(fieldPlayer, 0.0f);
 }
 
 // バトルカメラへ切り替え

@@ -43,3 +43,8 @@ void UBattleResultWidget::NativeConstruct()
 		}
 	}
 }
+
+void UBattleResultWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+
+}

@@ -21,6 +21,9 @@ public:
 	// ¶¬‚Ì‰Šú‰»ˆ—
 	virtual void NativeConstruct() override;
 
+protected:
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	UVerticalBox* VB_Character;
@@ -35,5 +38,5 @@ private:
 	UImage* JobImage;
 
 	// ŠÔ‚ÌŠÔŠu
-	static constexpr float ResultPadding = 15.0f;
+	static constexpr float ResultPadding = 20.0f;
 };
