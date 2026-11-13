@@ -202,7 +202,6 @@ void UStageManager::OnFieldLevelShown()
 	{
 		m_IsEnterEventPending = false;
 
-		//SetScreenBlack();
 		// Pawnのスポーンを待つため、次のティックで開始
 		world->GetTimerManager().SetTimerForNextTick(
 			FTimerDelegate::CreateUObject(this, &UStageManager::StartEnterEvent));

@@ -69,4 +69,8 @@ protected:
 	float m_PlayerInitYaw;
 
 	bool m_InitEnemySlot;
+
+	// プレイヤーアイコン用オフセット(Yaw)
+	UPROPERTY(EditAnyWhere)
+	float m_PlayerIconYawOffset;
 };

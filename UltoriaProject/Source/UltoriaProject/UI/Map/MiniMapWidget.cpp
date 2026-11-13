@@ -45,9 +45,6 @@ void UMiniMapWidget::InitMap(float mapTexDiameterLength, FVector2D marginHarfLen
     m_MarginLength.X = marginHarfLength.X * 2;
     m_MarginLength.Y = marginHarfLength.Y * 2;
 
-    AMainPlayer* player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    m_PlayerInitYaw = player->GetActorRotation().Yaw;
-
     // Actor取得
     AddStageMosts(FName(TEXT("StageLeftMost")));
     AddStageMosts(FName(TEXT("StageRightMost")));
@@ -84,17 +81,28 @@ void UMiniMapWidget::InitEnemySlot(TArray<AEnemyBase*> enemies)
 
 void UMiniMapWidget::UpdateMapPlayer()
 {
+    // プレイヤーを取得
     AMainPlayer* player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    // プレイヤーが取得出来なかった　または　RetainerBoxにEffectMaterialがなかったら無視
+
+    // プレイヤーとマップのIDを取得出来ていなければ終了
     if (!player || !m_MID)
     {
         return;
     }
 
+    // プレイヤーの回転を取得
     const float playerYaw = player->GetActorRotation().Yaw;
 
-    PlayerImage->SetRenderTransformAngle(playerYaw - m_PlayerInitYaw);
+    // プレイヤーのアイコンがあれば
+    if (PlayerImage)
+    {
+        // 向きを調整
+        PlayerImage->SetRenderTransformAngle(playerYaw + m_PlayerIconYawOffset);
+    }
 
+    if (m_StageMosts.Num() < 4) return;
+
+    // プレイヤーの位置とステージ端の位置を取得
     FVector playerLocation = player->GetActorLocation();
     const float stageLeftMost = m_StageMosts[0]->GetActorLocation().X;
     const float stageRightMost = m_StageMosts[1]->GetActorLocation().X;
