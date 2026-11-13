@@ -37,4 +37,8 @@ private:
 	// イベントシーンスクリプト
 	UPROPERTY(EditAnywhere, Category = "Event")
 	UDataTable* m_EventScript;
+
+	// ストーリ進行イベント用ID
+	UPROPERTY(EditAnywhere, Category = "Event")
+	FName m_TriggerID;
 };
