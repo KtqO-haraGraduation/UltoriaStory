@@ -164,8 +164,16 @@ void UEnemyFieldAIComponent::UpdateChase()
 	FVector target = m_Player->GetActorLocation();
 
 	UNavigationSystemV1* navSystem = UNavigationSystemV1::GetCurrent(GetWorld());
-
 	if (!navSystem) return;
+
+	// 座標指定で経路検索
+	/*UNavigationPath* path =
+		navSystem->FindPathToLocationSynchronously(
+			GetWorld(),
+			start,
+			target,
+			m_Owner
+		);*/
 
 	UNavigationPath* path =
 		navSystem->FindPathToActorSynchronously(
@@ -176,7 +184,32 @@ void UEnemyFieldAIComponent::UpdateChase()
 			m_Owner
 		);
 
-	if (!path || path->PathPoints.Num() < 2) return;
+	FNavLocation startNav;
+	FNavLocation targetNav;
+
+	bool startResult = navSystem->ProjectPointToNavigation(
+		start, startNav);
+
+	bool targetResult = navSystem->ProjectPointToNavigation(
+		target, targetNav);
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("Start: %d / Target: %d"),
+		startResult,
+		targetResult);
+
+	if (!path)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Path is NULL"));
+		return;
+	}
+
+	if (path->PathPoints.Num() < 2)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PathPoints: %d"),
+			path->PathPoints.Num());
+		return;
+	}
 
 	// NavMeshで計算された次の地点
 	FVector nextPoint = path->PathPoints[1];

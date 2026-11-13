@@ -8,7 +8,9 @@
 #include "../../Battle/Encounter/EncounterManager.h"
 #include "../../Battle/BattleManager.h"
 #include "../../Stage/StageManager.h"
+#include "../../Camera/CameraManager.h"
 #include "../Data/CharacterDataManager.h"
+
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -85,7 +87,7 @@ void AMainPlayer::BeginPlay()
 	FRotator initRot = GetActorRotation();
 
 	// スティックを上に入力時、Yawは90.0fになるので、「奥移動 = 0」になるように補正を掛ける
-	m_InitYawOffset = initRot.Yaw - 90.0f;
+	m_InitYawOffset = initRot.Yaw + 90.0f;
 }
 
 // Called every frame
@@ -116,12 +118,16 @@ void AMainPlayer::Move(const FInputActionValue& Value)
 {
 	if (m_IsAttacking) return;
 
+	UCameraManager* cameraMg = GetWorld()->GetGameInstance()->GetSubsystem<UCameraManager>();
+	if(!cameraMg) return;
+	UCameraComponent* camera = cameraMg->GetFieldCameraComponent();
+
 	// アナログスティックの入力をベクトルで取得
 	FVector2D moveVec2D = Value.Get<FVector2D>();
 
-	if (Controller)
+	if (Controller && camera)
 	{
-		FRotator rot = Controller->GetControlRotation();
+		FRotator rot = camera->GetComponentRotation();
 		FRotator yawRot(0.0f, rot.Yaw, 0.0f);
 
 		// カメラの前方・右方向を取得

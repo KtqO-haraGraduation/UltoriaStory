@@ -3,6 +3,7 @@
 
 #include "EventTriggerActor.h"
 #include "../Event/EventScriptEngine.h"
+#include "../Character/Ally/MainPlayer.h"
 
 // Sets default values
 AEventTriggerActor::AEventTriggerActor()
@@ -29,8 +30,19 @@ void AEventTriggerActor::Tick(float DeltaTime)
 
 void AEventTriggerActor::BeginOverlap(UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp, int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult)
 {
-	if (otherActor && otherActor != this)
+	if (!otherActor || otherActor == this || !m_EventScriptEngine) return;
+
+	// プレイヤー以外が触れても発動しない
+	if (!Cast<AMainPlayer>(otherActor)) return;
+
+	if (!m_TriggerID.IsNone())
 	{
+		// ストーリーに載っているトリガー。今の行と合わなければ何も起きない
+		m_EventScriptEngine->StartStoryEvent(m_TriggerID);
+	}
+	else
+	{
+		// ストーリーに載っていない従来のトリガー
 		m_EventScriptEngine->StartScript(m_EventScript);
 	}
 }

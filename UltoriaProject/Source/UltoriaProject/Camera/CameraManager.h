@@ -9,6 +9,7 @@
 enum class EBattleCameraType : uint8;
 class ACameraActor;
 class ABattleAreaManager;
+class UCameraComponent;
 
 /**
  * 
@@ -24,9 +25,10 @@ public:
 	// バトルカメラの切り替え
 	ACameraActor* ChangeBattleCamera(EBattleCameraType type);
 
-
 	// バトルエリアを取得
 	ABattleAreaManager* GetBattleAreaManager();
 	// 現在のカメラを取得
 	ACameraActor* GetCurrentCamera();
+
+	UCameraComponent* GetFieldCameraComponent();
 };
