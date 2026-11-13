@@ -147,6 +147,9 @@ private:
 	// バトル終了待機フラグ
 	bool m_WaitingBattleEnd;
 
+	// スクリプト再生可能フラグ
+	bool m_CanPlayScript;
+
 // プレイヤー
 	TWeakObjectPtr<APawn> m_HiddenPawn;
 };

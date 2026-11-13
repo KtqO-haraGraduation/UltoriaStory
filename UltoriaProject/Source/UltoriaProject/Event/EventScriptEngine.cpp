@@ -59,7 +59,7 @@ void UEventScriptEngine::StartScript(UDataTable* ScriptTable)
 	// スクリプトデータが無ければ終了
 	if (!ScriptTable)return;
 	if (m_IsEventPlaying)return;
-
+	
 	// コマンド追加
 	RegisterCommands();
 
