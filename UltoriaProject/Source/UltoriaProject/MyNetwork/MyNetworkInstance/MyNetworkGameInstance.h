@@ -16,7 +16,16 @@ class ULTORIAPROJECT_API UMyNetworkGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 	friend class AMyNetworkPlayerController;
+public:
+	virtual void Init()override;
+
 private:
+	void HandleTravelFailure(
+		UWorld* World,
+		ETravelFailure::Type FailureType,
+		const FString& ErrorString
+	);
+
 	bool IsUICreate = false;
 
 	bool IsInLobby = false;

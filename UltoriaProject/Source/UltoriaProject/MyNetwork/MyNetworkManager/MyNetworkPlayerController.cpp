@@ -13,6 +13,19 @@ void AMyNetworkPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		10.0f,
+		FColor::Yellow,
+		FString::Printf(
+			TEXT("BeginPlay: %s / Local: %d / Authority: %d"),
+			*GetName(),
+			IsLocalController(),
+			HasAuthority()
+		)
+	);
+
+
 	CreateWidgetsOnce();
 	UpdateUI();
 }
@@ -184,7 +197,11 @@ void AMyNetworkPlayerController::CreateWidgetsOnce()
 void AMyNetworkPlayerController::UpdateUI()
 {
 	UMyNetworkGameInstance* GI = GetGameInstance<UMyNetworkGameInstance>();
-	if (!GI) return;
+
+	if (!GI)
+	{
+		return;
+	}
 
 	if (GI->IsInLobby)
 	{
