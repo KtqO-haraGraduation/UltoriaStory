@@ -56,7 +56,7 @@ void AMainPlayer::BeginPlay()
 		partyMg->AddPlayerParty(data_3);
 		partyMg->AddPlayerParty(data_4);
 
-		partyMg->CreatePlayerParty(this);
+		//partyMg->CreatePlayerParty(this);
 	}
 
 	partyMg->SetFieldPlayer(this);
