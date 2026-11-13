@@ -9,7 +9,7 @@ void UInventorySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	Inventory.Empty();
 
-	Money = 1000;
+	Money = 10000;
 
     
 }

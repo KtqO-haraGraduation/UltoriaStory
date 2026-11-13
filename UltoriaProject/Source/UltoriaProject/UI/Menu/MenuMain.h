@@ -11,6 +11,9 @@
 /**
  * 
  */
+
+class UTextBlock;
+
 UCLASS()
 class ULTORIAPROJECT_API UMenuMain : public UMenuBase
 {
@@ -32,6 +35,9 @@ public:
 private:
 	// 選択更新関数
 	void UpdateSelection_Menu();
+
+	// ステータス表示更新
+	void UpdateStatusDisplay();
 
 private:
 	// 選択番号
@@ -55,4 +61,51 @@ private:
 	UBorder* m_BorderSave;
 	UPROPERTY(meta = (BindWidget))
 	UBorder* m_BorderEnd;
+
+	// ステータスの数値
+	// プレイヤー自信
+	// 現在のLv
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_Lv;
+
+	// 現在のHP
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_NowHP;
+
+	// 最大HP
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_MaxHP;
+
+	// 現在のMP
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_NowMP;
+
+	// 最大MP
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_MaxMP;
+
+	// 所持金
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_Money;
+
+	// 仲間1
+	// 現在のLv
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_Ally1Lv;
+
+	// 現在のHP
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_Ally1NowHP;
+
+	// 最大HP
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* m_Ally1MaxHP;
+
+	//// 現在のMP
+	//UPROPERTY(meta = (BindWidget))
+	//UTextBlock* m_Ally1NowMP;
+
+	//// 最大MP
+	//UPROPERTY(meta = (BindWidget))
+	//UTextBlock* m_Ally1MaxMP;
 };
