@@ -107,10 +107,15 @@ bool UEventScriptEngine::StartStoryEvent(FName TriggerID)
 	UStoryManager* story = gameinstance ? gameinstance->GetSubsystem<UStoryManager>() : nullptr;
 	if (!story) return false;
 
-	// どのストーリー行を実行中か覚えて、台本を流す
+	// どのストーリー行と合うかを確認して、台本を流す
 	FName rowName;
 	UDataTable* table = story->TryGetEvent(TriggerID, rowName);
 	if (!table) return false;
+
+	// どのストーリー行を実行中か覚えて、台本を流す
+	m_StoryRowName = rowName;
+	StartScript(table);
+
 
 	// 台本が空の場合、覚えた行名を返す
 	if (!m_IsEventPlaying)
