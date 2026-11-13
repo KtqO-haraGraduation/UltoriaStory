@@ -39,6 +39,7 @@ public:
 	void RemovePlayerParty(const FPartyData& character);
 
 	void CreatePlayerParty();
+	//void CreatePlayerParty(ACharacterBase* mainPlayer);
 	void DeletePlayerParty();
 
 	UFUNCTION(BlueprintCallable)
