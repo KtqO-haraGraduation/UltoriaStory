@@ -28,6 +28,9 @@ struct FBattleCommandData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ECommandType Type;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Desc;
+
 	bool operator==(const FBattleCommandData& other) const
 	{
 		return Type == other.Type;

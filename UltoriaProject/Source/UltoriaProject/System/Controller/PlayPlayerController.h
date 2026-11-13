@@ -7,6 +7,7 @@
 #include "InputMappingContext.h"
 #include "InputAction.h"
 #include "InputActionValue.h"
+#include "../../Gimmick/InteractTrigger.h"
 #include "PlayPlayerController.generated.h"
 
 // プレイシーン時の、入力の種類
@@ -45,6 +46,16 @@ public:
 	void ChangeInputMode(PlayInputMode mode);
 	// マウスカーソルの表示切り替え
 	void ChangeCursorMode(bool isShow);
+
+	// 現在のギミックトリガーを取得
+	void SetCurrentGimmickTrigger(AInteractTrigger* trigger) { m_CurrentGimmickTrigger = trigger; }
+	// 現在のギミックトリガーをクリア
+	void ClearCurrentGimmickTrigger(AInteractTrigger* trigger)
+	{
+		if (m_CurrentGimmickTrigger == trigger)m_CurrentGimmickTrigger = nullptr;
+	}
+	bool OnGimmickInteractPressed();
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -143,6 +154,9 @@ private:
 	// ズームリセットIA
 	UPROPERTY(EditAnywhere)
 	UInputAction* m_InputZoomReset;
+
+	// ギミックインタラクト用
+	TWeakObjectPtr<AInteractTrigger> m_CurrentGimmickTrigger;
 
 // バトル入力関連
 	// バトル用IMC

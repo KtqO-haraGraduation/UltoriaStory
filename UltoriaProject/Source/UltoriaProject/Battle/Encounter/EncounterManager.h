@@ -38,8 +38,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideBattleLevels();
 
-private:
 	void EnterBattle();
+	void EndBattle();
+
+	// 仮実装
+	void SetEnemy(ACharacterBase* enemy) { if (enemy) m_Enemy = enemy; }
+
+private:
 	void CheckFieldLevelReady();  // フィールドLvの準備が完了したか
 	void CheckBattleLevelReady(); // バトルLvの準備が完了したか
 

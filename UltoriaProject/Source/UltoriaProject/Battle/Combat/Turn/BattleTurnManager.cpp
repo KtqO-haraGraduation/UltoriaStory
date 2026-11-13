@@ -48,6 +48,7 @@ void UBattleTurnManager::UpdateTurnEnd()
 
 void UBattleTurnManager::Start()
 {
+	m_CurrentIndex = 0;
 }
 
 void UBattleTurnManager::End()

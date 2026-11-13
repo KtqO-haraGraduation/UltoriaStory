@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PlayPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -53,6 +52,14 @@ void APlayPlayerController::ChangeCursorMode(bool isShow)
 		FInputModeGameOnly mode;
 		SetInputMode(mode);
 	}
+}
+
+bool APlayPlayerController::OnGimmickInteractPressed()
+{
+	if (!m_CurrentGimmickTrigger.IsValid())return false;
+
+	m_CurrentGimmickTrigger->TryInteract(GetPawn());
+	return true;
 }
 
 void APlayPlayerController::BeginPlay()
@@ -214,8 +221,11 @@ void APlayPlayerController::InputZoomReset(const FInputActionValue& Value)
 
 void APlayPlayerController::InputInteract_Field()
 {
-	UShopManager* shop = GetWorld()->GetSubsystem<UShopManager>();
+	// インタラクトトリガー
+	if (OnGimmickInteractPressed())return;
 
+	// ショップ処理
+	UShopManager* shop = GetWorld()->GetSubsystem<UShopManager>();
 	if (!shop) return;
 
 	shop->InputInteract();

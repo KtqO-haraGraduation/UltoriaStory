@@ -6,7 +6,10 @@
 #include "../../Character/Ally/MainPlayer.h"
 #include "../../Character/CharacterBase.h"
 #include "../../Stage/StageManager.h"
+#include "../../Camera/CameraManager.h"
 #include "../BattleManager.h"
+#include "../PlayerPartyManager.h"
+
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -98,7 +101,10 @@ void UEncounterManager::StartEncounter(ACharacterBase* enemy, bool isPreemptive)
 
 void UEncounterManager::Update(float DeltaTime)
 {
+
 	if (!m_IsZoom) return;
+
+
 
 	m_Boom->TargetArmLength =
 		FMath::FInterpTo(
@@ -151,15 +157,14 @@ void UEncounterManager::Update(float DeltaTime)
 	{
 		m_IsZoom = false;
 
-		// バトルレベルへ遷移
-		EnterBattle();
+		
 	}
 }
 
 void UEncounterManager::ResetFieldCamera()
 {
-	m_Boom->TargetArmLength = m_PrevArmLength;
-	m_Camera->FieldOfView = m_PrevFOV;
+	/*m_Boom->TargetArmLength = m_PrevArmLength;
+	m_Camera->FieldOfView = m_PrevFOV;*/
 }
 
 void UEncounterManager::SetEncounterFogEnabled(bool bEnable)
@@ -192,9 +197,8 @@ void UEncounterManager::HideBattleLevels()
 
 void UEncounterManager::EnterBattle()
 {
-	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
-	if (!battleMg || !stageMg) return;
+	if (!stageMg) return;
 
 	stageMg->ShowBattleLv();
 
@@ -203,7 +207,19 @@ void UEncounterManager::EnterBattle()
 		m_ReadyTimer,
 		this,
 		&UEncounterManager::CheckBattleLevelReady,
-		0.1f,
+		0.01f,
+		true
+	);
+}
+
+void UEncounterManager::EndBattle()
+{
+	// BattleLvとFieldLvの準備が完了したらFieldLvへ
+	GetWorld()->GetTimerManager().SetTimer(
+		m_ReadyTimer,
+		this,
+		&UEncounterManager::CheckFieldLevelReady,
+		0.01f,
 		true
 	);
 }
@@ -217,6 +233,8 @@ void UEncounterManager::CheckFieldLevelReady()
 	ULevelStreaming* fieldLv = stageMg->GetFieldLv();
 	if (!battleLv || !fieldLv) return;
 
+	stageMg->ShowFieldLv();
+
 	// Battleの読み込み・表示とFieldの非表示を確認
 	if (!fieldLv->IsLevelLoaded() ||
 		!fieldLv->IsLevelVisible() ||
@@ -229,12 +247,17 @@ void UEncounterManager::CheckFieldLevelReady()
 	GetWorld()->GetTimerManager().ClearTimer(
 		m_ReadyTimer
 	);
+	
 
-	// レベル切り替え完了後に戦闘開始
-	/*UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
-	if (!battleMg) return;
+	UPlayerPartyManager* playerPartyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
+	if (!playerPartyMg) return;
 
-	battleMg->BattleStart(m_Enemy, m_Flag);*/
+	AMainPlayer* fieldPlayer = playerPartyMg->GetFieldPlayer();
+	if (fieldPlayer) fieldPlayer->SetPrevPos();
+
+	// ここでカメラを切り替える
+	UCameraManager* cameraMg = GetWorld()->GetGameInstance()->GetSubsystem<UCameraManager>();
+	if (cameraMg) cameraMg->ChangeFieldCamera();
 }
 
 void UEncounterManager::CheckBattleLevelReady()
@@ -243,13 +266,11 @@ void UEncounterManager::CheckBattleLevelReady()
 	if (!stageMg) return;
 
 	ULevelStreaming* battleLv = stageMg->GetBattleLv();
-	ULevelStreaming* fieldLv = stageMg->GetFieldLv();
-	if (!battleLv || !fieldLv) return;
+	if (!battleLv) return;
 
 	// Battleの読み込み・表示とFieldの非表示を確認
 	if (!battleLv->IsLevelLoaded()  ||
-        !battleLv->IsLevelVisible() ||
-	    fieldLv->IsLevelVisible())
+        !battleLv->IsLevelVisible())
 	{
 		return;
 	}
@@ -262,6 +283,6 @@ void UEncounterManager::CheckBattleLevelReady()
 	// レベル切り替え完了後に戦闘開始
 	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	if (!battleMg) return;
-
+	
 	battleMg->BattleStart(m_Enemy, m_Flag);
 }

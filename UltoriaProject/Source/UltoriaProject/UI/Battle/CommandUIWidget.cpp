@@ -7,6 +7,9 @@
 #include "Data/BattleUIDataAsset.h"
 #include "../../Battle/BattleManager.h"
 #include "../../Battle/Combat/Data/BattleDataManager.h"
+#include "../../Battle/Combat/Selection/BattleSelectioinManager.h"
+#include "../../System/Selection/SelectionSystem.h"
+#include "Components/TextBlock.h"
 
 void UCommandUIWidget::CreateButton()
 {
@@ -43,4 +46,15 @@ void UCommandUIWidget::CreateButton()
 	{
 		m_Buttons[i]->SetOwner(this, i);
 	}
+}
+
+void UCommandUIWidget::UpdateSelection(int index)
+{
+	UBattleSelectionUIBase::UpdateSelection(index);
+
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+
+	const FBattleCommandData commandData = battleMg->GetSelectManager()->GetCommandSelection().GetCurrent();
+	DescText->SetText(commandData.Desc);
 }

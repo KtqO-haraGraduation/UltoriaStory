@@ -24,6 +24,8 @@ void UBattleManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
+	m_IsBattle = false;
+
 	m_Lifecycle = NewObject<UBattleLifecycle>(this);
 	m_TurnManager = NewObject<UBattleTurnManager>(this);
 
@@ -46,6 +48,8 @@ void UBattleManager::BattleStart(ACharacterBase* enemy, bool isPreemptive)
 	//if (encounter) encounter->SetEncounterFogEnabled(false);
 
 	UBattleDataManager* dataManager = GetWorld()->GetSubsystem<UBattleDataManager>();
+
+	m_TurnManager->Start();
 
 	AEnemyBase* enemyBase = Cast<AEnemyBase>(enemy);
 	m_Lifecycle->Start(this, enemyBase);
@@ -361,7 +365,7 @@ void UBattleManager::ShowAttackTargetUI(const TArray<ACharacterBase*>& targets)
 	uiMg->SetUIVisible(EBattleUIType::TARGET, true);
 }
 
-void UBattleManager::ShowTargetUI(const TArray<ACharacterBase*>& targets)
+void UBattleManager::ShowTargetUI(const TArray<ACharacterBase*>& targets, ETargetType type)
 {
 	m_SelectManager->SetSelectionType(SelectionType::TARGET);
 	m_SelectManager->SetCharacterTarget(targets);
@@ -421,6 +425,7 @@ bool UBattleManager::BattleLose()
 void UBattleManager::FinishBattle()
 {
 	UBattleUIManager* uiManager = GetWorld()->GetSubsystem<UBattleUIManager>();
+	UEncounterManager* encounterMg = GetWorld()->GetSubsystem<UEncounterManager>();
 
 	if (uiManager && m_IsVictory) uiManager->RemoveResultUI();
 
@@ -432,20 +437,27 @@ void UBattleManager::FinishBattle()
 	// 全キャラの状態をリセット
 	ResetBattleState();
 
+	// プレイヤーパーティーを削除
+	UPlayerPartyManager* playerPartyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
+	if (!playerPartyMg) return;
+	playerPartyMg->DeletePlayerParty();
+	for (ACharacterBase* enemy : m_EnemyParty)
+	{
+		if (enemy)
+		{
+			enemy->Destroy();
+		}
+	}
+
 	// 初期化
 	m_PlayerParty.Empty();
 	m_EnemyParty.Empty();
 	m_IsBattle = false;
 	m_IsVictory = false;
 
-	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
-	if (stageMg) stageMg->ShowFieldLv();
-
-	// プレイヤーパーティーを削除
-	UPlayerPartyManager* playerPartyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
-	if (!playerPartyMg) return;
-
-	playerPartyMg->DeletePlayerParty();
+	/*UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
+	if (stageMg) stageMg->ShowFieldLv();*/
+	if (encounterMg) encounterMg->EndBattle();
 
 	USoundManager* soundMg = GetWorld()->GetGameInstance()->GetSubsystem<USoundManager>();
 	if (soundMg) soundMg->PlayBGM("BGM_Field_1");

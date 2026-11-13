@@ -2,11 +2,24 @@
 
 
 #include "PlayerPartyManager.h"
+#include "../Character/Ally/MainPlayer.h"
 #include "../Character/CharacterBase.h"
 #include "../Character/Data/CharacterDataManager.h"
+#include "BattleManager.h"
 
 constexpr int PARTY_MEMBER_MIN = 1;
 constexpr int PARTY_MEMBER_MAX = 4;
+
+void UPlayerPartyManager::SetFieldPlayer(AMainPlayer* player)
+{
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg || !player) return;
+
+	if (!battleMg->IsBattle())
+	{
+		m_FieldPlayer = player;
+	}
+}
 
 void UPlayerPartyManager::AddPlayerParty(const FPartyData& character)
 {
@@ -44,20 +57,6 @@ void UPlayerPartyManager::CreatePlayerParty()
 			ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 		UWorld* world = GetWorld();
-
-		UE_LOG(
-			LogTemp,
-			Warning,
-			TEXT("World: %s"),
-			world ? *world->GetName() : TEXT("nullptr")
-		);
-
-		UE_LOG(
-			LogTemp,
-			Warning,
-			TEXT("Class: %s"),
-			data.Class ? *data.Class->GetPathName() : TEXT("nullptr")
-		);
 
 		// ƒvƒŒƒCƒ„[‚Æ’‡ŠÔ‚ğ¶¬
 		ACharacterBase* character = world

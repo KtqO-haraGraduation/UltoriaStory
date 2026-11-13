@@ -37,9 +37,14 @@ public:
 	FStageLvData GetNowStageLvData();      // 現在開いているLvのデータを取得
 	FStageLvData GetStageLvData(FName id); // 指定したIDのLvのデータを取得
 
+	// サブシステムが出来てから起動する
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 
+	// 画面を暗くする
 	void SetScreenBlack();
+
+	// プレイヤーをスタート地点に分ける関数
+	void MovePlayerToStageStart();
 
 	UFUNCTION()
 	void OnFieldLevelShown();
@@ -58,7 +63,7 @@ public:
 
 private:
 	bool IsStageDataAssetLoaded();
-	ULevelStreamingDynamic* LoadLevel(TSoftObjectPtr<UWorld> level);
+	ULevelStreamingDynamic* LoadLevel(TSoftObjectPtr<UWorld> level, bool isVisible);
 
 	// イベントスタート関数
 	void StartEnterEvent();

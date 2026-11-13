@@ -67,7 +67,7 @@ public:
 	TArray<ACharacterBase*> GetActiveTargets(ETargetTeam team) const; // 生存してるターゲット
 
 	void ShowAttackTargetUI(const TArray<ACharacterBase*>& targets);
-	void ShowTargetUI(const TArray<ACharacterBase*>& targets);
+	void ShowTargetUI(const TArray<ACharacterBase*>& targets, ETargetType type = ETargetType::SINGLE);
 	void ShowAllTargetUI(const TArray<ACharacterBase*>& targets);
 
 private:

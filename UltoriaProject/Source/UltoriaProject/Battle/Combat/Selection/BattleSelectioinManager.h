@@ -56,6 +56,7 @@ public:
 	void SelectCancel();						// 選択のキャンセル
 
 	SelectionType GetSelectionType() const { return m_SelectionType; }
+	SelectionType GetPrevSelectionType() const { return m_PrevSelectionType; }
 	AEnemyBase* GetTargetCurrentSelect();
 
 	TSelectionSystem<ACharacterBase*>& GetTargetSelection() { return m_TargetSelection; }
@@ -103,6 +104,7 @@ private:
 
 private:
 	UBattleManager* m_BattleManager;
+	SelectionType m_PrevSelectionType;			// 前回の選択処理の種類
 	SelectionType m_SelectionType;				// 現在の選択処理の種類
 
 	TSelectionSystem<ACharacterBase*> m_TargetSelection;		// ターゲットの選択システム

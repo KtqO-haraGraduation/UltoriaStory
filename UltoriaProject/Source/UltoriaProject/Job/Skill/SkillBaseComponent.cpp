@@ -70,6 +70,8 @@ void USkillBaseComponent::UseSkill(int index, const TArray<ACharacterBase*>& tar
 
 	if (!CanUse(index))
 	{
+		// MPが足りないから使用できないをTextで表示するようにする
+
 		UE_LOG(LogTemp, Log, TEXT("Can Not Skill！"));
 		return;
 	}

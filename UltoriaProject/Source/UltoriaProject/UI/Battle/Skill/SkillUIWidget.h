@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "../Base/BattleSelectionUIBase.h"
-#include "Components/TextBlock.h"
 #include "SkillUIWidget.generated.h"
 
 class USkillBaseComponent;
+class UTextBlock;
 
 /**
  * 

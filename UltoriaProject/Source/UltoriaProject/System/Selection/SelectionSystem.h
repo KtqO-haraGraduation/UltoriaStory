@@ -6,15 +6,6 @@
 
 DECLARE_DELEGATE_TwoParams(FOnSelectionChanged, int, int);
 
-// 2次元配列になった場合（後々作るかも）
-enum class SelectionDirection
-{
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT,
-};
-
 /**
  * 
  */

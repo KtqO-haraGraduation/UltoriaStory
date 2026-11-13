@@ -7,7 +7,9 @@
 #include "MapWidget.generated.h"
 
 class UImage;
+class UCanvasPanel;
 class UCanvasPanelSlot;
+class AEnemyBase;
 /**
  * 
  */
@@ -24,21 +26,29 @@ public:
 
 public:
 	void InitMap(float mapTexDiameterLength, FVector2D marginLength);
-	
+
 private:
+	void InitEnemySlot(TArray<AEnemyBase*> enemies);
+
 	void UpdateMapPlayer();
+	void UpdateMapEnemy();
 
 	void AddStageMosts(FName tag);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
+	UCanvasPanel* MapCanvas;
+	UPROPERTY(meta = (BindWidget))
 	UImage* MapImage;
 	UPROPERTY(meta = (BindWidget))
 	UImage* PlayerImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* EnemyImage;
 
 	TArray<AActor*> m_StageMosts;
 	UCanvasPanelSlot* m_MapSlot;
 	UCanvasPanelSlot* m_PlayerSlot;
+	TMap<AEnemyBase*, UCanvasPanelSlot*> m_EnemySlots;
 	FVector2D m_MapImagePos;
 	FVector2D m_MapImageSize;
 
@@ -47,4 +57,8 @@ protected:
 	float m_MapTexDiameterLength;
 	// —]”’‚Ì’·‚³
 	FVector2D m_MarginLength;
+
+	float m_PlayerInitYaw;
+
+	bool m_InitEnemySlot;
 };

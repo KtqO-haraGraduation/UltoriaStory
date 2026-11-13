@@ -33,11 +33,6 @@ void UBattleLifecycle::Start(UBattleManager* mg, AEnemyBase* enemyBase)
 		// BattleAreaManagerを取得
 		m_AreaManager = GetBattleArea();
 
-		if (!m_AreaManager)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("nullpttr"));
-		}
-
 		// カメラを切り替える
 		GetCameraManager()->ChangeBattleCamera(EBattleCameraType::MAIN);
 		// 座標を設定
@@ -62,9 +57,6 @@ void UBattleLifecycle::End()
 
 	// 入力モード切り替え
 	ChangeInputMode(PlayInputMode::FIELD);
-
-	GetCameraManager()->ChangeFieldCamera();
-	SetFieldCharacterPos();
 
 	if (m_BattleManager) m_BattleManager = nullptr;
 	if (m_AreaManager) m_AreaManager = nullptr;

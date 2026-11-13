@@ -12,6 +12,7 @@
 #include "../../../Job/Skill/SkillParameter.h"
 #include "../../../Job/Skill/SkillBaseComponent.h"
 #include "../../../Character/CharacterBase.h"
+#include "Components/TextBlock.h"
 
 void USkillUIWidget::CreateButton()
 {

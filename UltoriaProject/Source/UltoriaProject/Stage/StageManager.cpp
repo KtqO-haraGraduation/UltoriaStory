@@ -7,6 +7,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "../Event/EventScriptEngine.h"
 #include "../UI/Map/MapManager.h"
+#include "../Stage/StageManager.h"
+#include "GameFramework/PlayerStart.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
+#include "Engine/LevelStreaming.h"
 
 void UStageManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -81,32 +86,27 @@ void UStageManager::ChangeStage(EStageType type, FName id)
 	}
 
 	// 新しいLvを作成
-	m_CurrentFieldLv = LoadLevel(data->FieldLv);
-	m_CurrentBattleLv = LoadLevel(data->BattleLv);
+	m_CurrentFieldLv = LoadLevel(data->FieldLv, true);
+	m_CurrentBattleLv = LoadLevel(data->BattleLv, false);
 
 	// フィールドLvの表示完了後にミニマップを作る
 	if (m_CurrentFieldLv)
 	{
 		m_CurrentFieldLv->OnLevelShown.AddDynamic(this, &UStageManager::OnFieldLevelShown);
 	}
-
-	// バトルLvは非表示
-	m_CurrentBattleLv->SetShouldBeVisible(false);
 }
 
 void UStageManager::ShowFieldLv()
 {
-	if (!m_CurrentFieldLv || m_CurrentBattleLv) return;
+	if (!m_CurrentFieldLv || !m_CurrentBattleLv) return;
 
 	m_CurrentBattleLv->SetShouldBeVisible(false);
-	m_CurrentFieldLv->SetShouldBeVisible(true);
 }
 
 void UStageManager::ShowBattleLv()
 {
 	if (!m_CurrentFieldLv || !m_CurrentBattleLv) return;
 
-	m_CurrentFieldLv->SetShouldBeVisible(false);
 	m_CurrentBattleLv->SetShouldBeVisible(true);
 }
 
@@ -150,6 +150,39 @@ void UStageManager::SetScreenBlack()
 	pc->PlayerCameraManager->StartCameraFade(1.0f, 1.0f, 0.0f, FLinearColor::Black, false, true);
 }
 
+void UStageManager::MovePlayerToStageStart()
+{
+	// プレイヤーコントローラーを取得
+	UWorld* world = GetWorld();
+	APlayerController* pc = world ? world->GetFirstPlayerController() : nullptr;
+
+	// 現在のフィールドレベル、プレイヤー、プレイヤーコントローラのいずれかがなければ終了
+	if (!pc || !pc->GetPawn() || !m_CurrentFieldLv) return;
+
+	// フィールドレベルを取得
+	ULevel* fieldLevel = m_CurrentFieldLv->GetLoadedLevel();
+	// フィールドレベルを取得できなければ終了
+	if (!fieldLevel) return;
+
+	// プレイヤースタートを検索
+	for (AActor* actor : fieldLevel->Actors)
+	{
+		if (APlayerStart* start = Cast<APlayerStart>(actor))
+		{
+			// プレイヤーの位置をスタート地点に移動
+			pc->GetPawn()->TeleportTo(start->GetActorLocation(), start->GetActorRotation());
+			pc->SetControlRotation(start->GetActorRotation());
+
+			if (ACharacter* chara = Cast<ACharacter>(pc->GetPawn()))
+			{
+				chara->GetCharacterMovement()->StopMovementImmediately();
+			}
+			return;
+		}
+	}
+	
+}
+
 void UStageManager::OnFieldLevelShown()
 {
 	UE_LOG(LogTemp, Warning, TEXT("[Stage] OnFieldLevelShown"));
@@ -169,7 +202,6 @@ void UStageManager::OnFieldLevelShown()
 	{
 		m_IsEnterEventPending = false;
 
-		//SetScreenBlack();
 		// Pawnのスポーンを待つため、次のティックで開始
 		world->GetTimerManager().SetTimerForNextTick(
 			FTimerDelegate::CreateUObject(this, &UStageManager::StartEnterEvent));
@@ -182,7 +214,7 @@ bool UStageManager::IsStageDataAssetLoaded()
 	return true;
 }
 
-ULevelStreamingDynamic* UStageManager::LoadLevel(TSoftObjectPtr<UWorld> level)
+ULevelStreamingDynamic* UStageManager::LoadLevel(TSoftObjectPtr<UWorld> level, bool isVisible)
 {
 	if (level.IsNull()) return nullptr;
 
@@ -201,13 +233,15 @@ ULevelStreamingDynamic* UStageManager::LoadLevel(TSoftObjectPtr<UWorld> level)
 		);
 
 	streamingLevel->SetShouldBeLoaded(true);
-	streamingLevel->SetShouldBeVisible(true);
+	streamingLevel->SetShouldBeVisible(isVisible);
 
 	return streamingLevel;
 }
 
 void UStageManager::StartEnterEvent()
 {
+	MovePlayerToStageStart();
+
 	// ステージ開始時イベントのデータを取得
 	UDataTable* table = GetNowStageLvData().EnterEventTable.LoadSynchronous();
 	if (!table)return;
