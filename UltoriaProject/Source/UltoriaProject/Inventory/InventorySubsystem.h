@@ -62,6 +62,10 @@ public:
 
     // 所持金を設定
     void SetMoney(int32 Amount);
+
+    // セーブデータからインベントリを復元
+    void SetInventory(const TArray<FInventoryItem>& Items);
+
 private:
 
 	// インベントリ

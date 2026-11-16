@@ -5,6 +5,7 @@
 #include "../../Character/CharacterBase.h"
 #include "../../Battle/PlayerPartyManager.h"
 #include "Kismet/GameplayStatics.h"
+#include <UltoriaProject/Character/Ally/PlayerCharacterBase.h>
 
 // スロット番号から保存名を作成
 FString USaveManager::GetSlotName(int32 SlotIndex) const
@@ -49,7 +50,15 @@ bool USaveManager::LoadGameData(int32 SlotIndex)
 
     m_CurrentSaveData = Cast<UGameSaveData>(loadedData);
 
-    return m_CurrentSaveData != nullptr;
+    if (!m_CurrentSaveData)
+    {
+        return false;
+    }
+
+    // ゲーム内にセーブデータを反映
+    // ApplyGameData();
+
+    return true;
 }
 
 // セーブデータが存在するか確認
@@ -141,6 +150,79 @@ void USaveManager::CollectGameData()
             SaveCharacter.CharacterID = Party.characterID;
 
             m_CurrentSaveData->PartyCharacters.Add(SaveCharacter);
+        }
+    }
+}
+
+void USaveManager::ApplyGameData(APlayerCharacterBase* Player)
+{
+
+    // 保存されているプレイヤーIDと一致するか確認
+    if (Player->GetID() != m_CurrentSaveData->PlayerData.CharacterID)
+    {
+        return;
+    }
+
+    // プレイヤーのステータスを復元
+    const FSaveCharacterData& Data = m_CurrentSaveData->PlayerData;
+
+    Player->LoadSaveStatus(Data.Level,Data.EXP,Data.CurrentHP,Data.CurrentMP);
+
+    // 所持金を復元
+    UInventorySubsystem* Inventory =
+        GetGameInstance()->GetSubsystem<UInventorySubsystem>();
+
+    if (Inventory)
+    {
+        // 所持金
+        Inventory->SetMoney(m_CurrentSaveData->Money);
+
+        TArray<FInventoryItem> Items;
+
+        for (const FSaveItemData& SaveItem :
+            m_CurrentSaveData->InventoryItems)
+        {
+            FInventoryItem Item;
+
+            Item.ItemID = SaveItem.ItemID;
+            Item.Count = SaveItem.Count;
+
+            Items.Add(Item);
+        }
+
+        // インベントリ
+        Inventory->SetInventory(Items);
+    }
+
+    // パーティ情報を復元
+    UPlayerPartyManager* PartyManager =
+        GetWorld()->GetSubsystem<UPlayerPartyManager>();
+
+    if (PartyManager)
+    {
+        // セーブデータに登録されているキャラクターを追加
+        for (const FSaveCharacterData& SaveCharacter :
+            m_CurrentSaveData->PartyCharacters)
+        {
+            // IDが空の場合は無視
+            if (SaveCharacter.CharacterID.IsNone())
+            {
+                continue;
+            }
+
+            // 主人公は追加しない
+            // ※現在のパーティ登録仕様に合わせる
+            //if (SaveCharacter.CharacterID ==
+            //    m_CurrentSaveData->PlayerData.CharacterID)
+            //{
+            //    continue;
+            //}
+
+            FPartyData Party;
+            Party.characterID = SaveCharacter.CharacterID;
+
+            // 既存の登録関数を使用
+            PartyManager->AddPlayerParty(Party);
         }
     }
 }

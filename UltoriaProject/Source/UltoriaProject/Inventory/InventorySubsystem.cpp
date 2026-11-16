@@ -128,3 +128,19 @@ void UInventorySubsystem::SetMoney(int32 Amount)
         TEXT("SetMoney : %d"),
         Money);
 }
+
+void UInventorySubsystem::SetInventory(const TArray<FInventoryItem>& Items)
+{
+    Inventory.Empty();
+
+    for (const FInventoryItem& Item : Items)
+    {
+        // ŒÂ”‚ª0ˆÈ‰º‚ÌƒAƒCƒeƒ€‚Í“o˜^‚µ‚È‚¢
+        if (Item.Count <= 0)
+        {
+            continue;
+        }
+
+        Inventory.Add(Item);
+    }
+}

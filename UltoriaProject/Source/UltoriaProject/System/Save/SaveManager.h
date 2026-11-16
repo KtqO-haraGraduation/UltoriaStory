@@ -6,6 +6,7 @@
 #include "SaveManager.generated.h"
 
 class UGameSaveData;
+class APlayerCharacterBase;
 
 UCLASS()
 class ULTORIAPROJECT_API USaveManager : public UGameInstanceSubsystem
@@ -31,6 +32,9 @@ public:
 
     // 現在のゲーム状態をセーブデータに格納する
     void CollectGameData();
+
+    // セーブデータをゲーム内に反映
+    void ApplyGameData(APlayerCharacterBase* Player);
 
 private:
 
