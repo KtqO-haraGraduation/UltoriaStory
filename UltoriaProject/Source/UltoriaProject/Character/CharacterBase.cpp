@@ -163,6 +163,20 @@ void ACharacterBase::SetSelectionUIVisibility(bool flag)
 	m_SelectionUIWidget->SetVisibility(flag);
 }
 
+void ACharacterBase::LoadSaveStatus(int level, int exp, int hp, int mp)
+{
+	// レベルと経験値を設定
+	m_Level = FMath::Clamp(level, 1, LEVEL_MAX);
+	m_Exp = exp;
+
+	// レベルに応じた基本ステータスを再設定
+	SetBaseStatus();
+
+	// 保存されていたHP・MPを復元
+	SetHP(hp);
+	SetMP(mp);
+}
+
 void ACharacterBase::AddEquipItem(EEquipSlot Slot, FName id)
 {
 	m_EquippedIds.Add(Slot, id);
