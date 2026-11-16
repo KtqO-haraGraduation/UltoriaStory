@@ -8,6 +8,7 @@
 #include "../Battle/PlayerPartyManager.h"
 #include "../Character/Ally/MainPlayer.h"
 #include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -67,4 +68,15 @@ ACameraActor* UCameraManager::GetCurrentCamera()
     if (!playerController) return nullptr;
 
     return Cast<ACameraActor>(playerController->GetViewTarget());
+}
+
+UCameraComponent* UCameraManager::GetFieldCameraComponent()
+{
+    UPlayerPartyManager* playerPartyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
+    if (!playerPartyMg) return nullptr;
+
+    AMainPlayer* fieldPlayer = playerPartyMg->GetFieldPlayer();
+    if (!IsValid(fieldPlayer)) return nullptr;
+
+    return fieldPlayer->FindComponentByClass<UCameraComponent>();
 }

@@ -7,6 +7,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "../Event/EventScriptEngine.h"
 #include "../UI/Map/MapManager.h"
+#include "../Stage/StageManager.h"
+#include "GameFramework/PlayerStart.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
+#include "Engine/LevelStreaming.h"
 
 void UStageManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -145,6 +150,39 @@ void UStageManager::SetScreenBlack()
 	pc->PlayerCameraManager->StartCameraFade(1.0f, 1.0f, 0.0f, FLinearColor::Black, false, true);
 }
 
+void UStageManager::MovePlayerToStageStart()
+{
+	// プレイヤーコントローラーを取得
+	UWorld* world = GetWorld();
+	APlayerController* pc = world ? world->GetFirstPlayerController() : nullptr;
+
+	// 現在のフィールドレベル、プレイヤー、プレイヤーコントローラのいずれかがなければ終了
+	if (!pc || !pc->GetPawn() || !m_CurrentFieldLv) return;
+
+	// フィールドレベルを取得
+	ULevel* fieldLevel = m_CurrentFieldLv->GetLoadedLevel();
+	// フィールドレベルを取得できなければ終了
+	if (!fieldLevel) return;
+
+	// プレイヤースタートを検索
+	for (AActor* actor : fieldLevel->Actors)
+	{
+		if (APlayerStart* start = Cast<APlayerStart>(actor))
+		{
+			// プレイヤーの位置をスタート地点に移動
+			pc->GetPawn()->TeleportTo(start->GetActorLocation(), start->GetActorRotation());
+			pc->SetControlRotation(start->GetActorRotation());
+
+			if (ACharacter* chara = Cast<ACharacter>(pc->GetPawn()))
+			{
+				chara->GetCharacterMovement()->StopMovementImmediately();
+			}
+			return;
+		}
+	}
+	
+}
+
 void UStageManager::OnFieldLevelShown()
 {
 	UE_LOG(LogTemp, Warning, TEXT("[Stage] OnFieldLevelShown"));
@@ -164,7 +202,6 @@ void UStageManager::OnFieldLevelShown()
 	{
 		m_IsEnterEventPending = false;
 
-		//SetScreenBlack();
 		// Pawnのスポーンを待つため、次のティックで開始
 		world->GetTimerManager().SetTimerForNextTick(
 			FTimerDelegate::CreateUObject(this, &UStageManager::StartEnterEvent));
@@ -203,6 +240,8 @@ ULevelStreamingDynamic* UStageManager::LoadLevel(TSoftObjectPtr<UWorld> level, b
 
 void UStageManager::StartEnterEvent()
 {
+	MovePlayerToStageStart();
+
 	// ステージ開始時イベントのデータを取得
 	UDataTable* table = GetNowStageLvData().EnterEventTable.LoadSynchronous();
 	if (!table)return;

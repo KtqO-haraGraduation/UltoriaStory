@@ -14,16 +14,6 @@ AMapBoundsActor::AMapBoundsActor()
 void AMapBoundsActor::BeginPlay()
 {
 	Super::BeginPlay(); 
-
-	UMapManager* mapManager =GetGameInstance()->GetSubsystem<UMapManager>();
-
-	if (mapManager)
-	{
-		mapManager->CreateMap(GetWorld());
-		mapManager->SetMapVisible(false);
-		mapManager->CreateMiniMap(GetWorld());
-		mapManager->SetMiniMapVisible(true);
-	}
 }
 
 // Called every frame

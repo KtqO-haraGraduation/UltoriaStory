@@ -44,6 +44,8 @@ TArray<FBattleTransform> ABattleAreaManager::GetBattleTransform(int count, bool 
 
 		FRotator rot = isEnemy ? FRotator(0.0f, 180.0f, 0.0f) : FRotator(0.0f, 0.0f, 0.0f);
 
+
+
 		FBattleTransform data;
 		data.pos = pos;
 		data.rot = rot;

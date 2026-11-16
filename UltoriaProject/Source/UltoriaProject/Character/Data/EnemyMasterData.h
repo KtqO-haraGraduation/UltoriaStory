@@ -49,5 +49,8 @@ struct FEnemyMasterData : public FTableRowBase
 	int BreakGauge;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float BattleSize;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* Image;
 };

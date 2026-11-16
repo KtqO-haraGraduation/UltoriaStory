@@ -13,6 +13,7 @@
 #include "../Battle/Encounter/EncounterManager.h"
 #include "../Character/Data/CharacterDataManager.h"
 #include "../UI/Map/MapManager.h"
+#include "../Story/StoryManager.h"
 
 // Sets default values for this component's properties
 UEventScriptEngine::UEventScriptEngine()
@@ -59,7 +60,7 @@ void UEventScriptEngine::StartScript(UDataTable* ScriptTable)
 	// スクリプトデータが無ければ終了
 	if (!ScriptTable)return;
 	if (m_IsEventPlaying)return;
-
+	
 	// コマンド追加
 	RegisterCommands();
 
@@ -93,6 +94,37 @@ void UEventScriptEngine::StartScript(UDataTable* ScriptTable)
 
 	// 最初のコマンドを実行
 	ExcCommand(m_Rows[m_CurrentIndex]);
+}
+
+bool UEventScriptEngine::StartStoryEvent(FName TriggerID)
+{
+	// 再生中は受け付けない
+	if (m_IsEventPlaying) return false;
+
+	// StoryManagerを取得
+	UWorld* world = GetWorld();
+	UGameInstance* gameinstance = world ? world->GetGameInstance() : nullptr;
+	UStoryManager* story = gameinstance ? gameinstance->GetSubsystem<UStoryManager>() : nullptr;
+	if (!story) return false;
+
+	// どのストーリー行と合うかを確認して、台本を流す
+	FName rowName;
+	UDataTable* table = story->TryGetEvent(TriggerID, rowName);
+	if (!table) return false;
+
+	// どのストーリー行を実行中か覚えて、台本を流す
+	m_StoryRowName = rowName;
+	StartScript(table);
+
+
+	// 台本が空の場合、覚えた行名を返す
+	if (!m_IsEventPlaying)
+	{
+		m_StoryRowName = NAME_None;
+		return false;
+	}
+
+	return true;
 }
 
 void UEventScriptEngine::NextCommand()
@@ -144,6 +176,19 @@ void UEventScriptEngine::ExcCommand(FEventScriptRow* Row)
 
 void UEventScriptEngine::FinishedScript()
 {
+	// ストーリーのイベントなら、終了を伝えて進行度を進める
+	if (!m_StoryRowName.IsNone())
+	{
+		UWorld* world = GetWorld();
+		UGameInstance* gameinstance = world ? world->GetGameInstance() : nullptr;
+		UStoryManager* story = gameinstance ? gameinstance->GetSubsystem<UStoryManager>() : nullptr;
+		if (story)
+		{
+			story->CompleteEvent(m_StoryRowName);
+		}
+		m_StoryRowName = NAME_None;
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("スクリプト終了"));
 
 	// フラグを折る

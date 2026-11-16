@@ -209,17 +209,24 @@ void UBattleManager::SetCharacterPos(ABattleAreaManager* area)
 	if (!area) return;
 
 	// ŠeÀ•W‚ğæ“¾
-	TArray<FBattleTransform> player = area->GetBattleTransform(m_PlayerParty.Num(), false);
-	TArray<FBattleTransform> enemy  = area->GetBattleTransform(m_EnemyParty.Num(),  true);
+	TArray<FBattleTransform> playersTransform = area->GetBattleTransform(m_PlayerParty.Num(), false);
+	TArray<FBattleTransform> enemysTransform  = area->GetBattleTransform(m_EnemyParty.Num(),  true);
+
+	UCharacterDataManager* dataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
+	if (!dataMg) return;
 
 	for (int i = 0; i < m_PlayerParty.Num(); i++)
 	{
-		m_PlayerParty[i]->SetActorLocationAndRotation(player[i].pos, player[i].rot);
+		m_PlayerParty[i]->SetActorLocationAndRotation(playersTransform[i].pos, playersTransform[i].rot);
 	}
 
 	for (int i = 0; i < m_EnemyParty.Num(); i++)
 	{
-		m_EnemyParty[i]->SetActorLocationAndRotation(enemy[i].pos, enemy[i].rot);
+		ACharacterBase* enemy = m_EnemyParty[i];
+		FEnemyMasterData enemyData = dataMg->GetEnemyData(enemy->GetID());
+
+		enemy->SetActorLocationAndRotation(enemysTransform[i].pos, enemysTransform[i].rot);
+		//enemy->GetMesh()->SetRelativeScale3D(FVector(enemyData.BattleSize));
 	}
 }
 

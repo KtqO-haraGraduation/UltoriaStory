@@ -31,6 +31,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StartScript(UDataTable* ScriptTable);
 
+	// ストーリイベント開始関数
+	UFUNCTION(BlueprintCallable)
+	bool StartStoryEvent(FName TriggerID);
+
 	// 次コマンド実行関数
 	UFUNCTION(BlueprintCallable)
 	void NextCommand();
@@ -146,6 +150,12 @@ private:
 	bool m_BattleEndsScript;
 	// バトル終了待機フラグ
 	bool m_WaitingBattleEnd;
+
+	// スクリプト再生可能フラグ
+	bool m_CanPlayScript;
+
+// 実行中のストーリー名
+	FName m_StoryRowName;
 
 // プレイヤー
 	TWeakObjectPtr<APawn> m_HiddenPawn;

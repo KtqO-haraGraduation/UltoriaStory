@@ -35,8 +35,47 @@ void UPlayerPartyManager::RemovePlayerParty(const FPartyData& character)
 	m_PartyData.Remove(character);
 }
 
-void UPlayerPartyManager::CreatePlayerParty()
+void UPlayerPartyManager::CreatePlayerParty(/*ACharacterBase* mainPlayer*/)
 {
+	//if (!mainPlayer) return;
+
+	//// 既存の仲間を削除
+	//DeletePlayerParty();
+
+	//// メインプレイヤーをパーティーの先頭に登録
+	//m_PlayerParty.Add(mainPlayer);
+
+	//UCharacterDataManager* characterDataMg =
+	//	GetWorld()->GetSubsystem<UCharacterDataManager>();
+
+	//if (!characterDataMg) return;
+
+	//// 仲間だけを生成（メインプレイヤーは除外）
+	//for (int32 i = 1; i < m_PartyData.Num(); i++)
+	//{
+	//	const FPartyData& player = m_PartyData[i];
+
+	//	FAllyMasterData data = characterDataMg->GetAllyMasterData(player.characterID);
+
+	//	if (!data.Class) continue;
+
+	//	FVector spawnLocation(mainPlayer->GetActorLocation().X + i * 200.0f,
+	//		mainPlayer->GetActorLocation().Y, mainPlayer->GetActorLocation().Z);
+
+	//	FActorSpawnParameters spawnParams;
+	//	spawnParams.SpawnCollisionHandlingOverride =
+	//		ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	//	ACharacterBase* character =GetWorld()->SpawnActor<ACharacterBase>(
+	//		data.Class, spawnLocation, mainPlayer->GetActorRotation(), spawnParams);
+
+	//	if (character)
+	//	{
+	//		character->SpawnDefaultController();
+	//		m_PlayerParty.Add(character);
+	//	}
+	//}
+
 	// プレイヤーパーティーを取得（ID → CharacterBase 変換）
 	for (const FPartyData& player : m_PartyData)
 	{

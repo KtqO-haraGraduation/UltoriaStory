@@ -12,7 +12,7 @@
 #include "GameFramework/PlayerController.h"
 
 constexpr float CAMERA_UPVEC_Z = 300.0f;
-constexpr float CAMERA_OFFSET_Y_ALLY  = 600.0f;
+constexpr float CAMERA_OFFSET_Y_ALLY  = 1500.0f;
 constexpr float CAMERA_OFFSET_Y_ENEMY = 1500.0f;
 
 void UBattleCameraManager::Init(UBattleManager* battleMg)
