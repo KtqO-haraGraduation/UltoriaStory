@@ -3,6 +3,7 @@
 
 #include "EventTriggerActor.h"
 #include "../Event/EventScriptEngine.h"
+#include "../Stage/StageManager.h"
 #include "../Character/Ally/MainPlayer.h"
 
 // Sets default values
@@ -34,6 +35,14 @@ void AEventTriggerActor::BeginOverlap(UPrimitiveComponent* overlappedComp, AActo
 
 	// プレイヤー以外が触れても発動しない
 	if (!Cast<AMainPlayer>(otherActor)) return;
+
+	// 一旦フェードイン
+	UStageManager* stageManager = GetWorld()->GetSubsystem<UStageManager>();
+
+	if (stageManager)
+	{
+		stageManager->SetScreenBlack();
+	}
 
 	if (!m_TriggerID.IsNone())
 	{
