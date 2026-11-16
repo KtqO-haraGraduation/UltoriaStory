@@ -228,8 +228,6 @@ void AMainPlayer::StartBattle(ACharacterBase* otherActor, bool isPreemptive)
 		
 		encounter->SetEnemy(otherActor);
 		encounter->EnterBattle();
-
-		//encounter->StartEncounter(otherActor, isPreemptive);
 	}
 }
 

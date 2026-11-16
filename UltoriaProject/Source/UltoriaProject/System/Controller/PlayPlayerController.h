@@ -17,6 +17,7 @@ enum class PlayInputMode
 	BATTLE,
 	MENU,
 	SHOP,
+	NONEINPUT,
 };
 
 enum class EUIInputType
@@ -201,4 +202,8 @@ private:
 	// キャンセルボタンIA
 	UPROPERTY(EditAnywhere)
 	UInputAction* m_InputCancel;
+
+// 入力禁止用マッピング
+	UPROPERTY(EditAnywhere)
+	UInputMappingContext* m_InputNone;
 };

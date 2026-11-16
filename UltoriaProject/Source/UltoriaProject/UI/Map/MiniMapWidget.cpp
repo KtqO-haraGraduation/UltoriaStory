@@ -209,9 +209,9 @@ void UMiniMapWidget::UpdateMapEnemy()
         const FVector2D uvEnemy(uvMapEnemyX, uvMapEnemyY);
         // ƒ}ƒeƒŠƒAƒ‹‚Æ“¯‚¶‹——£”»’è
         const float distance = FVector2D::Distance(uvEnemy, m_UVMapCenter);
-        UE_LOG(LogTemp, Warning, TEXT("UVMapCenter : X=%f, Y=%f"), m_UVMapCenter.X, m_UVMapCenter.Y);
+        /*UE_LOG(LogTemp, Warning, TEXT("UVMapCenter : X=%f, Y=%f"), m_UVMapCenter.X, m_UVMapCenter.Y);
         UE_LOG(LogTemp, Warning, TEXT("UVMapEnemy  : X=%f, Y=%f"), uvMapEnemyX, uvMapEnemyY);
-        UE_LOG(LogTemp, Warning, TEXT("MapEnemy    : dis=%f"), distance);
+        UE_LOG(LogTemp, Warning, TEXT("MapEnemy    : dis=%f"), distance);*/
 
         // 
         const bool bInsideMap = distance < m_DrawRangeArea;

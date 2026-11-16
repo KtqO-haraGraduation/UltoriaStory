@@ -9,12 +9,16 @@ void UBattleDataManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
+	UE_LOG(LogTemp, Warning, TEXT("BattleDataManager Init Start"));
+
 	// バトルのデータアセットをロード
 	LoadBattleDataAsset();
 	LoadBattleUIDataAsset();
 
 	LoadCommandData();
 	LoadStatusData();
+
+	UE_LOG(LogTemp, Warning, TEXT("BattleDataManager Init End"));
 }
 
 void UBattleDataManager::LoadBattleDataAsset()
@@ -23,6 +27,8 @@ void UBattleDataManager::LoadBattleDataAsset()
 		nullptr,
 		TEXT("/Game/Data/Battle/DA_Battle.DA_Battle")
 	);
+
+	UE_LOG(LogTemp, Warning, TEXT("BattleUIDataAsset:%s"), *GetNameSafe(m_BattleUIDataAsset));
 }
 
 void UBattleDataManager::LoadBattleUIDataAsset()

@@ -193,24 +193,6 @@ void UEnemyFieldAIComponent::UpdateChase()
 	bool targetResult = navSystem->ProjectPointToNavigation(
 		target, targetNav);
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("Start: %d / Target: %d"),
-		startResult,
-		targetResult);
-
-	if (!path)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Path is NULL"));
-		return;
-	}
-
-	if (path->PathPoints.Num() < 2)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("PathPoints: %d"),
-			path->PathPoints.Num());
-		return;
-	}
-
 	// NavMesh‚ÅŒvŽZ‚³‚ê‚½ŽŸ‚Ì’n“_
 	FVector nextPoint = path->PathPoints[1];
 
