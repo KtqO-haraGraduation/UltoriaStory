@@ -78,7 +78,7 @@ void UJobDataComponent::SetJobData(FName jobName)
 
 	m_Data = dataMg->GetJobData(jobName);
 
-	UE_LOG(LogTemp, Warning, TEXT("Data"));
+	/*UE_LOG(LogTemp, Warning, TEXT("Data"));
 	UE_LOG(LogTemp, Warning, TEXT("Name : %s"), *m_Data.Name.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("HP : %f"), m_Data.HP);
 	UE_LOG(LogTemp, Warning, TEXT("MP : %f"), m_Data.MP);
@@ -91,7 +91,7 @@ void UJobDataComponent::SetJobData(FName jobName)
 	UE_LOG(LogTemp, Warning, TEXT("Skill_3 : %s"), *m_Data.Skill_3.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("Skill_4 : %s"), *m_Data.Skill_4.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("Skill_5 : %s"), *m_Data.Skill_5.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("Skill_6 : %s"), *m_Data.Skill_6.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Skill_6 : %s"), *m_Data.Skill_6.ToString());*/
 
 	m_Data.HP /= STATUS_DIAMETER;
 	m_Data.MP /= STATUS_DIAMETER;
@@ -100,12 +100,12 @@ void UJobDataComponent::SetJobData(FName jobName)
 	m_Data.DEF /= STATUS_DIAMETER;
 	m_Data.SPD /= STATUS_DIAMETER;
 
-	UE_LOG(LogTemp, Warning, TEXT("HP : %f"), m_Data.HP);
+	/*UE_LOG(LogTemp, Warning, TEXT("HP : %f"), m_Data.HP);
 	UE_LOG(LogTemp, Warning, TEXT("MP : %f"), m_Data.MP);
 	UE_LOG(LogTemp, Warning, TEXT("ATK : %f"), m_Data.ATK);
 	UE_LOG(LogTemp, Warning, TEXT("MGC : %f"), m_Data.MGC);
 	UE_LOG(LogTemp, Warning, TEXT("DEF : %f"), m_Data.DEF);
-	UE_LOG(LogTemp, Warning, TEXT("SPD : %f"), m_Data.SPD);
+	UE_LOG(LogTemp, Warning, TEXT("SPD : %f"), m_Data.SPD);*/
 
 	CreateSkill();
 }

@@ -33,6 +33,12 @@ void UBattleUIManager::CreateBattleUI()
 	TSubclassOf<UBattleUIWidget> battleWidgetClass = battleDataMg->GetBattleUIDataAsset()->BattleUIClass;
 
 	m_BattleUIWidget = CreateWidget<UBattleUIWidget>(GetWorld(), battleWidgetClass);
+	
+	if (!m_BattleUIWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Battle Null"));
+	}
+	
 	if (m_BattleUIWidget) { m_BattleUIWidget->AddToViewport();}
 
 	// Ø‚è‘Ö‚¦‚ÉŒÄ‚Î‚ê‚éˆ—‚ğ“o˜^
@@ -60,6 +66,14 @@ void UBattleUIManager::CreateResultUI()
 	TSubclassOf<UBattleResultWidget> resultClass = battleDataMg->GetBattleUIDataAsset()->ResultWidgetClass;
 
 	m_ResultUIWidget = CreateWidget<UBattleResultWidget>(GetWorld(), resultClass);
+	
+	if (!m_ResultUIWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Result Null"));
+	}
+	
+	
+	
 	if (m_ResultUIWidget) { m_ResultUIWidget->AddToViewport(); }
 }
 
@@ -151,10 +165,18 @@ void UBattleUIManager::CreateDamageWidget(ACharacterBase* target, int damage)
 
 	TSubclassOf<UDamageWidget> damageClass = battleDataMg->GetBattleUIDataAsset()->DamageWidgetClass;
 
+	
 	UDamageWidget* widget = CreateWidget<UDamageWidget>(GetWorld(), damageClass);
+	
+	if (!widget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Damage Null"));
+	}
+	
+	if (!widget) return;
 
 	widget->Init(target, damage);
-	if (widget) { widget->AddToViewport(); }
+	widget->AddToViewport();
 }
 
 void UBattleUIManager::OnTurnChanged(ACharacterBase* prevCharacter, ACharacterBase* currentCharacter)

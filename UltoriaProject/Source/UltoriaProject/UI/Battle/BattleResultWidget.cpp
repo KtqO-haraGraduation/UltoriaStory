@@ -3,9 +3,11 @@
 
 #include "BattleResultWidget.h"
 #include "ResultCharacterWidget.h"
-#include "Components/VerticalBoxSlot.h"
+#include "Data/BattleUIDataAsset.h"
 #include "../../Battle/PlayerPartyManager.h"
 #include "../../Battle/BattleManager.h"
+#include "../../Battle/Combat/Data/BattleDataManager.h"
+#include "Components/VerticalBoxSlot.h"
 
 void UBattleResultWidget::NativeConstruct()
 {
@@ -13,13 +15,11 @@ void UBattleResultWidget::NativeConstruct()
 
 	// キャラクターのステータスUIを生成
 	UBattleManager* battleManager = GetWorld()->GetSubsystem<UBattleManager>();
+	UBattleDataManager* battleDataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
 	UPlayerPartyManager* playerParty = GetWorld()->GetSubsystem<UPlayerPartyManager>();
 
 	// ステータスUIのクラスを取得
-	UClass* resultClass =
-		LoadClass<UResultCharacterWidget>(
-			nullptr,
-			TEXT("/Game/MembarFiles/Matsubara/UI_MC/Result/WBP_ResultCharacterWidget.WBP_ResultCharacterWidget_C"));
+	TSubclassOf<UResultCharacterWidget> resultClass = battleDataMg->GetBattleUIDataAsset()->ResultCharacterWidgetClass;
 
 	// ステータスUIを生成
 	for (auto character : playerParty->GetPlayerParty())
