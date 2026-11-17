@@ -266,6 +266,6 @@ void UMyOnlineCoreSubsystem::OnDestroySessionComplete(FName SessionName, bool bW
 	APlayerController* pc = GetWorld()->GetFirstPlayerController();
 	if (pc)
 	{
-		pc->ClientTravel(TEXT("/Game/Level/DLv_NetworkTest"), TRAVEL_Absolute);
+		pc->ClientTravel(TEXT("/Game/MembarFiles/kamei/Lv/DLv_NetworkTest"), TRAVEL_Absolute);
 	}
 }

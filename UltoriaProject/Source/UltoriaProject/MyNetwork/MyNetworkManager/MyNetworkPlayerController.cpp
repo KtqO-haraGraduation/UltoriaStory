@@ -13,18 +13,49 @@ void AMyNetworkPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		10.0f,
-		FColor::Yellow,
-		FString::Printf(
-			TEXT("BeginPlay: %s / Local: %d / Authority: %d"),
-			*GetName(),
-			IsLocalController(),
-			HasAuthority()
-		)
-	);
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			2000.0f,
+			FColor::Yellow,
+			FString::Printf(
+				TEXT("[PC BeginPlay] %s Local=%d Authority=%d Pawn=%s"),
+				*GetName(),
+				IsLocalController(),
+				HasAuthority(),
+				IsValid(GetPawn()) ? *GetPawn()->GetName() : TEXT("NONE")
+			)
+		);
+	}
 
+	FTimerHandle DebugTimer;
+
+	GetWorldTimerManager().SetTimer(
+		DebugTimer,
+		[this]()
+		{
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(
+					-1,
+					2000.0f,
+					FColor::Cyan,
+					FString::Printf(
+						TEXT("[PC 1sec] %s Local=%d Authority=%d Pawn=%s"),
+						*GetName(),
+						IsLocalController(),
+						HasAuthority(),
+						IsValid(GetPawn())
+						? *GetPawn()->GetName()
+						: TEXT("NONE")
+					)
+				);
+			}
+		},
+		1.0f,
+		false
+	);
 
 	CreateWidgetsOnce();
 	UpdateUI();
