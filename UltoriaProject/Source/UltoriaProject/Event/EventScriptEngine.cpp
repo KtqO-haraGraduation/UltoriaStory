@@ -14,6 +14,7 @@
 #include "../Character/Data/CharacterDataManager.h"
 #include "../UI/Map/MapManager.h"
 #include "../Story/StoryManager.h"
+#include "../System/Controller/PlayPlayerController.h"
 
 // Sets default values for this component's properties
 UEventScriptEngine::UEventScriptEngine()
@@ -60,6 +61,12 @@ void UEventScriptEngine::StartScript(UDataTable* ScriptTable)
 	// スクリプトデータが無ければ終了
 	if (!ScriptTable)return;
 	if (m_IsEventPlaying)return;
+
+	// 入力を無効化
+	APlayPlayerController* pc =
+		Cast<APlayPlayerController>(GetWorld()->GetFirstPlayerController());
+
+	if (pc) pc->ChangeInputMode(PlayInputMode::NONEINPUT);
 	
 	// コマンド追加
 	RegisterCommands();
@@ -217,6 +224,9 @@ void UEventScriptEngine::FinishedScript()
 	// PlayerControllerからカメラマネージャーを取得
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!PC)return;
+	// PlayPlayerControllerを取得
+	APlayPlayerController* playerController = Cast<APlayPlayerController>(PC);
+
 	APlayerCameraManager* cameraManager = PC->PlayerCameraManager;
 	if (!cameraManager)return;
 
@@ -237,6 +247,9 @@ void UEventScriptEngine::FinishedScript()
 		PC->PlayerCameraManager->StartCameraFade(1.0f, 0.0f, 0.5f, FLinearColor::Black, false, false);
 
 	}, 0.5f, false);
+
+	// 入力を復活
+	playerController->ChangeInputMode(PlayInputMode::FIELD);
 }
 
 void UEventScriptEngine::FinishedSequence()
@@ -482,6 +495,9 @@ void UEventScriptEngine::Command_Sequence(FEventScriptRow* Row)
 		GetWorld(), sequence, settings, m_SequenceActor
 	);
 
+	UE_LOG(LogTemp, Warning, TEXT("[Sequence] path=%s loaded=%d player=%d"),
+		*sequencePath, sequence != nullptr, m_SequencePlayer != nullptr);
+
 	// 再生前にプレイヤーのモデルを非表示
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (PC && PC->GetPawn())
@@ -527,6 +543,9 @@ void UEventScriptEngine::Command_Sequence(FEventScriptRow* Row)
 		m_IsSepuencePlaying = true;
 		m_SequencePlayer->OnFinished.AddDynamic(this, &UEventScriptEngine::FinishedSequence);
 		m_SequencePlayer->Play();
+
+		UE_LOG(LogTemp, Warning, TEXT("[Sequence] playing=%d"),
+			m_SequencePlayer ? m_SequencePlayer->IsPlaying() : 0);
 	}
 
 	// 後続のSubtitle行をキューに読み込む

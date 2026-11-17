@@ -100,6 +100,9 @@ public:
 
 	void SetSelectionUIVisibility(bool flag); // 選択時のUIの表示 / 非表示
 
+	// セーブデータからキャラクターのステータスを復元
+	void LoadSaveStatus(int level, int exp, int hp, int mp);
+
 	// コンポーネント取得
 	template<typename T>
 	T* GetComponent() const

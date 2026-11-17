@@ -143,7 +143,7 @@ ABattleAreaManager* UBattleLifecycle::GetBattleArea()
 
 	if (level)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Loaded Battle Level: %s"), *level->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Loaded Battle Level: %s"), *level->GetName());
 
 		for (AActor* actor : level->Actors)
 		{
@@ -152,8 +152,8 @@ ABattleAreaManager* UBattleLifecycle::GetBattleArea()
 			
 			if (!area) continue;
 
-			UE_LOG(LogType, Warning, TEXT("BattleArea Name: %s"), *area->GetName());
-			UE_LOG(LogType, Warning, TEXT("BattleArea Pos: %s"), *area->GetActorLocation().ToString());
+			//UE_LOG(LogType, Warning, TEXT("BattleArea Name: %s"), *area->GetName());
+			//UE_LOG(LogType, Warning, TEXT("BattleArea Pos: %s"), *area->GetActorLocation().ToString());
 
 			return area;
 		}

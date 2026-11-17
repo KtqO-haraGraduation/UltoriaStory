@@ -31,6 +31,10 @@ void APlayPlayerController::ChangeInputMode(PlayInputMode mode)
 		break;
 	case PlayInputMode::SHOP:
 		subsystem->AddMappingContext(m_InputShop, 0);
+		break;
+	case PlayInputMode::NONEINPUT:
+		subsystem->AddMappingContext(m_InputNone, 0);
+		break;
 	}
 
 	m_CurrentInputMode = mode;
