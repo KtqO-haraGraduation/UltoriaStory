@@ -20,6 +20,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "../../System/Save/SaveManager.h"
+
 // Sets default values
 AMainPlayer::AMainPlayer()
 {
@@ -37,28 +39,40 @@ void AMainPlayer::BeginPlay()
 	if (!battleMg) return;
 	if (battleMg->IsBattle()) return;
 
+	// セーブ管理を取得
+	USaveManager* saveMg = GetGameInstance()->GetSubsystem<USaveManager>();
+
 	// 仮実装（Playerをパーティーに追加）
 	UPlayerPartyManager* partyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
 	if (partyMg)
 	{
-		FPartyData data_1;
-		data_1.characterID = m_ID;
+		// セーブデータが読み込まれている場合
+		if (saveMg && saveMg->GetCurrentSaveData())
+		{
+			// 初期化完了後にセーブデータを反映
+			saveMg->ApplyGameData(this);
+		}
+		else
+		{
+			FPartyData data_1;
+			data_1.characterID = m_ID;
 
-		FPartyData data_2;
-		data_2.characterID = "Ally001";
+			FPartyData data_2;
+			data_2.characterID = "Ally001";
 
-		FPartyData data_3;
-		data_3.characterID = "Ally002";
+			FPartyData data_3;
+			data_3.characterID = "Ally002";
 
-		FPartyData data_4;
-		data_4.characterID = "Ally003";
+			FPartyData data_4;
+			data_4.characterID = "Ally003";
 
-		partyMg->AddPlayerParty(data_1);
-		partyMg->AddPlayerParty(data_2);
-		partyMg->AddPlayerParty(data_3);
-		partyMg->AddPlayerParty(data_4);
+			partyMg->AddPlayerParty(data_1);
+			partyMg->AddPlayerParty(data_2);
+			partyMg->AddPlayerParty(data_3);
+			partyMg->AddPlayerParty(data_4);
 
-		//partyMg->CreatePlayerParty(this);
+			//partyMg->CreatePlayerParty(this);
+		}
 	}
 
 	partyMg->SetFieldPlayer(this);
