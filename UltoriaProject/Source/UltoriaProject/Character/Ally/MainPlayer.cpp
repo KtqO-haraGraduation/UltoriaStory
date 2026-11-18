@@ -54,6 +54,7 @@ void AMainPlayer::BeginPlay()
 		}
 		else
 		{
+			// パーティーメンバーの仮実装
 			FPartyData data_1;
 			data_1.characterID = m_ID;
 
