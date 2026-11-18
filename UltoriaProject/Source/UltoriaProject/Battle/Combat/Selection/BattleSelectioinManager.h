@@ -57,7 +57,7 @@ public:
 
 	SelectionType GetSelectionType() const { return m_SelectionType; }
 	SelectionType GetPrevSelectionType() const { return m_PrevSelectionType; }
-	AEnemyBase* GetTargetCurrentSelect();
+	ACharacterBase* GetTargetCurrentSelect();
 
 	TSelectionSystem<ACharacterBase*>& GetTargetSelection() { return m_TargetSelection; }
 	TSelectionSystem<FBattleCommandData>& GetCommandSelection() { return m_CommandSelection; }
@@ -103,6 +103,8 @@ private:
 	void ResetSelection();
 
 private:
+	bool m_IsCanMoveTargetCursor;				// ターゲットカーソルが動かせるか
+
 	UBattleManager* m_BattleManager;
 	SelectionType m_PrevSelectionType;			// 前回の選択処理の種類
 	SelectionType m_SelectionType;				// 現在の選択処理の種類

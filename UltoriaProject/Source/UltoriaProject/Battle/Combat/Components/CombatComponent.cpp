@@ -225,6 +225,9 @@ void UCombatComponent::TakeDamage(int damage)
 
 void UCombatComponent::HPHeal(int healHp)
 {
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+
 	m_CurrentState = CombatState::HEAL;
 
 	int newHp = m_Owner->GetCurrentHP() + healHp;
@@ -235,10 +238,25 @@ void UCombatComponent::HPHeal(int healHp)
 	{
 		uiMg->CreateDamageWidget(m_Owner, newHp);
 	}
+
+	// 次のキャラへ（0.2秒後）
+	FTimerHandle Timer;
+	GetWorld()->GetTimerManager().SetTimer(
+		Timer,
+		[this, battleMg]()
+		{
+			battleMg->NextTurn();
+		},
+		0.2f,
+		false
+	);
 }
 
 void UCombatComponent::MPHeal(int healMp)
 {
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+
 	m_CurrentState = CombatState::HEAL;
 
 	int newMp = m_Owner->GetCurrentMP() + healMp;
@@ -249,6 +267,18 @@ void UCombatComponent::MPHeal(int healMp)
 	{
 		uiMg->CreateDamageWidget(m_Owner, newMp);
 	}
+
+	// 次のキャラへ（0.2秒後）
+	FTimerHandle Timer;
+	GetWorld()->GetTimerManager().SetTimer(
+		Timer,
+		[this, battleMg]()
+		{
+			battleMg->NextTurn();
+		},
+		0.2f,
+		false
+	);
 }
 
 void UCombatComponent::Deading()

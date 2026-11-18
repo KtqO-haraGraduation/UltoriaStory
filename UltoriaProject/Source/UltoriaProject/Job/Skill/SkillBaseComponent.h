@@ -46,4 +46,6 @@ private:
 private:
 	TArray<FSkillDataRow> m_SkillList;
 
+
+	const FSkillDataRow* m_NowUseSkillData;
 };

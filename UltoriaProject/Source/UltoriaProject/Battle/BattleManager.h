@@ -40,6 +40,7 @@ public:
 	// バトル中かのフラグ
 	UFUNCTION(BlueprintCallable)
 	bool IsBattle() const { return m_IsBattle; }
+	void SetBattle(bool isBattle) { m_IsBattle = isBattle; }
 	FOnTurnChanged& OnTurnChanged() { return m_OnTurnChanged; }
 
 	// コマンドごとの実行処理
@@ -67,8 +68,7 @@ public:
 	TArray<ACharacterBase*> GetActiveTargets(ETargetTeam team) const; // 生存してるターゲット
 
 	void ShowAttackTargetUI(const TArray<ACharacterBase*>& targets);
-	void ShowTargetUI(const TArray<ACharacterBase*>& targets, ETargetType type = ETargetType::SINGLE);
-	void ShowAllTargetUI(const TArray<ACharacterBase*>& targets);
+	void ShowTargetUI(const TArray<ACharacterBase*>& targets, ETargetType type);
 
 private:
 	//void InitializeSelection();
@@ -80,8 +80,6 @@ private:
 
 	// Attackの処理
 	void StartAttack();
-	void StartSkill();
-	void StartItem();
 
 	bool BattleWin();
 	bool BattleLose();

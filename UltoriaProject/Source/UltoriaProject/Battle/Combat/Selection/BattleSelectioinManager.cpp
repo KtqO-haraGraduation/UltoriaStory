@@ -15,6 +15,7 @@ void UBattleSelectioinManager::Init(UBattleManager* battleMg)
 	m_BattleManager = battleMg;
 	m_SelectionType = SelectionType::NONE;
 	m_PrevSelectionType = SelectionType::NONE;
+	m_IsCanMoveTargetCursor = true;
 
 	// 登録する前に前回のイベントを削除
 	ResetSelection();
@@ -70,9 +71,9 @@ void UBattleSelectioinManager::SelectCancel()
 	}
 }
 
-AEnemyBase* UBattleSelectioinManager::GetTargetCurrentSelect()
+ACharacterBase* UBattleSelectioinManager::GetTargetCurrentSelect()
 {
-	return Cast<AEnemyBase>(m_TargetSelection.GetCurrent());
+	return m_TargetSelection.GetCurrent();
 }
 
 void UBattleSelectioinManager::SetCommandTarget()
@@ -191,6 +192,8 @@ void UBattleSelectioinManager::MoveCommand(EUIInputType type)
 
 void UBattleSelectioinManager::MoveTarget(EUIInputType type)
 {
+	if (!m_IsCanMoveTargetCursor) return;
+
 	switch (type)
 	{
 	case EUIInputType::LEFT:
@@ -255,7 +258,22 @@ void UBattleSelectioinManager::ConfirmTarget()
 	else if (m_PrevSelectionType == SelectionType::SKILL)
 	{
 		// スキル使用
+		USkillBaseComponent* skillComponent = m_BattleManager->GetCurrentCharacter()->GetComponent<USkillBaseComponent>();
+		if (!skillComponent) return;
 
+		FSkillDataRow skillData = m_SkillSelection.GetCurrent();
+
+		if (skillData.TargetType == ETargetType::SINGLE)
+		{
+			TArray<ACharacterBase*> targets = {};
+			targets.Add(m_TargetSelection.GetCurrent());
+
+			skillComponent->UseSkill(m_SkillSelection.GetCurrentIndex(), targets);
+		}
+		else if (skillData.TargetType == ETargetType::ALL)
+		{
+			skillComponent->UseSkill(m_SkillSelection.GetCurrentIndex(), m_TargetSelection.GetTargets());
+		}
 	}
 	else if (m_PrevSelectionType == SelectionType::ITEM)
 	{
@@ -264,6 +282,8 @@ void UBattleSelectioinManager::ConfirmTarget()
 	}
 
 	uiMg->SetUIVisible(EBattleUIType::TARGET, false);
+	uiMg->SetUIVisible(EBattleUIType::ALLTARGET, false);
+	m_IsCanMoveTargetCursor = true;
 }
 
 void UBattleSelectioinManager::ConfirmSkill()
@@ -277,18 +297,15 @@ void UBattleSelectioinManager::ConfirmSkill()
 	FSkillDataRow skillData = m_SkillSelection.GetCurrent();
 	TArray<ACharacterBase*> targets = BeginTargetSelection(skillData.TargetTeam);
 
-	//skillComponent->UseSkill(m_SkillSelection.GetCurrentIndex(), targets);
-
 	if (skillData.TargetType == ETargetType::SINGLE)
 	{
 		// 選択画面へ
-		m_BattleManager->ShowTargetUI(targets);
+		m_BattleManager->ShowTargetUI(targets, ETargetType::SINGLE);
 	}
 	else if(skillData.TargetType == ETargetType::ALL)
 	{
-		m_BattleManager->ShowTargetUI(targets);
-
-		//skillComponent->UseSkill(m_SkillSelection.GetCurrentIndex(), targets);
+		m_IsCanMoveTargetCursor = false;
+		m_BattleManager->ShowTargetUI(targets, ETargetType::ALL);
 	}
 
 	m_PrevSelectionType = SelectionType::SKILL;
@@ -344,6 +361,7 @@ void UBattleSelectioinManager::CancelSkill()
 	m_PrevSelectionType = SelectionType::NONE;
 
 	uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
+	uiMg->SetUIVisible(EBattleUIType::TARGET, false);
 	uiMg->SetUIVisible(EBattleUIType::SKILL, false);
 }
 

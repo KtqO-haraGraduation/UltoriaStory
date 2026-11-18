@@ -17,6 +17,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -33,9 +34,17 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// バトル中だったら初期化をしない
 	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	if (!battleMg) return;
 	if (battleMg->IsBattle()) return;
+
+	// 仮実装（ステージに合わせた敵のパーティーデータをロード）
+	UCharacterDataManager* characterDataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
+	if (characterDataMg)
+	{
+		characterDataMg->LoadEnemyPartyData();
+	}
 
 	// 仮実装（Playerをパーティーに追加）
 	UPlayerPartyManager* partyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
@@ -61,31 +70,14 @@ void AMainPlayer::BeginPlay()
 		//partyMg->CreatePlayerParty(this);
 	}
 
+	// フィールドのPlayerを保存
 	partyMg->SetFieldPlayer(this);
 
-	// 仮実装（ステージに合わせた敵のパーティーデータをロード）
-	UCharacterDataManager* characterDataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
-	if (characterDataMg)
-	{
-		characterDataMg->LoadEnemyPartyData();
-	}
-
-	// 先制攻撃用当たり判定を取得
-	m_AttackBox = FindComponentByClass<UBoxComponent>();
-
-	if (m_AttackBox)
-	{
-		m_AttackBox->SetHiddenInGame(true);
-		m_AttackBox->SetCollisionEnabled(
-			ECollisionEnabled::NoCollision
-		);
-	}
-
-	m_CameraBoom = FindComponentByClass<USpringArmComponent>();
-	m_FollowCamera = FindComponentByClass<UCameraComponent>();
+	// 必要なコンポーネントの取得・設定
+	FindComponents();
+	SetupComponents();
 
 	FRotator initRot = GetActorRotation();
-
 	// スティックを上に入力時、Yawは90.0fになるので、「奥移動 = 0」になるように補正を掛ける
 	m_InitYawOffset = initRot.Yaw + 90.0f;
 }
@@ -105,6 +97,7 @@ void AMainPlayer::Tick(float DeltaTime)
 			AttackEnd();
 			m_TestCount = 60;
 			m_IsAttacking = false;
+			m_StaticMesh->SetVisibility(false);
 		}
 	}
 }
@@ -154,6 +147,7 @@ void AMainPlayer::Attack(const FInputActionValue& Value)
 	if (m_IsAttacking) return;
 
 	m_IsAttacking = true;
+	m_StaticMesh->SetVisibility(true);
 
 	// 一時的に当たり判定を作る
 
@@ -216,6 +210,10 @@ void AMainPlayer::ZoomReset(const FInputActionValue& Value)
 /// <param name="isPreemptive">先制攻撃に成功したかどうか（true：成功, false：失敗）</param>
 void AMainPlayer::StartBattle(ACharacterBase* otherActor, bool isPreemptive)
 {
+	/*UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+	if (battleMg->IsBattle()) return;*/
+
 	if (!otherActor) return;
 	if (otherActor->GetTeamType() != ETeamType::ENEMY) return;
 
@@ -228,6 +226,47 @@ void AMainPlayer::StartBattle(ACharacterBase* otherActor, bool isPreemptive)
 		
 		encounter->SetEnemy(otherActor);
 		encounter->EnterBattle();
+	}
+}
+
+void AMainPlayer::FindComponents()
+{
+	// 先制攻撃用当たり判定を取得
+	m_AttackBox = FindComponentByClass<UBoxComponent>();
+
+	// スタティックメッシュを取得
+	TArray<UActorComponent*> components;
+	GetComponents(UStaticMeshComponent::StaticClass(), components);
+
+	for (UActorComponent* component : components)
+	{
+		if (component->ComponentHasTag(TEXT("StaticMesh")))
+		{
+			m_StaticMesh = Cast<UStaticMeshComponent>(component);
+			break;
+		}
+	}
+
+	// カメラ関係を取得
+	m_CameraBoom = FindComponentByClass<USpringArmComponent>();
+	m_FollowCamera = FindComponentByClass<UCameraComponent>();
+}
+
+void AMainPlayer::SetupComponents()
+{
+	// 攻撃時の当たり判定を非表示
+	if (m_AttackBox)
+	{
+		m_AttackBox->SetHiddenInGame(true);
+		m_AttackBox->SetCollisionEnabled(
+			ECollisionEnabled::NoCollision
+		);
+	}
+
+	// 武器のメッシュを非表示
+	if (m_StaticMesh)
+	{
+		m_StaticMesh->SetVisibility(false);
 	}
 }
 

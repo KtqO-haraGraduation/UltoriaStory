@@ -7,6 +7,10 @@
 #include "../../Battle/Combat/Components/CombatComponent.h"
 #include "../../Character/Data/CharacterDataManager.h"
 
+// âÒïúéûÇÃóêêîî{ó¶
+constexpr float HEAL_RANDOM_RATE_MIN = 0.9f;
+constexpr float HEAL_RANDOM_RATE_MAX = 1.1f;
+
 // Sets default values for this component's properties
 USkillBaseComponent::USkillBaseComponent()
 {
@@ -65,8 +69,8 @@ bool USkillBaseComponent::CanUse(int index)
 
 void USkillBaseComponent::UseSkill(int index, const TArray<ACharacterBase*>& targets)
 {
-	const FSkillDataRow* skill = GetSkill(index);
-	if (!skill) return;
+	m_NowUseSkillData = GetSkill(index);
+	if (!m_NowUseSkillData) return;
 
 	if (!CanUse(index))
 	{
@@ -76,7 +80,7 @@ void USkillBaseComponent::UseSkill(int index, const TArray<ACharacterBase*>& tar
 		return;
 	}
 
-	switch (skill->SkillType)
+	switch (m_NowUseSkillData->SkillType)
 	{
 	case ESkillType::ATTACK:
 		Attack(targets);
@@ -89,7 +93,7 @@ void USkillBaseComponent::UseSkill(int index, const TArray<ACharacterBase*>& tar
 		break;
 	}
 
-	int newMp = m_Owner->GetCurrentMP() - skill->MpCost;
+	int newMp = m_Owner->GetCurrentMP() - m_NowUseSkillData->MpCost;
 	m_Owner->SetMP(newMp);
 }
 
@@ -142,6 +146,8 @@ void USkillBaseComponent::Attack(const TArray<ACharacterBase*>& targets)
 void USkillBaseComponent::Buff(const TArray<ACharacterBase*>& targets)
 {
 
+
+
 }
 
 void USkillBaseComponent::Heal(const TArray<ACharacterBase*>& targets)
@@ -153,6 +159,9 @@ void USkillBaseComponent::Heal(const TArray<ACharacterBase*>& targets)
 		UCombatComponent* conbat = target->GetComponent<UCombatComponent>();
 		if (!conbat) continue;
 
-		conbat->HPHeal(100);
+		float randomRate = FMath::FRandRange(HEAL_RANDOM_RATE_MIN, HEAL_RANDOM_RATE_MAX);
+		int healHP = m_NowUseSkillData->EffectValue * randomRate;
+
+		conbat->HPHeal(healHP);
 	}
 }

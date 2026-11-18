@@ -7,6 +7,7 @@
 #include "InputActionValue.h"
 #include "MainPlayer.generated.h"
 
+class UStaticMeshComponent;
 class UBoxComponent;
 class USpringArmComponent;
 class UCameraComponent;
@@ -52,16 +53,20 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void StartBattle(ACharacterBase* otherActor, bool isPreemptive);
 
-private:
 
-	//void JobChange();	// ジョブの切り替え
-	//FStatus TotalStatus();	// 総合ステータス
+private:
+	// コンポーネント取得
+	void FindComponents();
+	// コンポーネントの設定
+	void SetupComponents();
 
 private:
 	FVector m_PrevPos;  // 前回の座標（バトル開始時の座標）
 	bool m_IsAttacking; // アタック中か
 
+	UStaticMeshComponent* m_StaticMesh;
 	UBoxComponent* m_AttackBox;
+
 	USpringArmComponent* m_CameraBoom;
 	UCameraComponent* m_FollowCamera;
 
