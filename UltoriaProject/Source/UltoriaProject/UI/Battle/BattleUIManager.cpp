@@ -148,10 +148,10 @@ void UBattleUIManager::SetUIVisible(EBattleUIType type, bool flag)
 	}
 		
 	case EBattleUIType::TARGET:
-		SetEnemySelectionUI(flag);
+		SetTargetSelectionUI(flag);
 		break;
 	case EBattleUIType::ALLTARGET:
-		SetEnemySelectionUI(flag);
+		SetAllTargetSelectionUI(flag);
 		break;
 	default:
 		break;
@@ -218,26 +218,15 @@ void UBattleUIManager::OnTurnChanged(ACharacterBase* prevCharacter, ACharacterBa
 	}
 }
 
-void UBattleUIManager::SetEnemySelectionUI(bool flag)
-{
-	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
-	if (!battleMg) return;
-
-	AEnemyBase* enemy = battleMg->GetSelectManager()->GetTargetCurrentSelect();
-	if (!enemy) return;
-
-	enemy->SetSelectionUIVisibility(flag);
-}
-
 void UBattleUIManager::SetTargetSelectionUI(bool flag)
 {
 	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	if (!battleMg) return;
 
-	AEnemyBase* enemy = battleMg->GetSelectManager()->GetTargetCurrentSelect();
-	if (!enemy) return;
+	ACharacterBase* target = battleMg->GetSelectManager()->GetTargetCurrentSelect();
+	if (!target) return;
 
-	enemy->SetSelectionUIVisibility(flag);
+	target->SetSelectionUIVisibility(flag);
 }
 
 void UBattleUIManager::SetAllTargetSelectionUI(bool flag)
@@ -249,6 +238,6 @@ void UBattleUIManager::SetAllTargetSelectionUI(bool flag)
 	for (ACharacterBase* target : targets)
 	{
 		if (!target) continue;
-		//target->SetSelectionUIVisibility(flag);
+		target->SetSelectionUIVisibility(flag);
 	}
 }

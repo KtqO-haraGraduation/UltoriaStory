@@ -75,6 +75,7 @@ void USkillUIWidget::UpdateSelection(int index)
 	if (!skillData) return;
 
 	DescText->SetText(skillData->Desc);
+	MPText->SetText(FText::AsNumber(skillData->MpCost));
 }
 
 USkillBaseComponent* USkillUIWidget::GetCurrentSkillComponent()

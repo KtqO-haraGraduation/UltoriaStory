@@ -29,4 +29,7 @@ private:
 private:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DescText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MPText;
 };

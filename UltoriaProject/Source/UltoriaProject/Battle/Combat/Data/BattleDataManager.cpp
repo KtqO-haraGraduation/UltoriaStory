@@ -27,8 +27,6 @@ void UBattleDataManager::LoadBattleDataAsset()
 		nullptr,
 		TEXT("/Game/Data/Battle/DA_Battle.DA_Battle")
 	);
-
-	UE_LOG(LogTemp, Warning, TEXT("BattleUIDataAsset:%s"), *GetNameSafe(m_BattleUIDataAsset));
 }
 
 void UBattleDataManager::LoadBattleUIDataAsset()
@@ -37,6 +35,8 @@ void UBattleDataManager::LoadBattleUIDataAsset()
 		nullptr,
 		TEXT("/Game/Data/UI/Battle/DA_BattleUI.DA_BattleUI")
 	);
+
+	UE_LOG(LogTemp, Warning, TEXT("BattleUIDataAsset:%s"), *GetNameSafe(m_BattleUIDataAsset));
 }
 
 void UBattleDataManager::LoadCommandData()

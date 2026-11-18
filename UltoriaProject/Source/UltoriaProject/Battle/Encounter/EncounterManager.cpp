@@ -197,6 +197,11 @@ void UEncounterManager::HideBattleLevels()
 
 void UEncounterManager::EnterBattle()
 {
+	/*UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+
+	battleMg->SetBattle(true);*/
+
 	UStageManager* stageMg = GetWorld()->GetSubsystem<UStageManager>();
 	if (!stageMg) return;
 
