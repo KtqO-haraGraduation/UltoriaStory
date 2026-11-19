@@ -14,17 +14,5 @@ struct FEnemyPartyData : public FTableRowBase
 	FName Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EStageType StageType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Enemy1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Enemy2;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Enemy3;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Enemy4;
+	TArray<FName> Enemies;
 };
