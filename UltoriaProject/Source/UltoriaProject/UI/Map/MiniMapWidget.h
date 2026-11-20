@@ -34,6 +34,9 @@ private:
 
 	void UpdateMapPlayer();
 	void UpdateMapEnemy();
+	void UpdateObjectiveMarker(float deltaTime);
+
+	bool WorldToMapPos(const FVector& worldLoc, FVector2D& outPos,bool& outInside)const;
 
 	void AddStageMosts(FName tag);
 
@@ -48,6 +51,8 @@ protected:
 	UImage* PlayerImage;
 	UPROPERTY(meta = (BindWidget))
 	UImage* EnemyImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* m_ObjectiveImage;
 
 	TArray<AActor*> m_StageMosts;
 	UCanvasPanelSlot* m_RB_Slot;
@@ -73,4 +78,11 @@ protected:
 	// プレイヤーアイコン用オフセット(Yaw)
 	UPROPERTY(EditAnyWhere)
 	float m_PlayerIconYawOffset;
+
+	// 表示したいイベントトリガー
+	TWeakObjectPtr<AActor> m_ObjectiveTarget;
+	// トリガーのID
+	FName m_ObjectiveTriggerID;
+	// 目的地を再検索するまでのクールタイム
+	float m_ObjectiveSearchCoolDown = 0.0f;
 };

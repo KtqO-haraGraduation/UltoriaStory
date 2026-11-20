@@ -18,5 +18,9 @@ struct FStoryRow : public FTableRowBase
 	// 流すイベント台本
 	UPROPERTY(EditAnyWhere,BluePrintReadOnly)
 	TSoftObjectPtr<UDataTable>Script;
+
+	// 画面に出す目的テキスト
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	FText ObjectiveText;
 };
 
