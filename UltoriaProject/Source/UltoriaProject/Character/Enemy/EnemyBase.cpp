@@ -161,7 +161,7 @@ void AEnemyBase::CreateSkill()
 	}
 }
 
-TArray<FDropItemData> AEnemyBase::GetDropItem()
+TArray<FDropItemData> AEnemyBase::GetDropItems()
 {
 	TArray<FDropItemData> result = {};
 	const FEnemyMasterData data = m_CharacterDataMg->GetEnemyData(m_ID);
@@ -176,12 +176,27 @@ TArray<FDropItemData> AEnemyBase::GetDropItem()
 	// 取得するアイテムの種類を選択
 	int randomValue = FMath::RandRange(DROP_ITEM_TYPE_MIN, DROP_ITEM_TYPE_MAX);
 
+	// すでにドロップしたかの記録用リスト
+	TArray<FName> droppedItems = {};
+
+	// ドロップする種類分回す
 	for (int i = 0; i < randomValue; i++)
 	{
-		const FName dropItem = GetRnadomDropItem();
+		FName dropItem;
+		// すでにドロップしていれば、再抽選
+		do
+		{
+			dropItem = GetRnadomDropItem();
+
+		} while (droppedItems.Contains(dropItem));
+		droppedItems.Add(dropItem);
+
+		// ドロップの種類が2種類なら落とす個数（最大）が1になる
+		int dropCountMax = randomValue == DROP_ITEM_COUNT_MIN ?
+			DROP_ITEM_COUNT_MAX : DROP_ITEM_COUNT_MIN;
 
 		// 獲得アイテムの個数を選択
-		int itemGetCount = FMath::RandRange(DROP_ITEM_COUNT_MIN, DROP_ITEM_COUNT_MAX);
+		int itemGetCount = FMath::RandRange(DROP_ITEM_COUNT_MIN, dropCountMax);
 
 		AddDropItem(result, dropItem, itemGetCount);
 	}

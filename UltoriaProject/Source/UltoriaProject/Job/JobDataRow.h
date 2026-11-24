@@ -34,4 +34,7 @@ struct FJobDataRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FName> Skills;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Desc;
 };

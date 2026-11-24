@@ -46,13 +46,9 @@ public:
 
 	// パーティーを生成
 	TArray<ACharacterBase*> CreateEnemyParty();
-	void CreateSkill();
 
-	// ドロップアイテム関連
-	virtual TArray<FDropItemData> GetDropItem();
-	FName GetRnadomDropItem();
-	void AddDropItem(TArray<FDropItemData>& items, const FName& itemID, int count);
-	
+	// ドロップ品関連
+	virtual TArray<FDropItemData> GetDropItems();
 	int GetDropGold();
 
 	// 最終ステータス
@@ -64,6 +60,12 @@ public:
 
 	void SetStop(bool bStop) { m_IsStop = bStop; }
 	void SetBaseStatus() override;
+
+private:
+	void CreateSkill();
+
+	FName GetRnadomDropItem();
+	void AddDropItem(TArray<FDropItemData>& items, const FName& itemID, int count);
 
 protected:
 	bool m_IsStop; // 止めるか

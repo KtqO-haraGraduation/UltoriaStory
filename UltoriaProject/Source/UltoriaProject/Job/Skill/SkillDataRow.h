@@ -13,7 +13,34 @@ enum class ESkillType : uint8
 	NONE,
 	ATTACK,
 	BUFF,
+	DEBUFF,
 	HEAL,
+};
+
+UENUM(BlueprintType)
+enum class ESkillEffectType : uint8
+{
+	NONE,
+	// 攻撃
+	DAMAGE_ATK,
+	DAMAGE_MGC,
+	
+	// バフ
+	BUFF_ATK,
+	BUFF_DEF,
+	BUFF_SPD,
+
+	// デバフ
+	DEBUFF_ATK,
+	DEBUFF_DEF,
+	DEBUFF_SPD,
+
+	// その他
+	HEAL_HP,	// HP回復
+	CURE_ALL,	// 状態異常回復
+	REVIVE,		// 復活
+	POISON,		// 毒付与
+	TAUNT,		// 攻撃対象の誘導
 };
 
 USTRUCT(BlueprintType)
@@ -23,6 +50,9 @@ struct FSkillDataRow : public FTableRowBase
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	ESkillType SkillType;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	ESkillEffectType EffectType;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	FName Name;
