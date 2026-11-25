@@ -3,6 +3,7 @@
 #include "MyOnlineSubsystem.h"
 #include "MyOnlineCoreSubsystem.h"
 #include "Interfaces/OnlineIdentityInterface.h"
+#include "OnlineSubsystemUtils.h"
 
 constexpr const int MAX_SEARCHRESULTS_NUM = 100;
 
@@ -16,7 +17,7 @@ void UMyOnlineSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UMyOnlineSubsystem::Login()
 {
-	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	IOnlineSubsystem* Subsystem = Online::GetSubsystem(GetWorld());
 
 	UMyOnlineCoreSubsystem* core = GetGameInstance()->GetSubsystem<UMyOnlineCoreSubsystem>();
 

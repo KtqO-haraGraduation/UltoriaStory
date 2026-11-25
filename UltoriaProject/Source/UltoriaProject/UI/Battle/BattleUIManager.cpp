@@ -21,6 +21,8 @@
 #include "../../System/Selection/SelectionSystem.h"
 #include "../../Battle/Combat/Data/BattleDataManager.h"
 #include "Data/BattleUIDataAsset.h"
+#include "EngineUtils.h"
+#include "../../Battle/Raid/RaidBattleManager.h"
 
 void UBattleUIManager::CreateBattleUI()
 {
@@ -160,19 +162,30 @@ void UBattleUIManager::SetUIVisible(EBattleUIType type, bool flag)
 
 void UBattleUIManager::CreateDamageWidget(ACharacterBase* target, int damage)
 {
-	UBattleDataManager* battleDataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
+	UWorld* world = GetWorld();
+	if (!world || !target) return;
+
+	// レイド中は、RaidBattleManager経由で全員に表示する
+	for (TActorIterator<ARaidBattleManager> It(world); It; ++It)
+	{
+		if (It->HasAuthority())
+		{
+			It->ShowDamage(target, damage);
+		}
+		return;
+	}
+
+	// 通常戦闘
+	UBattleDataManager* battleDataMg = world->GetSubsystem<UBattleDataManager>();
 	if (!battleDataMg) return;
 
-	TSubclassOf<UDamageWidget> damageClass = battleDataMg->GetBattleUIDataAsset()->DamageWidgetClass;
+	const UBattleUIDataAsset* dataAsset = battleDataMg->GetBattleUIDataAsset();
+	if (!dataAsset) return;
 
-	
-	UDamageWidget* widget = CreateWidget<UDamageWidget>(GetWorld(), damageClass);
-	
-	if (!widget)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Damage Null"));
-	}
-	
+	TSubclassOf<UDamageWidget> damageClass = dataAsset->DamageWidgetClass;
+	if (!damageClass) return;
+
+	UDamageWidget* widget = CreateWidget<UDamageWidget>(world, damageClass);
 	if (!widget) return;
 
 	widget->Init(target, damage);
