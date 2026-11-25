@@ -21,6 +21,9 @@ void USkillUIWidget::CreateButton()
 	// コマンドボタンのクラスを取得
 	TSubclassOf<USkillButtonWidget> buttonClass = battleDataMg->GetBattleUIDataAsset()->SkillButtonClass;
 
+	USkillBaseComponent* skillComponent = GetCurrentSkillComponent();
+	if (!skillComponent) return;
+
 	// Skillボタンを最大値生成
 	for (int i = 0; i < SKILL_MAX; i++)
 	{
@@ -51,6 +54,12 @@ void USkillUIWidget::SetButtonData()
 {
 	if (!GetCurrentSkillComponent()) return;
 
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+
+	ACharacterBase* currentCharacter = battleMg->GetCurrentCharacter();
+	if (currentCharacter->GetTeamType() == ETeamType::ENEMY) return;
+
 	// 全てのスキルボタンを現在行動しているキャラクターのモノに差し替える
 	for (int i = 0; i < SKILL_MAX; i++)
 	{
@@ -63,6 +72,7 @@ void USkillUIWidget::SetButtonData()
 		if (!GetCurrentSkillComponent()->IsUnlocked(i))
 		{
 			m_Buttons[i]->SetVisible(false);
+			m_Buttons[i]->SetSelectable(false);
 		}
 	}
 }
@@ -75,6 +85,7 @@ void USkillUIWidget::UpdateSelection(int index)
 	if (!skillData) return;
 
 	DescText->SetText(skillData->Desc);
+	MPText->SetText(FText::AsNumber(skillData->MpCost));
 }
 
 USkillBaseComponent* USkillUIWidget::GetCurrentSkillComponent()

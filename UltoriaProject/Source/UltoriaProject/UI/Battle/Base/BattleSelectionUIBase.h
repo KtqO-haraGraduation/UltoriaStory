@@ -29,6 +29,7 @@ public:
 
 private:
 	FVector2D GetCursorPos(UBattleButtonBase* button) const;
+	int GetSelectableIndex(int currentIndex); // ‘I‘ð‰Â”\‚ÈIndex‚ð’T‚·
 
 protected:
 	UPROPERTY(meta = (BindWidget))

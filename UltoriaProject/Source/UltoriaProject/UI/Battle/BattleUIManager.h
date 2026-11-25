@@ -41,8 +41,6 @@ public:
 	UBattleResultWidget* GetResultUI() const { return m_ResultUIWidget; }
 
 private:
-	void SetEnemySelectionUI(bool flag);
-
 	void SetTargetSelectionUI(bool flag);
 	void SetAllTargetSelectionUI(bool flag);
 

@@ -17,8 +17,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "../../System/Save/SaveManager.h"
 
 // Sets default values
 AMainPlayer::AMainPlayer()
@@ -33,35 +35,10 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// バトル中だったら初期化をしない
 	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	if (!battleMg) return;
 	if (battleMg->IsBattle()) return;
-
-	// 仮実装（Playerをパーティーに追加）
-	UPlayerPartyManager* partyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
-	if (partyMg)
-	{
-		FPartyData data_1;
-		data_1.characterID = m_ID;
-
-		FPartyData data_2;
-		data_2.characterID = "Ally001";
-
-		FPartyData data_3;
-		data_3.characterID = "Ally002";
-
-		FPartyData data_4;
-		data_4.characterID = "Ally003";
-
-		partyMg->AddPlayerParty(data_1);
-		partyMg->AddPlayerParty(data_2);
-		partyMg->AddPlayerParty(data_3);
-		partyMg->AddPlayerParty(data_4);
-
-		//partyMg->CreatePlayerParty(this);
-	}
-
-	partyMg->SetFieldPlayer(this);
 
 	// 仮実装（ステージに合わせた敵のパーティーデータをロード）
 	UCharacterDataManager* characterDataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
@@ -70,22 +47,51 @@ void AMainPlayer::BeginPlay()
 		characterDataMg->LoadEnemyPartyData();
 	}
 
-	// 先制攻撃用当たり判定を取得
-	m_AttackBox = FindComponentByClass<UBoxComponent>();
+	// セーブ管理を取得
+	USaveManager* saveMg = GetGameInstance()->GetSubsystem<USaveManager>();
 
-	if (m_AttackBox)
+	// 仮実装（Playerをパーティーに追加）
+	UPlayerPartyManager* partyMg = GetWorld()->GetSubsystem<UPlayerPartyManager>();
+	if (partyMg)
 	{
-		m_AttackBox->SetHiddenInGame(true);
-		m_AttackBox->SetCollisionEnabled(
-			ECollisionEnabled::NoCollision
-		);
+		// セーブデータが読み込まれている場合
+		if (saveMg && saveMg->GetCurrentSaveData())
+		{
+			// 初期化完了後にセーブデータを反映
+			saveMg->ApplyGameData(this);
+		}
+		else
+		{
+			FPartyData data_1;
+			data_1.characterID = m_ID;
+
+			FPartyData data_2;
+			data_2.characterID = "Ally001";
+
+			FPartyData data_3;
+			data_3.characterID = "Ally002";
+
+			FPartyData data_4;
+			data_4.characterID = "Ally003";
+
+			partyMg->AddPlayerParty(data_1);
+			partyMg->AddPlayerParty(data_2);
+			partyMg->AddPlayerParty(data_3);
+			partyMg->AddPlayerParty(data_4);
+
+			//partyMg->CreatePlayerParty(this);
+		}
 	}
 
-	m_CameraBoom = FindComponentByClass<USpringArmComponent>();
-	m_FollowCamera = FindComponentByClass<UCameraComponent>();
+
+	// フィールドのPlayerを保存
+	partyMg->SetFieldPlayer(this);
+
+	// 必要なコンポーネントの取得・設定
+	FindComponents();
+	SetupComponents();
 
 	FRotator initRot = GetActorRotation();
-
 	// スティックを上に入力時、Yawは90.0fになるので、「奥移動 = 0」になるように補正を掛ける
 	m_InitYawOffset = initRot.Yaw + 90.0f;
 }
@@ -105,6 +111,7 @@ void AMainPlayer::Tick(float DeltaTime)
 			AttackEnd();
 			m_TestCount = 60;
 			m_IsAttacking = false;
+			m_StaticMesh->SetVisibility(false);
 		}
 	}
 }
@@ -119,7 +126,7 @@ void AMainPlayer::Move(const FInputActionValue& Value)
 	if (m_IsAttacking) return;
 
 	UCameraManager* cameraMg = GetWorld()->GetGameInstance()->GetSubsystem<UCameraManager>();
-	if(!cameraMg) return;
+	if (!cameraMg) return;
 	UCameraComponent* camera = cameraMg->GetFieldCameraComponent();
 
 	// アナログスティックの入力をベクトルで取得
@@ -154,6 +161,7 @@ void AMainPlayer::Attack(const FInputActionValue& Value)
 	if (m_IsAttacking) return;
 
 	m_IsAttacking = true;
+	m_StaticMesh->SetVisibility(true);
 
 	// 一時的に当たり判定を作る
 
@@ -189,7 +197,7 @@ void AMainPlayer::ZoomCamera(const FInputActionValue& Value)
 	{
 		m_CameraBoom->TargetArmLength = 10000.0f;
 	}
-	else if(m_CameraBoom->TargetArmLength < 500.0f)
+	else if (m_CameraBoom->TargetArmLength < 500.0f)
 	{
 		m_CameraBoom->TargetArmLength = 500.0f;
 	}
@@ -216,6 +224,10 @@ void AMainPlayer::ZoomReset(const FInputActionValue& Value)
 /// <param name="isPreemptive">先制攻撃に成功したかどうか（true：成功, false：失敗）</param>
 void AMainPlayer::StartBattle(ACharacterBase* otherActor, bool isPreemptive)
 {
+	/*UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+	if (battleMg->IsBattle()) return;*/
+
 	if (!otherActor) return;
 	if (otherActor->GetTeamType() != ETeamType::ENEMY) return;
 
@@ -225,9 +237,50 @@ void AMainPlayer::StartBattle(ACharacterBase* otherActor, bool isPreemptive)
 	UEncounterManager* encounter = GetWorld()->GetSubsystem<UEncounterManager>();
 	if (encounter)
 	{
-		
+
 		encounter->SetEnemy(otherActor);
 		encounter->EnterBattle();
+	}
+}
+
+void AMainPlayer::FindComponents()
+{
+	// 先制攻撃用当たり判定を取得
+	m_AttackBox = FindComponentByClass<UBoxComponent>();
+
+	// スタティックメッシュを取得
+	TArray<UActorComponent*> components;
+	GetComponents(UStaticMeshComponent::StaticClass(), components);
+
+	for (UActorComponent* component : components)
+	{
+		if (component->ComponentHasTag(TEXT("StaticMesh")))
+		{
+			m_StaticMesh = Cast<UStaticMeshComponent>(component);
+			break;
+		}
+	}
+
+	// カメラ関係を取得
+	m_CameraBoom = FindComponentByClass<USpringArmComponent>();
+	m_FollowCamera = FindComponentByClass<UCameraComponent>();
+}
+
+void AMainPlayer::SetupComponents()
+{
+	// 攻撃時の当たり判定を非表示
+	if (m_AttackBox)
+	{
+		m_AttackBox->SetHiddenInGame(true);
+		m_AttackBox->SetCollisionEnabled(
+			ECollisionEnabled::NoCollision
+		);
+	}
+
+	// 武器のメッシュを非表示
+	if (m_StaticMesh)
+	{
+		m_StaticMesh->SetVisibility(false);
 	}
 }
 

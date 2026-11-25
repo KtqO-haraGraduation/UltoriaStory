@@ -12,11 +12,14 @@
 void UBattleTurnManager::NextTurn()
 {
 	if (m_Characters.IsEmpty()) return;
-	
+	UBattleUIManager* battleUIMg = GetWorld()->GetSubsystem<UBattleUIManager>();
+	if (!battleUIMg) return;
+
 	// 前回のキャラクター
 	m_PrevCharacter = m_Characters[m_CurrentIndex];
 	// ターンが終了したキャラクターのSpeedUIを非表示にする
 	RemoveSpeedUI();
+	battleUIMg->SetUIVisible(EBattleUIType::ALLTARGET, false);
 
 	// 次のキャラクターへ
 	m_CurrentIndex++;

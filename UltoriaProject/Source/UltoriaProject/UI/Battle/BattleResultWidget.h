@@ -21,6 +21,8 @@ public:
 	// ¶¬‚Ì‰Šú‰»ˆ—
 	virtual void NativeConstruct() override;
 
+	void SetGoldText(int gold);
+
 protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 

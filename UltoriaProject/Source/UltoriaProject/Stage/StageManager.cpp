@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "Engine/LevelStreaming.h"
+#include "../Story/StoryManager.h"
 
 void UStageManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -196,7 +197,14 @@ void UStageManager::OnFieldLevelShown()
 		{
 			map->CreateMiniMap(world);
 		}
+
+		if (UStoryManager* story = gameInstance->GetSubsystem<UStoryManager>())
+		{
+			story->CreateObjectiveWidget(world);
+		}
 	}
+
+	
 
 	if (m_IsEnterEventPending)
 	{

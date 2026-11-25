@@ -340,16 +340,8 @@ void UBattleManager::StartAttack()
 			ExecuteAttack(activeTargets[0]);
 		}
 
-		ShowTargetUI(activeTargets);
+		ShowTargetUI(activeTargets, ETargetType::SINGLE);
 	}
-}
-
-void UBattleManager::StartSkill()
-{
-}
-
-void UBattleManager::StartItem()
-{
 }
 
 void UBattleManager::ExecuteAttack(ACharacterBase* target)
@@ -382,17 +374,15 @@ void UBattleManager::ShowTargetUI(const TArray<ACharacterBase*>& targets, ETarge
 
     uiMg->SetUIVisible(EBattleUIType::SKILL, false);
     uiMg->SetUIVisible(EBattleUIType::ITEM, false);
-	uiMg->SetUIVisible(EBattleUIType::TARGET, true);
-}
 
-void UBattleManager::ShowAllTargetUI(const TArray<ACharacterBase*>& targets)
-{
-	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
-	if (!uiMg) return;
-
-	uiMg->SetUIVisible(EBattleUIType::SKILL, false);
-	uiMg->SetUIVisible(EBattleUIType::ITEM, false);
-	uiMg->SetUIVisible(EBattleUIType::TARGET, true);
+	if (type == ETargetType::SINGLE)
+	{
+		uiMg->SetUIVisible(EBattleUIType::TARGET, true);
+	}
+	else if (type == ETargetType::ALL)
+	{
+		uiMg->SetUIVisible(EBattleUIType::ALLTARGET, true);
+	}
 }
 
 bool UBattleManager::BattleWin()

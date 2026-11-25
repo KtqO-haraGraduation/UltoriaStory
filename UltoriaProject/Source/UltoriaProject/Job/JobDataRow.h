@@ -33,20 +33,8 @@ struct FJobDataRow : public FTableRowBase
 	float SPD;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Skill_1;
+	TArray<FName> Skills;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Skill_2;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Skill_3;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Skill_4;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Skill_5;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Skill_6;
+	FText Desc;
 };

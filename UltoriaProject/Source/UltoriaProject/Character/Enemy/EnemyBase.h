@@ -8,6 +8,21 @@
 
 class UWidgetComponent;
 class ABattleAreaManager;
+class UCharacterDataManager;
+
+USTRUCT(BlueprintType)
+struct FDropItemData
+{
+	GENERATED_BODY()
+
+	FName itemName = "";
+	int count = 0;
+
+	bool operator==(const FDropItemData& other) const
+	{
+		return itemName == other.itemName;
+	}
+};
 
 UCLASS()
 class ULTORIAPROJECT_API AEnemyBase : public ACharacterBase
@@ -32,6 +47,10 @@ public:
 	// パーティーを生成
 	TArray<ACharacterBase*> CreateEnemyParty();
 
+	// ドロップ品関連
+	virtual TArray<FDropItemData> GetDropItems();
+	int GetDropGold();
+
 	// 最終ステータス
 	FStatus GetTotalStatus() const override;
 
@@ -42,8 +61,15 @@ public:
 	void SetStop(bool bStop) { m_IsStop = bStop; }
 	void SetBaseStatus() override;
 
+private:
+	void CreateSkill();
+
+	FName GetRnadomDropItem();
+	void AddDropItem(TArray<FDropItemData>& items, const FName& itemID, int count);
+
 protected:
 	bool m_IsStop; // 止めるか
+	UCharacterDataManager* m_CharacterDataMg;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UWidgetComponent* m_StatusUIWidget;
