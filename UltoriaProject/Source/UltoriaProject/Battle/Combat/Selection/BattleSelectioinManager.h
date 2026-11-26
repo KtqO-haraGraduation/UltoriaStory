@@ -13,6 +13,7 @@
 class UBattleManager;
 class ACharacterBase;
 class AEnemyBase;
+class UInventorySubsystem;
 enum class EUIInputType;
 enum class EBattleUIType;
 
@@ -101,6 +102,9 @@ private:
 
 	void SetSelectionChanged();
 	void ResetSelection();
+
+	// インベントリシステム
+	UInventorySubsystem* GetInventory();
 
 private:
 	bool m_IsCanMoveTargetCursor;				// ターゲットカーソルが動かせるか

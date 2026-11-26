@@ -132,15 +132,14 @@ TArray<FSkillDataRow> USkillBaseComponent::GetUnlockedSkills()
 
 void USkillBaseComponent::Attack(const TArray<ACharacterBase*>& targets)
 {
+	UCombatComponent* conbat = m_Owner->GetComponent<UCombatComponent>();
+	if (!conbat) return;
 	for (auto& target : targets)
 	{
 		if (!target) continue;
-
-		UCombatComponent* conbat = m_Owner->GetComponent<UCombatComponent>();
-		if (!conbat) continue;
-
 		conbat->Attack(target);
 	}
+	conbat->NextTurn();
 }
 
 void USkillBaseComponent::Buff(const TArray<ACharacterBase*>& targets)

@@ -351,6 +351,11 @@ void UBattleManager::ExecuteAttack(ACharacterBase* target)
 	UCombatComponent* combat = m_TurnManager->GetCurrentCharacter()->GetComponent<UCombatComponent>();
 
 	combat->Attack(target);
+
+	if (GetCurrentCharacter()->GetTeamType() == ETeamType::PLAYER)
+	{
+		combat->NextTurn();
+	}
 }
 
 void UBattleManager::ShowAttackTargetUI(const TArray<ACharacterBase*>& targets)

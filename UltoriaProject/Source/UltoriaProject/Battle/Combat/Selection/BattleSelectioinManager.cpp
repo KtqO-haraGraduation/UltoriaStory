@@ -100,10 +100,7 @@ void UBattleSelectioinManager::SetSkillTarget()
 
 void UBattleSelectioinManager::SetItemTarget()
 {
-	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
-	if (!gameInstance) return;
-
-	UInventorySubsystem* inventory = gameInstance->GetSubsystem<UInventorySubsystem>();
+	UInventorySubsystem* inventory = GetInventory();
 	if (!inventory) return;
 
 	m_ItemSelection.SetTargets(inventory->GetInventory());
@@ -316,6 +313,10 @@ void UBattleSelectioinManager::ConfirmSkill()
 
 void UBattleSelectioinManager::ConfirmItem()
 {
+	// インベントリが空だったら何もしない
+	UInventorySubsystem* inventory = GetInventory();
+	if (!inventory || inventory->GetInventory().IsEmpty()) return;
+
 	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
 	if (!uiMg) return;
 
@@ -415,4 +416,16 @@ void UBattleSelectioinManager::ResetSelection()
 	m_CommandSelection.m_OnSelectionChanged.Unbind();
 	m_SkillSelection.m_OnSelectionChanged.Unbind();
 	m_ItemSelection.m_OnSelectionChanged.Unbind();
+}
+
+UInventorySubsystem* UBattleSelectioinManager::GetInventory()
+{
+	// インベントリーシステムを返す
+	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
+	if (!gameInstance) return nullptr;
+
+	UInventorySubsystem* inventory = gameInstance->GetSubsystem<UInventorySubsystem>();
+	if (!inventory) return nullptr;
+
+	return inventory;
 }

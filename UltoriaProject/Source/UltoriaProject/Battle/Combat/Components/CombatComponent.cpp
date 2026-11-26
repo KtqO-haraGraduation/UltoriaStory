@@ -70,62 +70,23 @@ void UCombatComponent::StartTurn()
 
 void UCombatComponent::Attack(ACharacterBase* target)
 {
-	UBattleManager* battleManager = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!target) return;
 
-	if (battleManager)
-	{
-		m_CurrentState = CombatState::ATTACK;
-
-		// 指定した位置まで移動
-
-		// 攻撃アニメーション開始
-
-		// 攻撃アニメーション終了時に、ダメージ処理
-
-
-		m_Target = target;
-
-		// プレイヤーはアニメーションがないため、一時的にNextTurnへ
-		if (m_Owner->GetTeamType() == ETeamType::PLAYER)
-		{
-			OnAttackHit();
-
-			// 次のキャラへ（0.2秒後）
-			FTimerHandle Timer;
-			GetWorld()->GetTimerManager().SetTimer(
-				Timer,
-				[this, battleManager]()
-				{
-					battleManager->NextTurn();
-				},
-				0.2f,
-				false
-			);
-		}
-	}
+	m_CurrentState = CombatState::ATTACK;
+	m_Targets.Add(target);
 }
 
 void UCombatComponent::Guard()
 {
 	m_CurrentState = CombatState::GUARD;
 
-	UBattleManager* battleManager = GetWorld()->GetSubsystem<UBattleManager>();
 	UCombatStatusComponent* statusComponent = m_Owner->GetComponent<UCombatStatusComponent>();
 	statusComponent->SetGuarding(true);
 
 	statusComponent->AddStatus(StatusType::GUARD);
 
 	// 次のキャラへ（0.2秒後）
-	FTimerHandle Timer;
-	GetWorld()->GetTimerManager().SetTimer(
-		Timer,
-		[this, battleManager]()
-		{
-			battleManager->NextTurn();
-		},
-		0.2f,
-		false
-	);
+	NextTurn();
 }
 
 void UCombatComponent::Skill(const TArray<ACharacterBase*>& targets)
@@ -145,33 +106,14 @@ void UCombatComponent::Item(ACharacterBase* target)
 
 bool UCombatComponent::Escape()
 {
-	UBattleManager* battleManager = GetWorld()->GetSubsystem<UBattleManager>();
 	m_CurrentState = CombatState::ESCAPE;
 	int rand = FMath::RandRange(0, 99);
-	
 
 	bool isEscape = rand < m_EscapeRate;
-
-	if (!isEscape && battleManager)
+	if (!isEscape)
 	{
 		// 次のキャラへ（0.2秒後）
-		FTimerHandle Timer;
-		GetWorld()->GetTimerManager().SetTimer(
-			Timer,
-			[this, battleManager]()
-			{
-				battleManager->NextTurn();
-			},
-			0.2f,
-			false
-		);
-
-		UE_LOG(LogTemp, Warning, TEXT("No Escape"));
-
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Yes Escape"));
+		NextTurn();
 	}
 
 	return isEscape;
@@ -225,9 +167,6 @@ void UCombatComponent::TakeDamage(int damage)
 
 void UCombatComponent::HPHeal(int healHp)
 {
-	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
-	if (!battleMg) return;
-
 	m_CurrentState = CombatState::HEAL;
 
 	int newHp = m_Owner->GetCurrentHP() + healHp;
@@ -240,23 +179,11 @@ void UCombatComponent::HPHeal(int healHp)
 	}
 
 	// 次のキャラへ（0.2秒後）
-	FTimerHandle Timer;
-	GetWorld()->GetTimerManager().SetTimer(
-		Timer,
-		[this, battleMg]()
-		{
-			battleMg->NextTurn();
-		},
-		0.2f,
-		false
-	);
+	NextTurn();
 }
 
 void UCombatComponent::MPHeal(int healMp)
 {
-	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
-	if (!battleMg) return;
-
 	m_CurrentState = CombatState::HEAL;
 
 	int newMp = m_Owner->GetCurrentMP() + healMp;
@@ -269,16 +196,7 @@ void UCombatComponent::MPHeal(int healMp)
 	}
 
 	// 次のキャラへ（0.2秒後）
-	FTimerHandle Timer;
-	GetWorld()->GetTimerManager().SetTimer(
-		Timer,
-		[this, battleMg]()
-		{
-			battleMg->NextTurn();
-		},
-		0.2f,
-		false
-	);
+	NextTurn();
 }
 
 void UCombatComponent::Deading()
@@ -302,17 +220,53 @@ void UCombatComponent::ResetState()
 	m_IsGuarding = false;
 }
 
+void UCombatComponent::NextTurn()
+{
+	// 攻撃状態 かつ 敵はスキップ
+	if (m_CurrentState == CombatState::ATTACK && 
+		m_Owner->GetTeamType() == ETeamType::ENEMY) return;
+
+	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+	if (!battleMg) return;
+
+	// 待機時間
+	float waitTime = 0.2f;
+
+	OnAttackHit();
+	
+	// 状態をリセット
+	ResetState();
+	ResetTargets();
+
+	FTimerHandle Timer;
+	GetWorld()->GetTimerManager().SetTimer(
+		Timer,
+		[this, battleMg]()
+		{
+			battleMg->NextTurn();
+		},
+		waitTime,
+		false
+	);
+}
+
 void UCombatComponent::OnAttackHit()
 {
-	if (!m_Target) return;
-	UCombatComponent* combat = m_Target->GetComponent<UCombatComponent>();
+	if (m_Targets.IsEmpty()) return;
 
-	combat->TakeDamage(m_Owner->GetBaseStatus().m_ATK);
+	for (ACharacterBase* target : m_Targets)
+	{
+		if (!target) continue;
+		UCombatComponent* combat = target->GetComponent<UCombatComponent>();
+
+		combat->TakeDamage(m_Owner->GetBaseStatus().m_ATK);
+	}
 }
 
 void UCombatComponent::OnActionEnd()
 {
 	ResetState();
+	ResetTargets();
 
 	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	if (battleMg)
@@ -324,4 +278,9 @@ void UCombatComponent::OnActionEnd()
 void UCombatComponent::OnDead()
 {
 	m_Owner->SetActorHiddenInGame(true);
+}
+
+void UCombatComponent::ResetTargets()
+{
+	m_Targets.Empty();
 }
