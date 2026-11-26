@@ -185,6 +185,7 @@ void UBattleManager::ExecuteCommand(ECommandType type)
 	case ECommandType::ITEM:
 	{
 		m_SelectManager->SetSelectionType(SelectionType::ITEM);
+		m_SelectManager->SetItemTarget();
 
 		// アイテム用のボードを表示
 		uiMg->SetUIVisible(EBattleUIType::COMMAND, false);
