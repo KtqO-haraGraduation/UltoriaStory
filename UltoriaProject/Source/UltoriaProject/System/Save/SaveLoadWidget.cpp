@@ -4,6 +4,8 @@
 #include "SaveLoadWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "GameSaveData.h"
+#include "HAL/PlatformTime.h"
 #include "SaveManager.h"
 #include "../../UI/Menu/MenuStateManager.h"
 #include "GameFramework/PlayerController.h"
@@ -91,36 +93,83 @@ void USaveLoadWidget::Cancel()
     }
 }
 
-// プレイ時間表示を更新
+// 時間表示を更新
 void USaveLoadWidget::UpdateTimeDisplay()
 {
+    // SaveManagerを取得
     USaveManager* SaveManager =
         GetGameInstance()->GetSubsystem<USaveManager>();
 
-    if (!SaveManager || !PlayTimeText)
+    if (!SaveManager)
     {
         return;
     }
 
-    // 累計プレイ時間を秒で取得
-    int64 TotalSeconds =
-        SaveManager->GetTotalPlayTimeSeconds();
+    // ----------------------------
+    // 現在の日時
+    // ----------------------------
+    if (NowTimeText)
+    {
+        FDateTime Now = FDateTime::Now();
 
-    // 時間に変換
-    int64 Hours = TotalSeconds / 3600;
+        FString NowString = Now.ToString(
+            TEXT("%Y/%m/%d    %H:%M")
+        );
 
-    // 分に変換
-    int64 Minutes = (TotalSeconds % 3600) / 60;
+        NowTimeText->SetText(
+            FText::FromString(NowString)
+        );
+    }
 
-    // 表示文字列を作成（時間：分）
-    FString PlayTimeString = FString::Printf(
-        TEXT("%02lld:%02lld"),
-        static_cast<long long>(Hours),
-        static_cast<long long>(Minutes)
-    );
+    // セーブデータを取得
+    UGameSaveData* SaveData =
+        SaveManager->GetCurrentSaveData();
 
-    // 画面に反映
-    PlayTimeText->SetText(
-        FText::FromString(PlayTimeString)
-    );
+    // ----------------------------
+    // 前回のセーブ日時
+    // ----------------------------
+    if (OldSaveTimeText)
+    {
+        if (SaveData &&
+            SaveData->PreviousSaveDateTime.GetTicks() > 0)
+        {
+            FString OldSaveString =
+                SaveData->PreviousSaveDateTime.ToString(
+                    TEXT("%Y/%m/%d    %H:%M")
+                );
+
+            OldSaveTimeText->SetText(
+                FText::FromString(OldSaveString)
+            );
+        }
+        else
+        {
+            // 初回セーブなど、前回のセーブ日時がない場合
+            OldSaveTimeText->SetText(
+                FText::FromString(TEXT("No previous save"))
+            );
+        }
+
+        // ----------------------------
+        // プレイ時間
+        // ----------------------------
+        if (PlayTimeText)
+        {
+            int64 TotalSeconds =
+                SaveManager->GetTotalPlayTimeSeconds();
+
+            int64 Hours = TotalSeconds / 3600;
+            int64 Minutes = (TotalSeconds % 3600) / 60;
+
+            FString PlayTimeString = FString::Printf(
+                TEXT("%02lld:%02lld"),
+                static_cast<long long>(Hours),
+                static_cast<long long>(Minutes)
+            );
+
+            PlayTimeText->SetText(
+                FText::FromString(PlayTimeString)
+            );
+        }
+    }
 }

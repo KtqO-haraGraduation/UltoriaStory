@@ -37,9 +37,17 @@ protected:
     // プレイ時間表示を更新
     void UpdateTimeDisplay();
 
+    // 現在の時間表示用テキスト
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> NowTimeText;
+
     // プレイ時間表示用テキスト
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> PlayTimeText;
+
+    // 前回のセーブ時間表示用テキスト
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> OldSaveTimeText;
 
 
 };

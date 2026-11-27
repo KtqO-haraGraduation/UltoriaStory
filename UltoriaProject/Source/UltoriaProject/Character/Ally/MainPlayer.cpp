@@ -36,6 +36,13 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// プレイ時間の計測を開始
+	if (USaveManager* SaveManager =
+		GetGameInstance()->GetSubsystem<USaveManager>())
+	{
+		SaveManager->StartPlayTimeTracking();
+	}
+
 	// バトル中だったら初期化をしない
 	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	if (!battleMg) return;
