@@ -1,52 +1,62 @@
 
 #include "SaveManager.h"
 #include "GameSaveData.h"
+#include "HAL/PlatformTime.h"
 #include "../../Inventory/InventorySubsystem.h"
 #include "../../Character/CharacterBase.h"
 #include "../../Battle/PlayerPartyManager.h"
 #include "Kismet/GameplayStatics.h"
 #include <UltoriaProject/Character/Ally/PlayerCharacterBase.h>
 
-// スロット番号から保存名を作成
-FString USaveManager::GetSlotName(int32 SlotIndex) const
-{
-    return FString::Printf(TEXT("SaveSlot_%d"), SlotIndex);
-}
+// セーブスロットの名前
+const FString USaveManager::SAVE_SLOT_NAME = TEXT("SaveSlot_1");
 
 // セーブデータを保存
-bool USaveManager::SaveGameData(int32 SlotIndex)
+bool USaveManager::SaveGameData()
 {
-    if (SlotIndex < 1 || SlotIndex > MAX_SAVE_SLOT)
-    {
-        return false;
-    }
-
     if (!m_CurrentSaveData)
     {
         m_CurrentSaveData = NewObject<UGameSaveData>(this);
     }
 
+    // 保存前のプレイ時間を退避
+    int64 PreviousPlayTime =
+        m_CurrentSaveData->TotalPlayTimeSeconds;
+
     // 現在のゲーム状態をセーブデータに格納
     CollectGameData();
 
-    return UGameplayStatics::SaveGameToSlot(m_CurrentSaveData,GetSlotName(SlotIndex),0);
+    // セーブ実行
+    bool bResult = UGameplayStatics::SaveGameToSlot(m_CurrentSaveData,SAVE_SLOT_NAME,0);
 
+    if (bResult)
+    {
+        // 保存成功後、計測開始時刻を更新
+        if (m_bPlayTimeTracking)
+        {
+            m_PlayTimeStartSeconds =
+                FPlatformTime::Seconds();
+        }
+    }
+    else
+    {
+        // 保存失敗時は以前の累計時間に戻す
+        m_CurrentSaveData->TotalPlayTimeSeconds =
+            PreviousPlayTime;
+    }
+
+
+    // 常に同じスロットへ保存
+    // return UGameplayStatics::SaveGameToSlot(m_CurrentSaveData, SAVE_SLOT_NAME, 0);
+  
+    return bResult;
 }
 
 // セーブデータを読み込む
-bool USaveManager::LoadGameData(int32 SlotIndex)
+bool USaveManager::LoadGameData()
 {
-    if (SlotIndex < 1 || SlotIndex > MAX_SAVE_SLOT)
-    {
-        return false;
-    }
-
-    if (!DoesSaveExist(SlotIndex))
-    {
-        return false;
-    }
-
-    USaveGame* loadedData = UGameplayStatics::LoadGameFromSlot(GetSlotName(SlotIndex),0);
+    
+    USaveGame* loadedData = UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_NAME,0);
 
     m_CurrentSaveData = Cast<UGameSaveData>(loadedData);
 
@@ -55,22 +65,14 @@ bool USaveManager::LoadGameData(int32 SlotIndex)
         return false;
     }
 
-    // ゲーム内にセーブデータを反映
-    // ApplyGameData();
-
+    // ゲームへの反映はプレイヤー初期化後に行う
     return true;
 }
 
 // セーブデータが存在するか確認
-bool USaveManager::DoesSaveExist(int32 SlotIndex) const
+bool USaveManager::DoesSaveExist() const
 {
-    if (SlotIndex < 1 || SlotIndex > MAX_SAVE_SLOT)
-    {
-        return false;
-    }
-
-    return UGameplayStatics::DoesSaveGameExist(GetSlotName(SlotIndex),0);
- 
+    return UGameplayStatics::DoesSaveGameExist(SAVE_SLOT_NAME,0);
 }
 
 void USaveManager::CollectGameData()
@@ -104,6 +106,17 @@ void USaveManager::CollectGameData()
     m_CurrentSaveData->PlayerData.EXP = Player->GetExp();
     m_CurrentSaveData->PlayerData.CurrentHP = Player->GetCurrentHP();
     m_CurrentSaveData->PlayerData.CurrentMP = Player->GetCurrentMP();
+
+    // 前回の保存日時を記録
+    m_CurrentSaveData->PreviousSaveDateTime =
+        m_CurrentSaveData->SaveDateTime;
+
+    // 今回の保存日時を記録
+    m_CurrentSaveData->SaveDateTime = FDateTime::Now();
+
+    // 累計プレイ時間を保存
+    m_CurrentSaveData->TotalPlayTimeSeconds =
+        GetTotalPlayTimeSeconds();
 
     // 所持金を保存
     UInventorySubsystem* Inventory =
@@ -156,9 +169,9 @@ void USaveManager::CollectGameData()
 
 void USaveManager::ApplyGameData(APlayerCharacterBase* Player)
 {
-
-    // 保存されているプレイヤーIDと一致するか確認
-    if (Player->GetID() != m_CurrentSaveData->PlayerData.CharacterID)
+    
+    // nullチェック
+    if (!m_CurrentSaveData || !Player)
     {
         return;
     }
@@ -225,4 +238,42 @@ void USaveManager::ApplyGameData(APlayerCharacterBase* Player)
             PartyManager->AddPlayerParty(Party);
         }
     }
+}
+
+// プレイ時間の計測を開始
+void USaveManager::StartPlayTimeTracking()
+{
+    // すでに計測中なら二重に開始しない
+    if (m_bPlayTimeTracking)
+    {
+        return;
+    }
+
+    m_PlayTimeStartSeconds = FPlatformTime::Seconds();
+    m_bPlayTimeTracking = true;
+}
+
+
+// 現在の累計プレイ時間を秒で取得
+int64 USaveManager::GetTotalPlayTimeSeconds() const
+{
+    // セーブデータがない場合は0秒から開始
+    int64 TotalSeconds = 0;
+
+    if (m_CurrentSaveData)
+    {
+        TotalSeconds =
+            m_CurrentSaveData->TotalPlayTimeSeconds;
+    }
+
+    // 現在のプレイ時間を加算
+    if (m_bPlayTimeTracking)
+    {
+        double ElapsedSeconds =
+            FPlatformTime::Seconds() - m_PlayTimeStartSeconds;
+
+        TotalSeconds += static_cast<int64>(ElapsedSeconds);
+    }
+
+    return TotalSeconds;
 }

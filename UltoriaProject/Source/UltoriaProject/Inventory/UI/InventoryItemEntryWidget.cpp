@@ -24,7 +24,7 @@ void UInventoryItemEntryWidget::SetItemData(const FItemData& InItemData, int32 I
 	}
 
     // アイコンを表示する
-// アイテムの種類に対応するカテゴリ画像を設定する
+    // アイテムの種類に対応するカテゴリ画像を設定する
     if (CategoryIcon)
     {
         // 最初に表示する画像を、アイテムの種類に応じて選ぶ

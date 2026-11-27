@@ -64,6 +64,18 @@ public:
     UPROPERTY(SaveGame, BlueprintReadWrite)
     FName CurrentStageID;
 
+    // 保存日時（今回のセーブ日時）
+    UPROPERTY(SaveGame, BlueprintReadWrite)
+    FDateTime SaveDateTime;
+
+    // 前回の保存日時
+    UPROPERTY(SaveGame, BlueprintReadWrite)
+    FDateTime PreviousSaveDateTime;
+
+    // 累計プレイ時間（秒）
+    UPROPERTY(SaveGame, BlueprintReadWrite)
+    int64 TotalPlayTimeSeconds = 0;
+
     // 所持金
     UPROPERTY(SaveGame, BlueprintReadWrite)
     int32 Money = 0;

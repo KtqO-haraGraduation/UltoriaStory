@@ -17,15 +17,15 @@ public:
 
     // セーブデータを保存する
     UFUNCTION(BlueprintCallable)
-    bool SaveGameData(int32 SlotIndex);
+    bool SaveGameData();
 
     // セーブデータを読み込む
     UFUNCTION(BlueprintCallable)
-    bool LoadGameData(int32 SlotIndex);
+    bool LoadGameData();
 
-    // 指定スロットにセーブデータがあるか確認する
+    // セーブデータが存在するか確認
     UFUNCTION(BlueprintCallable)
-    bool DoesSaveExist(int32 SlotIndex) const;
+    bool DoesSaveExist() const;
 
     // 現在読み込んでいるセーブデータを取得
     UGameSaveData* GetCurrentSaveData() const { return m_CurrentSaveData; }
@@ -36,15 +36,23 @@ public:
     // セーブデータをゲーム内に反映
     void ApplyGameData(APlayerCharacterBase* Player);
 
+    // プレイ時間の計測を開始
+    void StartPlayTimeTracking();
+
+    // 現在の累計プレイ時間を秒で取得
+    int64 GetTotalPlayTimeSeconds() const;
+
 private:
 
-    // 現在使用しているセーブデータ
+    // 保存先のスロット名
+    static const FString SAVE_SLOT_NAME;
+
     UPROPERTY()
     TObjectPtr<UGameSaveData> m_CurrentSaveData;
 
-    // セーブスロットの名前を取得
-    FString GetSlotName(int32 SlotIndex) const;
+    // プレイ時間の計測開始時刻
+    double m_PlayTimeStartSeconds = 0.0;
 
-    // セーブスロットの最大数
-    static constexpr int32 MAX_SAVE_SLOT = 3;
+    // プレイ時間を計測中か
+    bool m_bPlayTimeTracking = false;
 };
