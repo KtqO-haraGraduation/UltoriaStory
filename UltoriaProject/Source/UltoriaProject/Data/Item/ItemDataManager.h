@@ -21,7 +21,7 @@ public:
 	// ÉçÅ[Éh
 	void LoadItemData();
 
-	FItemData GetItemData(FName itemId) const;
+	const FItemData* GetItemData(FName itemId) const;
 
 private:
 	TMap<FName, FItemData> m_ItemDatas;

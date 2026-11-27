@@ -33,6 +33,7 @@ void ACharacterBase::BeginPlay()
 	// コンポーネントリストに全てのコンポーネントを格納
 	GetComponents<UComponentBase>(m_Components);
 	InitComponent();
+	InitUI();
 }
 
 // Called every frame
@@ -92,6 +93,21 @@ void ACharacterBase::InitComponent()
 	{
 		combat->SetActiveComponent(false);
 		status->SetActiveComponent(false);
+	}
+}
+
+void ACharacterBase::InitUI()
+{
+	// 選択UIの取得
+	TArray<UWidgetComponent*> widgets;
+	GetComponents<UWidgetComponent>(widgets);
+
+	for (UWidgetComponent* widget : widgets)
+	{
+		if (widget->ComponentHasTag(TEXT("Selection")))
+		{
+			m_SelectionUIWidget = widget;
+		}
 	}
 }
 

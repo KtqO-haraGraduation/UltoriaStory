@@ -39,13 +39,7 @@ void UItemDataManager::LoadItemData()
 /// </summary>
 /// <param name="itemId">アイテムのID</param>
 /// <returns>指定したアイテムのデータ</returns>
-FItemData UItemDataManager::GetItemData(FName itemId) const
+const FItemData* UItemDataManager::GetItemData(FName itemId) const
 {
-	const FItemData* data = m_ItemDatas.Find(itemId);
-
-	if (data)
-	{
-		return *data;
-	}
-	return FItemData();
+	return m_ItemDatas.Find(itemId);
 }

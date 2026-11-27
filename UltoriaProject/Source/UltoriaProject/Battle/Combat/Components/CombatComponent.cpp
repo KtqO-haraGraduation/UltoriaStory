@@ -175,7 +175,7 @@ void UCombatComponent::HPHeal(int healHp)
 	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
 	if (uiMg)
 	{
-		uiMg->CreateDamageWidget(m_Owner, newHp);
+		uiMg->CreateDamageWidget(m_Owner, healHp);
 	}
 
 	// 次のキャラへ（0.2秒後）
@@ -230,7 +230,7 @@ void UCombatComponent::NextTurn()
 	if (!battleMg) return;
 
 	// 待機時間
-	float waitTime = 0.2f;
+	float waitTime = 0.3f;
 
 	OnAttackHit();
 	

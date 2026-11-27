@@ -43,37 +43,6 @@ void AEnemyBase::BeginPlay()
 	SetBaseStatus();
 	CreateSkill();
 
-	// UIを取得
-	TArray<UWidgetComponent*> widgets;
-	GetComponents<UWidgetComponent>(widgets);
-
-	for (UWidgetComponent* widget : widgets)
-	{
-		if (widget->ComponentHasTag(TEXT("Status")))
-		{
-			m_StatusUIWidget = widget;
-			
-
-			// 仮実装（バトル時のみ、キャラクターをセットして、ステータスUIを表示する）
-			UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
-			if (battleMg->IsBattle())
-			{
-				// 敵だけMPのUIを非表示に設定する
-				UCharacterStatusWidget* statusWidget = Cast<UCharacterStatusWidget>(widget->GetUserWidgetObject());
-				if (statusWidget)
-				{
-					m_StatusUIWidget->SetVisibility(true);
-					statusWidget->SetCharacter(this);
-					statusWidget->HideMPUI();
-				}
-			}
-		}
-		else if (widget->ComponentHasTag(TEXT("Selection")))
-		{
-			m_SelectionUIWidget = widget;
-		}
-	}
-
 	UEnemyManager* enemyMg = GetWorld()->GetSubsystem<UEnemyManager>();
 	UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
 	if (enemyMg && battleMg && !battleMg->IsBattle())
@@ -298,4 +267,35 @@ void AEnemyBase::SetBaseStatus()
 
 	m_CurrentHP = totalStatus.m_HP;
 	m_CurrentMP = totalStatus.m_MP;
+}
+
+void AEnemyBase::InitUI()
+{
+	TArray<UWidgetComponent*> widgets;
+	GetComponents<UWidgetComponent>(widgets);
+
+	ACharacterBase::InitUI();
+
+	for (UWidgetComponent* widget : widgets)
+	{
+		if (widget->ComponentHasTag(TEXT("Status")))
+		{
+			m_StatusUIWidget = widget;
+
+
+			// 仮実装（バトル時のみ、キャラクターをセットして、ステータスUIを表示する）
+			UBattleManager* battleMg = GetWorld()->GetSubsystem<UBattleManager>();
+			if (battleMg->IsBattle())
+			{
+				// 敵だけMPのUIを非表示に設定する
+				UCharacterStatusWidget* statusWidget = Cast<UCharacterStatusWidget>(widget->GetUserWidgetObject());
+				if (statusWidget)
+				{
+					m_StatusUIWidget->SetVisibility(true);
+					statusWidget->SetCharacter(this);
+					statusWidget->HideMPUI();
+				}
+			}
+		}
+	}
 }

@@ -62,9 +62,10 @@ void UItemUIWidget::SetButtonData()
 
 		UItemDataManager* itemDataMg = GetWorld()->GetSubsystem<UItemDataManager>();
 		if (!itemDataMg) return;
-		FItemData itemData = itemDataMg->GetItemData(inventoryItemData.ItemID);
+		const FItemData* itemData = itemDataMg->GetItemData(inventoryItemData.ItemID);
+		if (!itemData) return;
 
-		FName itemText = FName(*FString::Printf(TEXT("%s x %d"), *itemData.NameJP, inventoryItemData.Count));
+		FName itemText = FName(*FString::Printf(TEXT("%s x %d"), *itemData->NameJP, inventoryItemData.Count));
 
 		m_Buttons[i]->SetMyName(itemText);
 	}

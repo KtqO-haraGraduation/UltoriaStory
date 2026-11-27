@@ -61,6 +61,9 @@ public:
 	void SetStop(bool bStop) { m_IsStop = bStop; }
 	void SetBaseStatus() override;
 
+protected:
+	void InitUI() override;
+
 private:
 	void CreateSkill();
 

@@ -14,8 +14,10 @@ class UBattleManager;
 class ACharacterBase;
 class AEnemyBase;
 class UInventorySubsystem;
+class UItemUseSubsystem;
 enum class EUIInputType;
 enum class EBattleUIType;
+enum class EItemUseTarget : uint8;
 
 // 選択肢の種類
 UENUM(BlueprintType)
@@ -103,8 +105,17 @@ private:
 	void SetSelectionChanged();
 	void ResetSelection();
 
-	// インベントリシステム
+	// ターゲットのUIを表示
+	void ShowTargetSelection(const TArray<ACharacterBase*>& targets, ETargetTeam team, ETargetType type);
+
+
+	// アイテム系のシステム取得
 	UInventorySubsystem* GetInventory();
+	UItemUseSubsystem* GetItemUseSubsystem();
+
+	// アイテムの列挙体をスキル用に変換
+	ETargetTeam ToSkillTargetTeam(EItemUseTarget type);
+	ETargetType ToSkillTargetType(EItemUseTarget type);
 
 private:
 	bool m_IsCanMoveTargetCursor;				// ターゲットカーソルが動かせるか
@@ -115,7 +126,7 @@ private:
 
 	TSelectionSystem<ACharacterBase*> m_TargetSelection;		// ターゲットの選択システム
 	TSelectionSystem<FBattleCommandData> m_CommandSelection;	// コマンドの選択システム
-	TSelectionSystem<FSkillDataRow> m_SkillSelection;			// スキルの選択システム
+	TSelectionSystem<const FSkillDataRow*> m_SkillSelection;	// スキルの選択システム
 	TSelectionSystem<FInventoryItem> m_ItemSelection;			// アイテムの選択システム
 
 	// 選択タイプごとの処理

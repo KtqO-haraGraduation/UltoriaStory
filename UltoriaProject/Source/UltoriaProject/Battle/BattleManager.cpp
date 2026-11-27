@@ -341,7 +341,10 @@ void UBattleManager::StartAttack()
 			ExecuteAttack(activeTargets[0]);
 		}
 
-		ShowTargetUI(activeTargets, ETargetType::SINGLE);
+		if (currentCharacter->GetTeamType() == ETeamType::PLAYER)
+		{
+			ShowTargetUI(activeTargets, ETargetType::SINGLE);
+		}
 	}
 }
 

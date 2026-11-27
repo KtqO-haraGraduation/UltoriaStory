@@ -8,6 +8,7 @@
 
 // アイテムデータの前方宣言
 struct FItemData;
+class ACharacterBase;
 
 UCLASS()
 class ULTORIAPROJECT_API UItemUseSubsystem : public UGameInstanceSubsystem
@@ -18,4 +19,7 @@ public:
 
     // アイテムを使用する
     bool UseItem(const FItemData& ItemData);
+
+    // バトル用のアイテム使用
+    void UseItemBattle(const FItemData& ItemData, const TArray<ACharacterBase*>& targets);
 };

@@ -310,15 +310,9 @@ TArray<FEnemyPartyData> UCharacterDataManager::FindEnemyParty(FName enemyId)
 /// </summary>
 /// <param name="name">ƒXƒLƒ‹‚Ì–¼‘O</param>
 /// <returns></returns>
-FSkillDataRow UCharacterDataManager::GetSkillData(FName name)
+const FSkillDataRow* UCharacterDataManager::GetSkillData(FName name)
 {
-	const FSkillDataRow* data = m_SkillDatas.Find(name);
-
-	if (data)
-	{
-		return *data;
-	}
-	return FSkillDataRow();
+	return m_SkillDatas.Find(name);
 }
 
 /// <summary>
