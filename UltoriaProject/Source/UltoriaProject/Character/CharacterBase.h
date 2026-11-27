@@ -140,6 +140,7 @@ protected:
 	void LevelUp();								// レベルが上がった
 
 	void InitComponent();	// コンポーネントの初期化
+	virtual void InitUI();	// UIの初期化
 
 protected:
 	UPROPERTY(EditAnywhere)

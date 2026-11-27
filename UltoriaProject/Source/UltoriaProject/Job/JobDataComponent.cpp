@@ -16,11 +16,6 @@ UJobDataComponent::UJobDataComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	/*for (int i = 0; i < SKILL_MAX; i++)
-	{
-		m_Skill[i] = nullptr;
-	}*/
-
 	m_Level = 0;
 	m_Exp = 0;
 	m_Break = 0.0f;
@@ -131,11 +126,9 @@ void UJobDataComponent::CreateSkill()
 {
 	m_Skill->Reset();
 
-	m_Skill->Create(m_Data.Skill_1);
-	m_Skill->Create(m_Data.Skill_2);
-	m_Skill->Create(m_Data.Skill_3);
-	m_Skill->Create(m_Data.Skill_4);
-	m_Skill->Create(m_Data.Skill_5);
-	m_Skill->Create(m_Data.Skill_6);
+	for (FName skill : m_Data.Skills)
+	{
+		m_Skill->Create(skill);
+	}
 }
 

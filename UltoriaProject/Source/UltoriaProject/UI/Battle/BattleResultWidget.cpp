@@ -44,6 +44,10 @@ void UBattleResultWidget::NativeConstruct()
 	}
 }
 
+void UBattleResultWidget::SetGoldText(int gold)
+{
+}
+
 void UBattleResultWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 

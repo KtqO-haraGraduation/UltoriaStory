@@ -192,6 +192,10 @@ void AMyNetworkPlayerController::Client_LeaveSession_Implementation()
 
 void AMyNetworkPlayerController::IsReady()
 {
+	if (UGameplayStatics::GetCurrentLevelName(this, true) == TEXT("Lv_Raid"))
+	{
+		return;
+	}
 	if (AMyNetworkPlayerState* PS = GetPlayerState<AMyNetworkPlayerState>())
 	{
 		PS->Server_SetIsReady(!PS->GetIsReady());
@@ -231,6 +235,13 @@ void AMyNetworkPlayerController::UpdateUI()
 
 	if (!GI)
 	{
+		return;
+	}
+
+	if (UGameplayStatics::GetCurrentLevelName(this, true) == TEXT("Lv_Raid"))
+	{
+		HideMainUI();
+		HideReadyUI();
 		return;
 	}
 

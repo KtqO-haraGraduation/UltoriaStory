@@ -71,6 +71,8 @@ public:
 
 	virtual void ResetState(); // 状態をリセット
 
+	void NextTurn(); // 次のキャラへ
+
 protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnAttackHit();
@@ -81,6 +83,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void OnDead();
 
+private:
+	void ResetTargets();
+
 protected:
 	UPROPERTY(EditAnywhere)		// 逃走の成功率（0 ～ 99）
 	int m_EscapeRate = 50;
@@ -89,5 +94,5 @@ protected:
 	bool m_IsPreemptive;		// 先制攻撃か
 
 	CombatState m_CurrentState;		// 現在の状態
-	ACharacterBase* m_Target;
+	TArray<ACharacterBase*> m_Targets;
 };

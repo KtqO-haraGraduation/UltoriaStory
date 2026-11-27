@@ -6,7 +6,7 @@
 #include "../CommandCursorWidget.h"
 
 constexpr int INIT_COUNT_MAX = 10;					// 初期化の待機カウント
-const FVector2D CURSOR_OFFSET = { -50.0f, -13.0f };	// カーソルの間隔
+const FVector2D CURSOR_OFFSET = { -50.0f, -20.0f };	// カーソルの間隔
 
 void UBattleSelectionUIBase::NativeConstruct()
 {
@@ -39,6 +39,16 @@ void UBattleSelectionUIBase::NativeTick(const FGeometry& MyGeometry, float Delta
 
 void UBattleSelectionUIBase::UpdateSelection(int index)
 {
+	if (!m_Buttons.IsValidIndex(index)) return;
+
+	// 選択可能なIndexに補正
+	if (!m_Buttons[index]->IsSelectable())
+	{
+		index = GetSelectableIndex(index);
+	}
+
+	if (index == INDEX_NONE) return;
+
 	for (int i = 0; i < m_Buttons.Num(); i++)
 	{
 		m_Buttons[i]->SetSelected(i == index);
@@ -70,4 +80,24 @@ FVector2D UBattleSelectionUIBase::GetCursorPos(UBattleButtonBase* button) const
 		CanvasPanel->GetCachedGeometry().AbsoluteToLocal(absolutePos);
 
 	return localPos;
+}
+
+int UBattleSelectionUIBase::GetSelectableIndex(int currentIndex)
+{
+	if (m_Buttons.IsEmpty()) return INDEX_NONE;
+
+	for (int32 i = 1; i <= m_Buttons.Num(); i++)
+	{
+		int32 index = (currentIndex + i) % m_Buttons.Num();
+
+		if (m_Buttons[index] && 
+			m_Buttons[index]->IsSelectable() && 
+			m_CurrentIndex != index)
+		{
+			return index;
+		}
+	}
+
+	// 他に選択できるものがなければ現在の選択を維持
+	return m_CurrentIndex;
 }

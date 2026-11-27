@@ -185,6 +185,7 @@ void UBattleManager::ExecuteCommand(ECommandType type)
 	case ECommandType::ITEM:
 	{
 		m_SelectManager->SetSelectionType(SelectionType::ITEM);
+		m_SelectManager->SetItemTarget();
 
 		// アイテム用のボードを表示
 		uiMg->SetUIVisible(EBattleUIType::COMMAND, false);
@@ -340,7 +341,10 @@ void UBattleManager::StartAttack()
 			ExecuteAttack(activeTargets[0]);
 		}
 
-		ShowTargetUI(activeTargets, ETargetType::SINGLE);
+		if (currentCharacter->GetTeamType() == ETeamType::PLAYER)
+		{
+			ShowTargetUI(activeTargets, ETargetType::SINGLE);
+		}
 	}
 }
 
@@ -350,6 +354,11 @@ void UBattleManager::ExecuteAttack(ACharacterBase* target)
 	UCombatComponent* combat = m_TurnManager->GetCurrentCharacter()->GetComponent<UCombatComponent>();
 
 	combat->Attack(target);
+
+	if (GetCurrentCharacter()->GetTeamType() == ETeamType::PLAYER)
+	{
+		combat->NextTurn();
+	}
 }
 
 void UBattleManager::ShowAttackTargetUI(const TArray<ACharacterBase*>& targets)

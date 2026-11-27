@@ -56,7 +56,7 @@ public:
 	TArray<FEnemyPartyData> FindEnemyParty(FName enemyId);
 
 	// 名前で指定したスキルのデータを取得
-	FSkillDataRow GetSkillData(FName name);
+	const FSkillDataRow* GetSkillData(FName name);
 
 	// 名前で指定したジョブのデータ取得
 	FJobDataRow GetJobData(FName jobName);

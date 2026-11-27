@@ -28,14 +28,14 @@ public:
 	void Remove(int index);
 	void Reset();
 
-	bool CanUse(int index);
-	void UseSkill(int index, const TArray<ACharacterBase*>& targets);
+	bool CanUse();
+	void UseSkill(const FSkillDataRow* skillData, const TArray<ACharacterBase*>& targets);
 
 	bool IsUnlocked(int index);
 
 	const FSkillDataRow* GetSkill(int index) const;
-	const TArray<FSkillDataRow>& GetSkills() const { return m_SkillList; }
-	TArray<FSkillDataRow> GetUnlockedSkills();
+	const TArray<const FSkillDataRow*>& GetSkills() const { return m_SkillList; }
+	TArray<const FSkillDataRow*> GetUnlockedSkills();
 
 private:
 	// äeÉXÉLÉãä÷êî
@@ -44,8 +44,7 @@ private:
 	void Heal(const TArray<ACharacterBase*>& targets);
 
 private:
-	TArray<FSkillDataRow> m_SkillList;
-
+	TArray<const FSkillDataRow*> m_SkillList;
 
 	const FSkillDataRow* m_NowUseSkillData;
 };

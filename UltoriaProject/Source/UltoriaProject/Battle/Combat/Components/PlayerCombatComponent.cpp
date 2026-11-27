@@ -52,25 +52,30 @@ void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UPlayerCombatComponent::OnAttackHit()
 {
-	if (!m_Target) return;
+	if (m_Targets.IsEmpty()) return;
 	int damage = m_Owner->GetBaseStatus().m_ATK;
-	UCombatComponent* combat = m_Target->GetComponent<UCombatComponent>();
 
-	// ウルトリアゲージが満タンならダメージを倍にする
-	UCombatStatusComponent* status = m_Owner->GetComponent<UCombatStatusComponent>();
-	if (status)
+	for (ACharacterBase* target : m_Targets)
 	{
-		if (status->IsUltoria())
+		if (!target) continue;
+		UCombatComponent* combat = target->GetComponent<UCombatComponent>();
+
+		// ウルトリアゲージが満タンならダメージを倍にする
+		UCombatStatusComponent* status = m_Owner->GetComponent<UCombatStatusComponent>();
+		if (status)
 		{
-			UBattleDataManager* dataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
-			FBattleStatusData data;
+			if (status->IsUltoria())
+			{
+				UBattleDataManager* dataMg = GetWorld()->GetSubsystem<UBattleDataManager>();
+				FBattleStatusData data;
 
-			// ガード値を取得
-			data = dataMg->FindStatusData(StatusType::ULTORIA);
-			damage *= data.value;
+				// ガード値を取得
+				data = dataMg->FindStatusData(StatusType::ULTORIA);
+				damage *= data.value;
+			}
 		}
-	}
 
-	combat->TakeDamage(damage);
+		combat->TakeDamage(damage);
+	}
 }
 

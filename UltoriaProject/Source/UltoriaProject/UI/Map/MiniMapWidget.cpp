@@ -36,6 +36,7 @@ void UMiniMapWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
     UpdateMapPlayer();
     UpdateMapEnemy();
+    UpdateObjectiveMarker(InDeltaTime);
 }
 
 void UMiniMapWidget::InitMap(float mapTexDiameterLength, FVector2D marginHarfLength)
@@ -225,6 +226,33 @@ void UMiniMapWidget::UpdateMapEnemy()
             enemyImage->SetVisibility(bInsideMap ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
         }
     }
+}
+
+void UMiniMapWidget::UpdateObjectiveMarker(float deltaTime)
+{
+
+}
+
+bool UMiniMapWidget::WorldToMapPos(const FVector& worldLoc, FVector2D& outPos, bool& outInside) const
+{
+    // m_StageMostsがない、有効化されていなければ終了
+    if (m_StageMosts.Num() < 4 || !m_RB_Slot)return false;
+    for (AActor* stageMost : m_StageMosts)
+    {
+        if (!IsValid(stageMost)) return false;
+    }
+
+    // マップの端を取得
+    const float left = m_StageMosts[0]->GetActorLocation().X;
+    const float right = m_StageMosts[1]->GetActorLocation().X;
+    const float front = m_StageMosts[2]->GetActorLocation().Y;
+    const float back = m_StageMosts[3]->GetActorLocation().Y;
+
+    // 上下左右の範囲を計算
+    const float rangeX = right - left;
+    const float rangeY = front - back;
+
+	return false;
 }
 
 void UMiniMapWidget::AddStageMosts(FName tag)

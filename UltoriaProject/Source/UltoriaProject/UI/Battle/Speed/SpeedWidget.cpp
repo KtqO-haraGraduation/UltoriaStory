@@ -31,6 +31,9 @@ void USpeedWidget::SetCharacter(ACharacterBase* character)
 	// ‰æ‘œ‚ðÝ’è
 	if (m_Character && texture)
 	{
-		CharacterImage->SetBrushFromTexture(texture);
+		if (m_Character && texture && CharacterImage)
+		{
+			CharacterImage->SetBrushFromTexture(texture);
+		}
 	}
 }

@@ -8,7 +8,24 @@
 #include "GameFramework/PlayerController.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
+#include "Blueprint/UserWidget.h"
 #include "Engine/Engine.h"
+#include "../../UI/Battle/Raid/RaidBattleUIWidget.h"
+#include "../../UI/Battle/DamageWidget.h"
+
+namespace
+{
+    // 画面にデバッグ表示を出す（同じKeyは上書きされるので、連続で呼んでも増えない）
+    void RaidScreenMessage(int32 Key, const FColor& Color, const FString& Message)
+    {
+#if !UE_BUILD_SHIPPING
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(Key, 10.0f, Color, Message);
+        }
+#endif
+    }
+}
 
 ARaidBattleManager::ARaidBattleManager()
 {
@@ -41,32 +58,12 @@ void ARaidBattleManager::TryInitializeRaid()
         return;
     }
 
-    // 最初の試行時だけ表示する
-    if (m_InitializeAttempts == 0 && GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(
-            -1, 8.0f, FColor::Yellow,
-            FString::Printf(
-                TEXT("Raid Init Check: Authority=%s / Boss=%s"),
-                HasAuthority() ? TEXT("TRUE") : TEXT("FALSE"),
-                IsValid(m_Boss) ? *m_Boss->GetName() : TEXT("NONE")
-            )
-        );
-    }
-
     ++m_InitializeAttempts;
-
     if (m_InitializeAttempts >= 120)
     {
         GetWorldTimerManager().ClearTimer(m_InitializeTimer);
-
-        if (GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(
-                -1, 15.0f, FColor::Red,
-                TEXT("Raid initialization FAILED")
-            );
-        }
+        UE_LOG(LogTemp, Error, TEXT("Raid initialization failed. Assign a boss and make sure every player has an ACharacterBase pawn."));
+        RaidScreenMessage(1003, FColor::Red, TEXT("Raid initialization FAILED"));
     }
 }
 
@@ -77,75 +74,62 @@ bool ARaidBattleManager::InitializeRaid()
     // ボスはレイドマップに配置し、ManagerのDetailsで指定する。
     if (!IsValid(m_Boss))
     {
-        if (GEngine)
-            GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, TEXT("Raid: Boss is NONE"));
-
+        RaidScreenMessage(1001, FColor::Red, TEXT("Raid: Boss is NONE (set m_Boss in the Manager Details)"));
         return false;
     }
 
     TArray<ACharacterBase*> Participants;
-
-    int32 ControllerCount = 0;
-
+    bool bAllHavePawn = true;
     for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
     {
         APlayerController* PC = It->Get();
+        if (!IsValid(PC)) continue;
 
-        if (!IsValid(PC))
-            continue;
-
-        ++ControllerCount;
-
-        APawn* Pawn = PC->GetPawn();
-        ACharacterBase* Character = Cast<ACharacterBase>(Pawn);
-
-        if (GEngine)
-        {
-            FString PawnName = IsValid(Pawn)
-                ? Pawn->GetClass()->GetName()
-                : TEXT("NONE");
-
-            GEngine->AddOnScreenDebugMessage(
-                -1,
-                15.0f,
-                FColor::Cyan,
-                FString::Printf(
-                    TEXT("PC: %s / Pawn: %s / CharacterBase: %s"),
-                    *PC->GetName(),
-                    *PawnName,
-                    IsValid(Character) ? TEXT("TRUE") : TEXT("FALSE")
-                )
-            );
-        }
-
+        ACharacterBase* Character = Cast<ACharacterBase>(PC->GetPawn());
         if (!IsValid(Character) || Character == m_Boss)
+        {
+            bAllHavePawn = false;   // まだポーンが来ていない人がいる
             continue;
+        }
 
         Character->SetReplicates(true);
         Character->SetReplicateMovement(true);
         Participants.AddUnique(Character);
     }
 
-    if (GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(
-            -1,
-            15.0f,
-            FColor::Yellow,
-            FString::Printf(
-                TEXT("ControllerCount: %d / Participants: %d"),
-                ControllerCount,
-                Participants.Num()
-            )
-        );
-    }
-
     if (Participants.IsEmpty())
     {
-        if (GEngine)
-            GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, TEXT("Raid: No Participants"));
-
+        RaidScreenMessage(1002, FColor::Red, TEXT("Raid: No Participants (no player has an ACharacterBase pawn)"));
         return false;
+    }
+
+    // 全員そろうまで待つ
+    const float Now = GetWorld()->GetTimeSeconds();
+    if (!bAllHavePawn)
+    {
+        m_LastParticipantCount = -1;
+        RaidScreenMessage(1006, FColor::Yellow, TEXT("Raid: waiting for players' pawns..."));
+        return false;
+    }
+    if (m_ExpectedPlayers > 0)
+    {
+        if (Participants.Num() < m_ExpectedPlayers)
+        {
+            RaidScreenMessage(1006, FColor::Yellow,
+                FString::Printf(TEXT("Raid: waiting players %d/%d"), Participants.Num(), m_ExpectedPlayers));
+            return false;
+        }
+    }
+    else
+    {
+        // 人数が変わらない状態が m_StartDelay 秒続いたら開始
+        if (Participants.Num() != m_LastParticipantCount)
+        {
+            m_LastParticipantCount = Participants.Num();
+            m_StableSince = Now;
+            return false;
+        }
+        if (Now - m_StableSince < m_StartDelay) return false;
     }
 
     m_Boss->SetReplicates(true);
@@ -157,7 +141,6 @@ bool ARaidBattleManager::InitializeRaid()
     for (ACharacterBase* Character : AllCharacters)
     {
         UCombatComponent* Combat = Character->GetComponent<UCombatComponent>();
-        
         if (!Combat)
         {
             UE_LOG(LogTemp, Error, TEXT("Raid character %s has no CombatComponent."), *Character->GetName());
@@ -184,22 +167,50 @@ bool ARaidBattleManager::InitializeRaid()
     CreateCommandProxies();
 
     m_bRaidStarted = true;
-    if (GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(
-            -1, 15.0f, FColor::Green,
-            FString::Printf(TEXT("Raid Started! Players: %d"), Participants.Num())
-        );
-    }
+    RaidScreenMessage(1004, FColor::Green, FString::Printf(TEXT("Raid Started! Players: %d"), Participants.Num()));
     m_bRaidEnded = false;
     m_RaidResult = ERaidBattleResult::NONE;
     AdvanceTurn();
     RefreshReplicatedStates();
     OnRaidBattleChanged.Broadcast();
+    CreateRaidBattleUI();
+    if (m_Boss) m_Boss->SetStatusUIVisibility(true);
     ForceNetUpdate();
 
     UE_LOG(LogTemp, Warning, TEXT("Raid started. Participants: %d, Boss: %s"), Participants.Num(), *m_Boss->GetName());
     return true;
+}
+
+void ARaidBattleManager::CreateRaidBattleUI()
+{
+    if (m_RaidBattleWidget) return;
+
+    APlayerController* LocalPC = nullptr;
+    if (GetWorld())
+    {
+        for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+        {
+            APlayerController* Candidate = It->Get();
+            if (IsValid(Candidate) && Candidate->IsLocalController())
+            {
+                LocalPC = Candidate;
+                break;
+            }
+        }
+    }
+    if (!IsValid(LocalPC)) return;
+
+    if (!m_RaidUIClass)
+    {
+        RaidScreenMessage(1005, FColor::Red, TEXT("Raid: Raid UI Class is NONE (set it in the Manager Details)"));
+        return;
+    }
+
+    m_RaidBattleWidget = CreateWidget<URaidBattleUIWidget>(LocalPC, m_RaidUIClass);
+    if (!m_RaidBattleWidget) return;
+
+    m_RaidBattleWidget->SetRaidManager(this);
+    m_RaidBattleWidget->AddToViewport();
 }
 
 void ARaidBattleManager::CreateCommandProxies()
@@ -226,7 +237,10 @@ void ARaidBattleManager::CreateCommandProxies()
     }
 }
 
-void ARaidBattleManager::HandlePlayerCommand(APlayerController* RequestingController,ERaidCommandType Command,ACharacterBase* Target)
+void ARaidBattleManager::HandlePlayerCommand(
+    APlayerController* RequestingController,
+    ERaidCommandType Command,
+    ACharacterBase* Target)
 {
     if (!HasAuthority() || !m_bRaidStarted || m_bRaidEnded || !m_bWaitingForCommand) return;
     if (!IsValid(RequestingController) || !IsValid(m_CurrentCharacter)) return;
@@ -265,6 +279,7 @@ void ARaidBattleManager::HandlePlayerCommand(APlayerController* RequestingContro
         break;
     case ERaidCommandType::SKILL:
     case ERaidCommandType::ITEM:
+        // 現在の通常戦闘側でもSkill()/Item()本体は未実装のため、ここではターンを消費しない。
         return;
     default:
         return;
@@ -440,6 +455,17 @@ void ARaidBattleManager::RefreshReplicatedStates()
 
 void ARaidBattleManager::OnRep_RaidState()
 {
+    // 複製される値ごとに呼ばれるので、次のフレームに1回へまとめる
+    if (m_bNotifyPending) return;
+
+    m_bNotifyPending = true;
+    GetWorldTimerManager().SetTimerForNextTick(this, &ARaidBattleManager::NotifyRaidChanged);
+}
+
+void ARaidBattleManager::NotifyRaidChanged()
+{
+    m_bNotifyPending = false;
+
     // CharacterBaseのHP自体は現状レプリケートされていないため、Managerの共有値を各クライアントへ反映する。
     for (const FRaidCharacterState& State : m_RaidStates)
     {
@@ -449,7 +475,70 @@ void ARaidBattleManager::OnRep_RaidState()
         }
     }
 
+    if (m_bRaidStarted)
+    {
+        CreateRaidBattleUI();
+        for (const FRaidCharacterState& State : m_RaidStates)
+        {
+            if (State.bIsBoss)
+            {
+                if (AEnemyBase* Boss = Cast<AEnemyBase>(State.Character)) Boss->SetStatusUIVisibility(true);
+                break;
+            }
+        }
+    }
+
     OnRaidBattleChanged.Broadcast();
+}
+
+ARaidBattleCommandProxy* ARaidBattleManager::GetMyCommandProxy(APlayerController* PC) const
+{
+    UWorld* World = GetWorld();
+    if (!World || !IsValid(PC)) return nullptr;
+
+    for (TActorIterator<ARaidBattleCommandProxy> It(World); It; ++It)
+    {
+        if (It->GetOwner() == PC)
+        {
+            return *It;
+        }
+    }
+    return nullptr;
+}
+
+bool ARaidBattleManager::IsMyTurn(APlayerController* PC) const
+{
+    return IsValid(PC)
+        && m_bRaidStarted
+        && !m_bRaidEnded
+        && m_bWaitingForCommand
+        && IsValid(m_CurrentCharacter)
+        && PC->GetPawn() == m_CurrentCharacter;
+}
+
+void ARaidBattleManager::ShowDamage(ACharacterBase* Target, int32 Damage)
+{
+    if (!HasAuthority() || !IsValid(Target)) return;
+
+    for (TActorIterator<ARaidBattleCommandProxy> It(GetWorld()); It; ++It)
+    {
+        It->ClientShowDamage(Target, Damage);
+        It->ClientPlayHitFX(Target->GetActorLocation());
+    }
+}
+
+void ARaidBattleManager::DisplayDamage(ACharacterBase* Target, int32 Damage)
+{
+    if (!IsValid(Target) || !m_DamageWidgetClass) return;
+
+    APlayerController* LocalPC = GetWorld()->GetFirstPlayerController();
+    if (!LocalPC) return;
+
+    UDamageWidget* Widget = CreateWidget<UDamageWidget>(LocalPC, m_DamageWidgetClass);
+    if (!Widget) return;
+
+    Widget->Init(Target, Damage);
+    Widget->AddToViewport();
 }
 
 void ARaidBattleManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -464,3 +553,4 @@ void ARaidBattleManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
     DOREPLIFETIME(ARaidBattleManager, m_bRaidEnded);
     DOREPLIFETIME(ARaidBattleManager, m_RaidResult);
 }
+

@@ -28,6 +28,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Raid")
     void SubmitCommand(ERaidCommandType Command, ACharacterBase* Target = nullptr);
 
+    UFUNCTION(Client, Reliable)
+    void ClientShowDamage(ACharacterBase* Target, int32 Damage);
+
+    UFUNCTION(Client, Reliable)
+    void ClientPlayHitFX(FVector Location);
+
 protected:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

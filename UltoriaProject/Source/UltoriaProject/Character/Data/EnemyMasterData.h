@@ -2,10 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
-#include "../Enemy/EnemyBase.h"
 #include "../../Stage/StageParameter.h"
 #include "Engine/Texture2D.h"
 #include "EnemyMasterData.generated.h"
+
+class AEnemyBase;
 
 USTRUCT(BlueprintType)
 struct FEnemyMasterData : public FTableRowBase
@@ -20,6 +21,9 @@ struct FEnemyMasterData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EStageType StageType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Lv;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int EXP;
@@ -49,7 +53,16 @@ struct FEnemyMasterData : public FTableRowBase
 	int BreakGauge;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float BattleSize;
+	TArray<FName> Skills;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FName> DropItems;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FName> FixedDropItems;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int DropGold;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* Image;

@@ -296,15 +296,11 @@ TArray<FEnemyPartyData> UCharacterDataManager::FindEnemyParty(FName enemyId)
 
 	for (const FEnemyPartyData& data : m_EnemyPartyDatas)
 	{
-		if (data.Enemy1 == enemyId ||
-			data.Enemy2 == enemyId ||
-			data.Enemy3 == enemyId ||
-			data.Enemy4 == enemyId)
+		if (data.Enemies.Contains(enemyId))
 		{
 			result.Add(data);
 		}
 	}
-
 	return result;
 }
 
@@ -314,15 +310,9 @@ TArray<FEnemyPartyData> UCharacterDataManager::FindEnemyParty(FName enemyId)
 /// </summary>
 /// <param name="name">ƒXƒLƒ‹‚Ì–¼‘O</param>
 /// <returns></returns>
-FSkillDataRow UCharacterDataManager::GetSkillData(FName name)
+const FSkillDataRow* UCharacterDataManager::GetSkillData(FName name)
 {
-	const FSkillDataRow* data = m_SkillDatas.Find(name);
-
-	if (data)
-	{
-		return *data;
-	}
-	return FSkillDataRow();
+	return m_SkillDatas.Find(name);
 }
 
 /// <summary>
@@ -336,19 +326,7 @@ FJobDataRow UCharacterDataManager::GetJobData(FName jobName)
 
 	if (data)
 	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("‡@ data: %s / %s"),
-			*data->Skill_1.ToString(),
-			*data->Skill_2.ToString());
-
-		FJobDataRow result = *data;
-
-		UE_LOG(LogTemp, Warning,
-			TEXT("GetJobData: %s / %s"),
-			*result.Skill_1.ToString(),
-			*result.Skill_2.ToString());
-
-		return result;
+		return *data;
 	}
 	return FJobDataRow();
 }

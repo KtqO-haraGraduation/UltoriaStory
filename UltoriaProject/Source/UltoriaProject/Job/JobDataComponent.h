@@ -50,7 +50,6 @@ public:
 	void CreateSkill();
 
 private:
-	//USkillBaseComponent* m_Skill[6];
 	USkillBaseComponent* m_Skill;
 	FJobDataRow m_Data;
 	int m_Level;

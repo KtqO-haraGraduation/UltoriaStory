@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MainPlayer.h"
+#include "../Data/CharacterDataManager.h"
 #include "../../Job/JobDataSubsystem.h"
 #include "../../Battle/Combat/Components/PlayerCombatComponent.h"
 #include "../../Battle/Combat/Data/BattleDataManager.h"
@@ -9,8 +10,8 @@
 #include "../../Battle/BattleManager.h"
 #include "../../Stage/StageManager.h"
 #include "../../Camera/CameraManager.h"
-#include "../Data/CharacterDataManager.h"
-
+#include "../../Data/Item/ItemDataManager.h"
+#include "../../Inventory/InventorySubsystem.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -83,6 +84,18 @@ void AMainPlayer::BeginPlay()
 		}
 	}
 
+	// 仮実装（インベントリ）
+	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
+	if (gameInstance)
+	{
+		UInventorySubsystem* inventory = gameInstance->GetSubsystem<UInventorySubsystem>();
+		if (inventory)
+		{
+			inventory->AddItem("Herb", 4);
+			inventory->AddItem("Potion", 4);
+			inventory->AddItem("Potion_High", 2);
+		}
+	}
 
 	// フィールドのPlayerを保存
 	partyMg->SetFieldPlayer(this);

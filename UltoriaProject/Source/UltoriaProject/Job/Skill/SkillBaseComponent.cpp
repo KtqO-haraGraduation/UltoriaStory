@@ -36,7 +36,8 @@ void USkillBaseComponent::Create(FName name)
 	UCharacterDataManager* dataMg = GetWorld()->GetSubsystem<UCharacterDataManager>();
 	if (!dataMg) return;
 
-	FSkillDataRow skillData = dataMg->GetSkillData(name);
+	const FSkillDataRow* skillData = dataMg->GetSkillData(name);
+	if (!skillData) return;
 
 	if (m_SkillList.Num() < SKILL_MAX)
 	{
@@ -55,24 +56,21 @@ void USkillBaseComponent::Reset()
 	m_SkillList.Reset();
 }
 
-bool USkillBaseComponent::CanUse(int index)
+bool USkillBaseComponent::CanUse()
 {
-	const FSkillDataRow* skill = GetSkill(index);
-	if (!skill) return false;
-
-	if (m_Owner->GetCurrentMP() >= skill->MpCost)
+	if (m_Owner->GetCurrentMP() >= m_NowUseSkillData->MpCost)
 	{
 		return true;
 	}
 	return false;
 }
 
-void USkillBaseComponent::UseSkill(int index, const TArray<ACharacterBase*>& targets)
+void USkillBaseComponent::UseSkill(const FSkillDataRow* skillData, const TArray<ACharacterBase*>& targets)
 {
-	m_NowUseSkillData = GetSkill(index);
-	if (!m_NowUseSkillData) return;
+	if (!skillData) return;
+	m_NowUseSkillData = skillData;
 
-	if (!CanUse(index))
+	if (!CanUse())
 	{
 		// MP‚ª‘«‚è‚È‚¢‚©‚çŽg—p‚Å‚«‚È‚¢‚ðText‚Å•\Ž¦‚·‚é‚æ‚¤‚É‚·‚é
 
@@ -99,7 +97,7 @@ void USkillBaseComponent::UseSkill(int index, const TArray<ACharacterBase*>& tar
 
 bool USkillBaseComponent::IsUnlocked(int index)
 {
-	if (m_Owner->GetLevel() >= m_SkillList[index].UnLockLv)
+	if (m_Owner->GetLevel() >= m_SkillList[index]->UnLockLv)
 	{
 		return true;
 	}
@@ -113,12 +111,12 @@ const FSkillDataRow* USkillBaseComponent::GetSkill(int index) const
 		return nullptr;
 	}
 
-	return &m_SkillList[index];
+	return m_SkillList[index];
 }
 
-TArray<FSkillDataRow> USkillBaseComponent::GetUnlockedSkills()
+TArray<const FSkillDataRow*> USkillBaseComponent::GetUnlockedSkills()
 {
-	TArray<FSkillDataRow> result;
+	TArray<const FSkillDataRow*> result;
 
 	for (int i = 0; i < SKILL_MAX; i++)
 	{
@@ -132,26 +130,28 @@ TArray<FSkillDataRow> USkillBaseComponent::GetUnlockedSkills()
 
 void USkillBaseComponent::Attack(const TArray<ACharacterBase*>& targets)
 {
+	UCombatComponent* ownerConbat = m_Owner->GetComponent<UCombatComponent>();
+	if (!ownerConbat) return;
 	for (auto& target : targets)
 	{
 		if (!target) continue;
-
-		UCombatComponent* conbat = m_Owner->GetComponent<UCombatComponent>();
-		if (!conbat) continue;
-
-		conbat->Attack(target);
+		ownerConbat->Attack(target);
 	}
+	ownerConbat->NextTurn();
 }
 
 void USkillBaseComponent::Buff(const TArray<ACharacterBase*>& targets)
 {
+	UCombatComponent* ownerConbat = m_Owner->GetComponent<UCombatComponent>();
+	if (!ownerConbat) return;
 
-
-
+	ownerConbat->NextTurn();
 }
 
 void USkillBaseComponent::Heal(const TArray<ACharacterBase*>& targets)
 {
+	UCombatComponent* ownerConbat = m_Owner->GetComponent<UCombatComponent>();
+	if (!ownerConbat) return;
 	for (auto& target : targets)
 	{
 		if (!target) continue;
@@ -164,4 +164,5 @@ void USkillBaseComponent::Heal(const TArray<ACharacterBase*>& targets)
 
 		conbat->HPHeal(healHP);
 	}
+	ownerConbat->NextTurn();
 }

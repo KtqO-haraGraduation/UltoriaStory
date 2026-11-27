@@ -96,6 +96,12 @@ void UEventScriptEngine::StartScript(UDataTable* ScriptTable)
 		map->SetMiniMapVisible(false);
 	}
 
+	// 目的表示テキストを非表示
+	if (UStoryManager* story = GetWorld()->GetGameInstance()->GetSubsystem<UStoryManager>())
+	{
+		story->SetObjectiveVisble(false);
+	}
+
 	// 行にデータが無ければ終了
 	if (m_Rows.IsEmpty())return;
 
@@ -202,10 +208,18 @@ void UEventScriptEngine::FinishedScript()
 	m_IsEventPlaying = false;
 	m_IsSepuencePlaying = false;
 
+	// ミニマップ表示
 	if (UMapManager* map = GetWorld()->GetGameInstance()->GetSubsystem<UMapManager>())
 	{
 		map->SetMiniMapVisible(true);
 	}
+
+	// 目的表示テキストを表示
+	if (UStoryManager* story = GetWorld()->GetGameInstance()->GetSubsystem<UStoryManager>())
+	{
+		story->SetObjectiveVisble(true);
+	}
+
 
 	// widgetがあれば消す
 	if (m_DialogueWidgetInstance)

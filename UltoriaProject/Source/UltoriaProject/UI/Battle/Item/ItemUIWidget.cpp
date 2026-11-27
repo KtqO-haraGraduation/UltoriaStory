@@ -4,9 +4,11 @@
 #include "ItemUIWidget.h"
 #include "ItemButtonWidget.h"
 #include "Components/VerticalBoxSlot.h"
+#include "../Data/BattleUIDataAsset.h"
+#include "../../../Data/Item/ItemDataManager.h"
 #include "../../../Battle/Combat/Data/BattleDataManager.h"
 #include "../../../Inventory/InventorySubsystem.h"
-#include "../Data/BattleUIDataAsset.h"
+#include "../../../Akiduki/ItemData/ItemData.h"
 
 void UItemUIWidget::CreateButton()
 {
@@ -56,9 +58,14 @@ void UItemUIWidget::SetButtonData()
 
 	for (int i = 0; i < inventory->GetInventory().Num(); i++)
 	{
-		const FInventoryItem& itemData = inventory->GetInventory()[i];
+		const FInventoryItem& inventoryItemData = inventory->GetInventory()[i];
 
-		FName itemText = FName(*FString::Printf(TEXT("%s x %d"), *itemData.ItemID.ToString(), itemData.Count));
+		UItemDataManager* itemDataMg = GetWorld()->GetSubsystem<UItemDataManager>();
+		if (!itemDataMg) return;
+		const FItemData* itemData = itemDataMg->GetItemData(inventoryItemData.ItemID);
+		if (!itemData) return;
+
+		FName itemText = FName(*FString::Printf(TEXT("%s x %d"), *itemData->NameJP, inventoryItemData.Count));
 
 		m_Buttons[i]->SetMyName(itemText);
 	}

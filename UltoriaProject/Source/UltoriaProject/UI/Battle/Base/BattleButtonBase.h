@@ -25,6 +25,9 @@ public:
 	void SetMyName(FName name);
 	virtual void SetSelected(bool flag);
 
+	bool IsSelectable() const { return m_IsSelectable; }
+	void SetSelectable(bool flag) { m_IsSelectable = flag; }
+
 protected:
 	UFUNCTION()
 	virtual void OnClickButton() {} // ƒNƒŠƒbƒN‚Ìˆ—
@@ -46,5 +49,6 @@ protected:
 	UBattleSelectionUIBase* m_Owner;
 
 	bool m_IsSelected = false;
+	bool m_IsSelectable = true;
 	int m_Index = 0;
 };

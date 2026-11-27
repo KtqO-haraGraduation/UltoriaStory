@@ -6,7 +6,11 @@
 #include "../../../Character/CharacterBase.h"
 #include "../../../Character/Enemy/EnemyBase.h"
 #include "../../../Job/Skill/SkillBaseComponent.h"
+#include "../../../Akiduki/ItemEffect/ItemUseSubsystem.h"
+#include "../../../Akiduki/ItemData/ItemData.h"
+#include "../../../Data/Item/ItemDataManager.h"
 #include "../../BattleManager.h"
+#include "../Components/CombatComponent.h"
 #include "../Data/BattleDataManager.h"
 
 void UBattleSelectioinManager::Init(UBattleManager* battleMg)
@@ -100,10 +104,7 @@ void UBattleSelectioinManager::SetSkillTarget()
 
 void UBattleSelectioinManager::SetItemTarget()
 {
-	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
-	if (!gameInstance) return;
-
-	UInventorySubsystem* inventory = gameInstance->GetSubsystem<UInventorySubsystem>();
+	UInventorySubsystem* inventory = GetInventory();
 	if (!inventory) return;
 
 	m_ItemSelection.SetTargets(inventory->GetInventory());
@@ -250,6 +251,12 @@ void UBattleSelectioinManager::ConfirmTarget()
 	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
 	if (!uiMg) return;
 
+	ACharacterBase* currentCharacter = m_BattleManager->GetCurrentCharacter();
+	if (!currentCharacter) return;
+
+	UCombatComponent* combat = currentCharacter->GetComponent<UCombatComponent>();
+	if (!combat) return;
+
 	// 前回の選択肢によって分岐
 	if (m_PrevSelectionType == SelectionType::COMMAND)
 	{
@@ -261,24 +268,50 @@ void UBattleSelectioinManager::ConfirmTarget()
 		USkillBaseComponent* skillComponent = m_BattleManager->GetCurrentCharacter()->GetComponent<USkillBaseComponent>();
 		if (!skillComponent) return;
 
-		FSkillDataRow skillData = m_SkillSelection.GetCurrent();
+		const FSkillDataRow* skillData = m_SkillSelection.GetCurrent();
+		if (!skillData) return;
 
-		if (skillData.TargetType == ETargetType::SINGLE)
+		if (skillData->TargetType == ETargetType::SINGLE)
 		{
 			TArray<ACharacterBase*> targets = {};
 			targets.Add(m_TargetSelection.GetCurrent());
 
-			skillComponent->UseSkill(m_SkillSelection.GetCurrentIndex(), targets);
+			skillComponent->UseSkill(m_SkillSelection.GetCurrent(), targets);
 		}
-		else if (skillData.TargetType == ETargetType::ALL)
+		else if (skillData->TargetType == ETargetType::ALL)
 		{
-			skillComponent->UseSkill(m_SkillSelection.GetCurrentIndex(), m_TargetSelection.GetTargets());
+			skillComponent->UseSkill(m_SkillSelection.GetCurrent(), m_TargetSelection.GetTargets());
 		}
 	}
 	else if (m_PrevSelectionType == SelectionType::ITEM)
 	{
-		// アイテム使用
+		UItemDataManager* itemDataMg =
+			GetWorld()->GetSubsystem<UItemDataManager>();
 
+		if (!itemDataMg) return;
+
+		UItemUseSubsystem* itemUse = GetItemUseSubsystem();
+		if (!itemUse) return;
+
+		const FItemData* itemData =
+			itemDataMg->GetItemData(m_ItemSelection.GetCurrent().ItemID);
+
+		if (!itemData) return;
+
+		if (itemData->Target == EItemUseTarget::AllAllies ||
+			itemData->Target == EItemUseTarget::AllEnemies)
+		{
+			itemUse->UseItemBattle(*itemData, m_TargetSelection.GetTargets());
+		}
+		else
+		{
+			TArray<ACharacterBase*> targets;
+			targets.Add(m_TargetSelection.GetCurrent());
+
+			itemUse->UseItemBattle(*itemData, targets);
+		}
+
+		combat->NextTurn();
 	}
 
 	uiMg->SetUIVisible(EBattleUIType::TARGET, false);
@@ -294,19 +327,15 @@ void UBattleSelectioinManager::ConfirmSkill()
 	USkillBaseComponent* skillComponent = m_BattleManager->GetCurrentCharacter()->GetComponent<USkillBaseComponent>();
 	if (!skillComponent) return;
 
-	FSkillDataRow skillData = m_SkillSelection.GetCurrent();
-	TArray<ACharacterBase*> targets = BeginTargetSelection(skillData.TargetTeam);
+	const FSkillDataRow* skillData = m_SkillSelection.GetCurrent();
+	if (!skillData) return;
 
-	if (skillData.TargetType == ETargetType::SINGLE)
-	{
-		// 選択画面へ
-		m_BattleManager->ShowTargetUI(targets, ETargetType::SINGLE);
-	}
-	else if(skillData.TargetType == ETargetType::ALL)
-	{
-		m_IsCanMoveTargetCursor = false;
-		m_BattleManager->ShowTargetUI(targets, ETargetType::ALL);
-	}
+	TArray<ACharacterBase*> targets = BeginTargetSelection(skillData->TargetTeam);
+
+	ShowTargetSelection(
+		targets, 
+		skillData->TargetTeam, 
+		skillData->TargetType);
 
 	m_PrevSelectionType = SelectionType::SKILL;
 
@@ -316,8 +345,30 @@ void UBattleSelectioinManager::ConfirmSkill()
 
 void UBattleSelectioinManager::ConfirmItem()
 {
+	// インベントリが空だったら何もしない
+	UInventorySubsystem* inventory = GetInventory();
+	if (!inventory || inventory->GetInventory().IsEmpty()) return;
+
 	UBattleUIManager* uiMg = GetWorld()->GetSubsystem<UBattleUIManager>();
 	if (!uiMg) return;
+
+	UItemDataManager* itemDataMg = GetWorld()->GetSubsystem<UItemDataManager>();
+	if (!itemDataMg) return;
+
+	// 現在選択しているアイテムのデータ
+	const FItemData* itemData = itemDataMg->GetItemData(m_ItemSelection.GetCurrent().ItemID);
+
+	// アイテムのターゲットからTargetTeamに変換
+	ETargetTeam targetTeam = ToSkillTargetTeam(itemData->Target);
+	// アイテムのターゲットからTargetTypeに変換
+	ETargetType targetType = ToSkillTargetType(itemData->Target);
+
+	TArray<ACharacterBase*> targets = BeginTargetSelection(targetTeam);
+
+	ShowTargetSelection(
+		targets, 
+		targetTeam, 
+		targetType);
 
 	m_PrevSelectionType = SelectionType::ITEM;
 
@@ -326,9 +377,15 @@ void UBattleSelectioinManager::ConfirmItem()
 
 void UBattleSelectioinManager::ConfirmResult()
 {
-	// リゼルのと現在の進行度によって処理を分ける
+	// リザルトの現在の進行度によって処理を分ける
 
+	// Lv上昇演出
 
+	// ジョブLv上昇演出
+
+	// スキル解放演出
+
+	// 全ての演出が終わって、ボタンを押したらバトル終了
 
 	m_BattleManager->FinishBattle();
 }
@@ -347,6 +404,7 @@ void UBattleSelectioinManager::CancelTarget()
 	// コマンド選択に戻る
 	m_SelectionType = SelectionType::COMMAND;
 	m_PrevSelectionType = SelectionType::NONE;
+	m_IsCanMoveTargetCursor = true;
 
 	uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
 	uiMg->SetUIVisible(EBattleUIType::TARGET, false);
@@ -359,6 +417,7 @@ void UBattleSelectioinManager::CancelSkill()
 
 	m_SelectionType = SelectionType::COMMAND;
 	m_PrevSelectionType = SelectionType::NONE;
+	m_IsCanMoveTargetCursor = true;
 
 	uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
 	uiMg->SetUIVisible(EBattleUIType::TARGET, false);
@@ -372,6 +431,7 @@ void UBattleSelectioinManager::CancelItem()
 
 	m_SelectionType = SelectionType::COMMAND;
 	m_PrevSelectionType = SelectionType::NONE;
+	m_IsCanMoveTargetCursor = true;
 
 	uiMg->SetUIVisible(EBattleUIType::COMMAND, true);
 	uiMg->SetUIVisible(EBattleUIType::ITEM, false);
@@ -415,4 +475,75 @@ void UBattleSelectioinManager::ResetSelection()
 	m_CommandSelection.m_OnSelectionChanged.Unbind();
 	m_SkillSelection.m_OnSelectionChanged.Unbind();
 	m_ItemSelection.m_OnSelectionChanged.Unbind();
+}
+
+void UBattleSelectioinManager::ShowTargetSelection(const TArray<ACharacterBase*>& targets, ETargetTeam team, ETargetType type)
+{
+	if (type == ETargetType::ALL || team == ETargetTeam::SELF)
+	{
+		m_IsCanMoveTargetCursor = false;
+	}
+	m_BattleManager->ShowTargetUI(targets, type);
+}
+
+UInventorySubsystem* UBattleSelectioinManager::GetInventory()
+{
+	// インベントリーシステムを返す
+	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
+	if (!gameInstance) return nullptr;
+
+	UInventorySubsystem* inventory = gameInstance->GetSubsystem<UInventorySubsystem>();
+	if (!inventory) return nullptr;
+
+	return inventory;
+}
+
+UItemUseSubsystem* UBattleSelectioinManager::GetItemUseSubsystem()
+{
+	// インベントリーシステムを返す
+	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
+	if (!gameInstance) return nullptr;
+
+	UItemUseSubsystem* itemUse = gameInstance->GetSubsystem<UItemUseSubsystem>();
+	if (!itemUse) return nullptr;
+
+	return itemUse;
+}
+
+ETargetTeam UBattleSelectioinManager::ToSkillTargetTeam(EItemUseTarget type)
+{
+	switch (type)
+	{
+	case EItemUseTarget::Ally:
+	case EItemUseTarget::AllAllies:
+		return ETargetTeam::ALLY;
+
+	case EItemUseTarget::Enemy:
+	case EItemUseTarget::AllEnemies:
+		return ETargetTeam::ENEMY;
+
+	case EItemUseTarget::Self:
+		return ETargetTeam::SELF;
+
+	default:
+		return ETargetTeam::SELF;
+	}
+}
+
+ETargetType UBattleSelectioinManager::ToSkillTargetType(EItemUseTarget type)
+{
+	switch (type)
+	{
+	case EItemUseTarget::AllAllies:
+	case EItemUseTarget::AllEnemies:
+		return ETargetType::ALL;
+
+	case EItemUseTarget::Ally:
+	case EItemUseTarget::Enemy:
+	case EItemUseTarget::Self:
+		return ETargetType::SINGLE;
+
+	default:
+		return ETargetType::SINGLE;
+	}
 }

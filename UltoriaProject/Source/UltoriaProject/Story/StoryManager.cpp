@@ -4,6 +4,8 @@
 #include "StoryManager.h"
 #include "StoryRow.h"
 #include "Engine/DataTable.h"
+#include "ObjectiveWidget.h"
+#include "GameFramework/PlayerController.h"
 
 
 void UStoryManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -22,9 +24,6 @@ void UStoryManager::Initialize(FSubsystemCollectionBase& Collection)
 		const TArray<FName> names = m_StoryTable->GetRowNames();
 		m_CurrentRow = names.IsEmpty() ? NAME_None : names[0];
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("[Story] table=%d currentRow=%s"),
-		m_StoryTable != nullptr, *m_CurrentRow.ToString());
 }
 
 UDataTable* UStoryManager::TryGetEvent(FName triggerID, FName& outRowName)
@@ -37,8 +36,6 @@ UDataTable* UStoryManager::TryGetEvent(FName triggerID, FName& outRowName)
 	// 今の行のトリガーと違えば、まだ発動しない
 	if (row->TriggerID != triggerID)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[Story] trigger '%s' ignored (current=%s needs '%s')"),
-			*triggerID.ToString(), *m_CurrentRow.ToString(), *row->TriggerID.ToString());
 		return nullptr;
 	}
 
@@ -57,6 +54,65 @@ void UStoryManager::CompleteEvent(FName rowName)
 	const int32 index = names.IndexOfByKey(m_CurrentRow);
 
 	m_CurrentRow = names.IsValidIndex(index + 1) ? names[index + 1] : NAME_None;
+}
 
-	UE_LOG(LogTemp, Warning, TEXT("[Story] completed -> next row = %s"), *m_CurrentRow.ToString());
+void UStoryManager::CreateObjectiveWidget(UWorld* world)
+{
+	if (!world || !world->IsGameWorld())return;
+
+	// 古いものは消す
+	if (m_ObjectiveWidget)
+	{
+		m_ObjectiveWidget->RemoveFromParent();
+		m_ObjectiveWidget = nullptr;
+	}
+
+	// 目的表示用テキストのWBPクラスをロード
+	UClass* widgetClass = LoadClass<UObjectiveWidget>(
+		nullptr, TEXT("/Game/MembarFiles/Yoshihiro/UI_Yoshi/Objective/WBP_Objective.WBP_Objective_C"));
+
+	if (!widgetClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Story] WBP_Objective not found"));
+		return;
+	}
+
+	// WBPクラスを元に作成
+	m_ObjectiveWidget = CreateWidget<UObjectiveWidget>(world, widgetClass);
+	if (!m_ObjectiveWidget) return;
+
+	// 画面に追加
+	m_ObjectiveWidget->AddToViewport();
+	UpdateObjective();
+}
+
+void UStoryManager::SetObjectiveVisble(bool isVisible)
+{
+	m_IsObjectiveVisible = isVisible;
+	UpdateObjective();
+}
+
+FName UStoryManager::GetCurrentTriggerID() const
+{
+	if (!m_StoryTable || m_CurrentRow.IsNone()) return NAME_None;
+
+	// 現在のストーリ行と対応するトリガーIDを渡す
+	const FStoryRow* row = m_StoryTable->FindRow<FStoryRow>(m_CurrentRow, TEXT(""));
+	return row ? row->TriggerID : NAME_None;
+}
+
+void UStoryManager::UpdateObjective()
+{
+	if (!m_ObjectiveWidget)return;
+
+	FText text;
+	if (m_StoryTable && !m_CurrentRow.IsNone())
+	{
+		if (const FStoryRow* row = m_StoryTable->FindRow<FStoryRow>(m_CurrentRow, TEXT("")))
+		{
+			text = row->ObjectiveText;
+		}
+	}
+
+	m_ObjectiveWidget->SetObjective(m_IsObjectiveVisible ? text : FText::GetEmpty());
 }
